@@ -1,6 +1,9 @@
 # Ignore virtual environment directory
 venv
 
+.vscode
+.bakup
+
 # Ignore password.txt file in the registration directory
 sportsio/registration/password.txt
 
@@ -54,5 +57,6 @@ sportsio/user_side/migrations__pycache__
 
 # My email and  password
 .env
+
 
 
