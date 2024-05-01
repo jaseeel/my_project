@@ -7,6 +7,12 @@ from admin_side.models import CustomUserManager,CustomUser
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache, cache_control
+# importing os module for environment variables
+import os
+# importing necessary functions from dotenv library
+from dotenv import load_dotenv, dotenv_values 
+# loading variables from .env file
+load_dotenv() 
 
 
 # Create your views here.
@@ -64,9 +70,9 @@ def register(request):
         
         else:
             message= generate_otp()
-            sender_email="sportsioshopee@gmail.com"
+            sender_email=os.getenv("MY_EMAIL")
             receiver_email=email
-            password_email="tgdk eejn jzhn lypq"
+            password_email=os.getenv("MY_KEY")
     
         try:
             with smtplib.SMTP("smtp.gmail.com", 587) as server:
