@@ -1,0 +1,229 @@
+
+{% extends 'user_side/base.html' %}
+{%block content%}
+{% load static %}
+
+<!-- ######################### Banner Area ###########################-->
+<div class="uren-slider_area uren-slider_area-2">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-md-6">
+                <div class="main-slider slider-navigation_style-2">
+                    <!-- Banner area and image div start here -->
+                    {% for ban in banner %}
+                    <!-- Begin Single Slide Area -->
+                    <div class="single-slide animation-style-02" style="background-color:black;">
+                        <img style=" opacity:0.6;" src="{{ ban.image.url }}">
+                        <div class="slider-content slider-content-2">
+                            <span class="primary-text_color"> {{ ban.category }}</span>
+                            <h3>{{ ban.title }}</h3>
+                            <h4>{{ ban.offer_details }}</h4>
+                            <div class="uren-btn-ps_left slide-btn">
+                                <a class="uren-btn" href="shop-left-sidebar.html">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Single Slide Area -->
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!-- ..................Right side image space....................... -->
+      {% comment %} 
+                <div class="col-lg-12 col-md-6">
+                <div class="slider-banner-2 banner-item img-hover_effect">   
+                    <a href="shop-left-sidebar.html">
+                        <img class="img-full" src="{% static 'assets/user_side/images/banner/2-2.jpg' %}" alt="Uren's Banner">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
+{% endcomment %}
+
+
+ <!-- ################################################## FEATURED PRODUCTS ################################################-->
+
+  <!-- Begin Special Product Area -->
+  <div class="special-product_area">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title_area">
+                    <span>Special Offer Limited Time</span>
+                    <h3>Deal Of The Week</h3>
+                </div>
+                <div class="special-product_slider uren-slick-slider slider-navigation_style-1 img-hover-effect_area" data-slick-options='{
+                "slidesToShow": 2,
+                "arrows" : true
+                }' data-slick-responsive='[
+                                        {"breakpoint":768, "settings": {"slidesToShow": 1}}
+                                    ]'>
+
+<!--   Single slide start here  -->
+{% for pro in products %}
+{% if pro.featured == 1 %}
+                    <div class="slide-item">
+                        <div class="inner-slide">
+                            <div class="single-product">
+                                <div class="product-img">
+                                    <a href="{% url 'user_side:user_product_view' pro.id%}">
+                                        <img class="primary-img " src="{{ pro.image.url }}" alt="Uren's Product Image">
+                                    </a>
+                                    <div class="sticker-area-2">
+                                        <span class="sticker-2">-10%</span>
+                                        <span class="sticker">New</span>
+                                    </div>
+                                </div>
+                                <div class="product-content">
+                                    <div class="product-desc_info">
+                                        <div class="uren-countdown_area">
+                                            <span class="product-offer">Hurry up!  Offer ends in:</span>
+                                            <div class="countdown-wrap">
+                                                <div class="countdown item-4" data-countdown="{{ pro.created_date|date:"Y-m-d" }}" data-format="short">
+                                                    <!-- Your countdown display code here -->
+                                                    <div class="countdown__item">
+                                                        <span class="countdown__time daysLeft"></span>
+                                                        <span class="countdown__text daysText"></span>
+                                                    </div>
+                                                    <div class="countdown__item">
+                                                        <span class="countdown__time hoursLeft"></span>
+                                                        <span class="countdown__text hoursText"></span>
+                                                    </div>
+                                                    <div class="countdown__item">
+                                                        <span class="countdown__time minsLeft"></span>
+                                                        <span class="countdown__text minsText"></span>
+                                                    </div>
+                                                    <div class="countdown__item">
+                                                        <span class="countdown__time secsLeft"></span>
+                                                        <span class="countdown__text secsText"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Your countdown display code end here -->
+                                        <div class="rating-box">
+                                            <ul>
+                                                <li><i class="ion-android-star"></i></li>
+                                                <li><i class="ion-android-star"></i></li>
+                                                <li><i class="ion-android-star"></i></li>
+                                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                            </ul>
+                                        </div>
+                                        <h6 class="product-name"><a href="single-product.html">{{ pro.title }}</a></h6>
+                                        <div class="price-box">
+                                            <span class="new-price new-price-2">Rs {{ pro.offer_price }}</span>
+                                            <span class="old-price">Rs {{ pro.price }}</span>
+                                        </div>
+                                        <div class="add-actions">
+                                            <ul>
+                                                <li><a class="uren-add_cart" href="cart.html" data-toggle="tooltip" data-placement="top" title="Add To Cart"><i
+                                                        class="ion-bag"></i>Add To Cart</a>
+                                                </li>
+                                                <li><a class="uren-wishlist" href="wishlist.html" data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
+                                                </li>
+                                                <li class="quick-view-btn" data-toggle="modal" data-target="#exampleModalCenter"><a href="javascript:void(0)" data-toggle="tooltip" data-placement="top" title="Quick View"><i class="ion-android-open"></i></a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--     SLIDE AREA END HERE   -->
+                    {% endif %}
+                    {% endfor %}
+                </div>
+    
+<!-- #################################################### Featured Page End Here ###########################################-->
+
+<!-- #################################################### New Arrival Products Start Here ###################################-->
+ <!-- Begin Uren's Product Area -->
+ <div class="uren-product_area">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title_area">
+                    <span>Top New On This Week</span>
+                    <h3>New Arrivals Products</h3>
+                </div>
+                <div class="product-slider uren-slick-slider slider-navigation_style-1 img-hover-effect_area" data-slick-options='{
+                "slidesToShow": 6,
+                "arrows" : true
+                }' data-slick-responsive='[
+                                        {"breakpoint":1501, "settings": {"slidesToShow": 4}},
+                                        {"breakpoint":1200, "settings": {"slidesToShow": 3}},
+                                        {"breakpoint":992, "settings": {"slidesToShow": 2}},
+                                        {"breakpoint":767, "settings": {"slidesToShow": 1}},
+                                        {"breakpoint":480, "settings": {"slidesToShow": 1}}
+                                    ]'>
+
+                    <!--  Product Area Start Here   -->
+                    {% for product in recent_products %}
+                    
+
+                    <div class="product-slide_item">
+                        <div class="inner-slide">
+                            <div class="single-product">
+                                <div class="product-img">
+                                    <a href="{% url 'user_side:user_product_view' product.id%}">
+                                        <img class="primary-img" src="{{ product.image.url }}" alt="Uren's Product Image">
+                                    </a>
+                                    <div class="sticker">
+                                        <span class="sticker">New</span>
+                                    </div>
+                                    <div class="add-actions">
+                                        <ul>
+                                            <li><a class="uren-add_cart" href="cart.html" data-toggle="tooltip" data-placement="top" title="Add To Cart"><i class="ion-bag"></i></a>
+                                            </li>
+                                            <li><a class="uren-wishlist" href="wishlist.html" data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="product-content">
+                                    <div class="product-desc_info">
+                                        <div class="rating-box">
+                                            <ul>
+                                                <li><i class="ion-android-star"></i></li>
+                                                <li><i class="ion-android-star"></i></li>
+                                                <li><i class="ion-android-star"></i></li>
+                                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                            </ul>
+                                        </div>
+                                        <h6><a class="product-name" href="single-product.html">{{product.title | truncatewords:3}}</a></h6>
+                                        <div class="price-box">
+                                            <span class="new-price">Rs {{ product.offer_price}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ########################################## NEW ARRIVALS END HERE ##############################-->
+
+<!-- ########################################## BEST SELLING PRODUCTS START HERE ############################## -->
+
+   
+            
+                    
+                    
+                    
+
+ 
+
+
+                    
+
+
+{% endblock content %}

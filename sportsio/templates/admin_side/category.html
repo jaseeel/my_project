@@ -1,0 +1,67 @@
+
+{% extends 'admin_side/base.html' %}  
+{% block content %}    
+
+<style>
+    .product-image {
+        width: 1.5in; /* Set the width to 8 inches */
+        height: 1in; /* Set the height to 10 inches */
+    }
+</style>
+        
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title fw-semibold mb-4">Products Management</h5>
+            <div>
+            <button type="button" class="btn btn-success">
+                <a href="{% url 'add_category' %}" style="color: white; text-decoration: none;">Add Category </a>
+            </button>
+            <button type="button" class="btn btn-warning">
+                <a href="{% url 'add_brand' %}" style="color: white; text-decoration: none;">Add Brand</a>
+            </button>
+            </div>
+        </div>          
+        <div class="table-responsive"> <!-- Add this div to make the table responsive -->
+            <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Image</th>
+                                    <th>Offer Description</th>
+                                    <th>CategoryOffer</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                              {% for x in cat %}
+                              <tr>
+                                  <td style="vertical-align: middle;">{{ x.name }}</td>
+                                  <td style="vertical-align: middle;">{{ x.description|truncatewords:5 }}</td>
+                                  <td style="vertical-align: middle;">
+                                      {% if x.image %}
+                                      <img class="product-image img img-thumbnail" src="{{ x.image.url }}" alt="{{ x.name }}" >
+                                      {% else %}
+                                      No Image Available
+                                      {% endif %}</td>
+                                  <td style="vertical-align: middle;">{{ x.category_offer_description }}</td>
+                                  <td style="vertical-align: middle;">{{ x.category_offer }}</td>
+                                  <td style="vertical-align: middle;">{% if x.is_active %}Active{% else %}Not active{% endif %}</td>
+                                  <td style="vertical-align: middle;">
+                                      <div class="justify-content-center align-items-center">
+                                          <a href="{% url 'delete_category' x.id %}" class="btn btn-danger" role="button">Delete</a>
+                                          <a href="{% url 'edit_category' x.id %}" class="btn btn-info" role="button">Edit</a>
+                                          {%if x.is_active %}
+                                          <a href="{% url 'block_category' x.id %}" class="btn btn-secondary" role="button">block</a>
+                                          {%else%}
+                                          <a href="{% url 'unblock_category' x.id %}" class="btn btn-secondary" role="button">unblock</a>
+                                          {%endif%}
+                                      </div>
+                                  </td>
+                              </tr>
+                              {% endfor %}
+                            </tbody>
+                    </div>
+                </div>
+{% endblock %}
+   

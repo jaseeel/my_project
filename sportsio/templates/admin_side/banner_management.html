@@ -1,0 +1,57 @@
+
+{% extends 'admin_side/base.html' %}
+{% block content %}
+<!--  Product image size-->
+<style>
+    .product-image {
+        width: 1in; /* Set the width to 8 inches */
+        height: 1in; /* Set the height to 10 inches */
+    }
+</style>
+      <!--  Header End -->
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title fw-semibold mb-4">Products Management</h5>
+          <button type="button" class="btn btn-primary">
+              <a href="{% url 'add_banner' %}" style="color: white; text-decoration: none;">Add Banner</a>
+          </button>
+                 </div>
+                 <div class="table-responsive">
+                            <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Image</th>
+                                            <th>Title</th>
+                                            <th>price</th>
+                                            <th>Description</th>
+                                            <th></th>
+                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for x in banner %}
+                                        <tr style="align-items: center;">
+                                            <td><img src="{{ x.image.url }}" alt="" class="product-image img img-thumbnail"></td>
+                                            <td>{{ x.title }}</td>
+                                            <td>{{x.price}}</td>
+                                            <td>{{x.offer_details}}</td>
+                                            <td style="align-items: center;">
+                                                <div class="d-flex justify-content-center ">
+                                                <a href="{% url 'update_banner' x.id%}" class="btn btn-info">update</a>
+                                                {% if x.is_active %}
+                                                <a href="{% url 'block_banner' x.id %}" class="btn btn-warning" role="button">Block</a>
+                                                {% else %}
+                                                <a href="{% url 'unblock_banner' x.id %}" class="btn btn-success" role="button">unblock</a>
+                                                {% endif %}
+                                                <a href="{% url 'delete_banner' x.id %}" class="btn  btn-danger">Delete</a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {%endfor%}
+                                    </tbody>
+                                </table>
+    
+                            </div>
+                        </div>
+        
+{% endblock %}

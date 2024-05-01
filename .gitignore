@@ -1,0 +1,14 @@
+# Ignore virtual environment directory
+venv
+
+# Ignore password.txt file in the registration directory
+sportsio/registration/password.txt
+
+# Ignore staticfiles directory
+sportsio/staticfiles
+
+# Ignore media directory
+sportsio/media
+
+# Ignore the static directory within the sportsio directory
+sportsio/static

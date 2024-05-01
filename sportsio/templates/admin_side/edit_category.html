@@ -1,0 +1,58 @@
+
+{% extends 'admin_side/base.html' %}  
+{% block content %}    
+      <!--  Header End -->
+      <div class="container-fluid">
+        <div class="container-fluid">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title fw-semibold mb-4">Add Category</h5>
+              <div class="card mb-0">
+                <div class="card-body p-4">
+                    <div class="container">
+                        <!-- Form with Bootstrap Alerts -->
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name:</label>
+                                <input type="text" class="form-control" id="name" name="name" value="{{cat.name}}">
+                            </div>
+                
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description:</label>
+                                <textarea class="form-control" id="description" name="description" value="{{cat.description}}"></textarea>
+                            </div>
+                
+                            <div class="mb-3">
+                                <label for="image" class="form-label">Image:</label>
+                                <input type="file" class="form-control" id="image" name="image" value="{{cat.image}}">
+                            </div>
+                
+                            <div class="mb-3">
+                                <label for="category_offer_description" class="form-label">Category Offer Description:</label>
+                                <input type="text" class="form-control" id="category_offer_description" name="category_offer_description" value="{{cat.category_offer_description}}">
+                            </div>
+                
+                            <div class="mb-3">
+                                <label for="category_offer" class="form-label">Category Offer:</label>
+                                <input type="text" class="form-control" id="category_offer" name="category_offer" value="{{cat.category_offer}}">
+                            </div>
+                
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="button" class="btn btn-danger">
+                                <a href="{% url 'category_management' %}" style="color: white; text-decoration: none;">
+                                    Back
+                                </a>
+                            </button>
+                            </a>
+                        </form>
+                        <!-- End Form -->
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

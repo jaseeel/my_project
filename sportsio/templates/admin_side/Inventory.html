@@ -1,0 +1,79 @@
+
+{% extends 'admin_side/base.html' %}  
+
+{% block content %}   
+<style>
+  /* Custom CSS for stock management */
+  .table th,
+  .table td {
+    vertical-align: middle;
+  }
+
+  .table th {
+    font-weight: bold;
+  }
+
+  .table img {
+    max-width: 50px;
+    max-height: 50px;
+    border-radius: 5px;
+  }
+
+  .btn a {
+    color: white;
+    text-decoration: none;
+  }
+  .product-image {
+    width: 1.5in; /* Set the width to 8 inches */
+    height: 1in; /* Set the height to 10 inches */
+}
+</style>
+
+<div class="card-body">
+    <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title fw-semibold mb-4">Stock Management</h5>
+          </div>
+          <div class="table-responsive"> <!-- Add this div to make the table responsive -->
+            <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Product Name</th>
+                        <th>Image</th>
+                        <th>Quantity</th>
+                        <th>Edit Stock</th>
+                        <th>Availability</th>
+                        <!-- Add more columns as needed for other stock-related information -->
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in stock_items %}
+                      <tr>
+                        <td>{{ item.title }}</td>
+                        <td>
+                          {% if item.image %}
+                          <img src="{{ item.image.url }}" alt="{{ item.title }}" class="product-image">
+                          {% else %}
+                          No Image Available
+                          {% endif %}
+                        </td>
+                        <td>{{ item.stock_count }}</td>
+                        <td>
+                          <form action="{% url 'update_stock' %}" method="POST" class="d-flex">
+                            {% csrf_token %}
+                            <input type="hidden" name="product_id" value="{{ item.id }}">
+                            <div class="input-group">
+                              <input type="number" name="quantity" class="form-control" placeholder="Enter quantity" required>
+                              <button type="submit" class="btn btn-primary">Add</button>
+                            </div>
+                          </form>
+                        </td>
+                        <td>{% if item.stock_count > 0 %}Available{% else %}Out of Stock{% endif %}</td>
+                        <!-- Add more columns to display other stock-related information -->
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+        
+  {% endblock %}  

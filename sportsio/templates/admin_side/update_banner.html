@@ -1,0 +1,71 @@
+{% extends 'admin_side/base.html'%}
+
+{% block content %}
+                        <div class="card-body p-4">
+                            <div class="container">
+                                <!-- Form with Bootstrap Alerts -->
+                                <h1 style="font-size: 24px; margin-bottom: 20px;">Edit Banner</h1>
+                                <form method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+                                    {% csrf_token %}
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="title">Title:</label>
+                                        <input value={{ banner.title }} type="text" id="title" name="title" required style="width: 100%; padding: 5px;">
+                                    </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="category">Category:</label><br>
+                                        <select id="category" name="category" required style="width: 100%; padding: 5px;">
+                                            {% for category in categories %}
+                                            <option value="{{ category.id }}">{{ category.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="image">Image:</label>
+                                        <input value={{ banner.image }}  type="file" id="image" name="image" accept="image/*" required style="width: 100%; padding: 5px;">
+                                    </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="offer_details">Offer Details:</label>
+                                        <textarea id="offer_details" name="offer_details" required style="width: 100%; padding: 5px;">{{ banner.offer_details }}</textarea>
+                                    </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="price">Price:</label>
+                                        <input value={{ banner.price }} type="number" id="price" name="price" required style="width: 100%; padding: 5px;">
+                                    </div>
+                                    <div>
+                                        <button type="submit" style="background-color: #007bff; color: #fff; padding: 10px 20px; border: none; cursor: pointer;">Submit</button>
+                                    </div>
+                                    <br>
+                                    <div>
+                                      <button type="button" onclick="window.history.back()">Cancel</button>
+                                    </div>
+                                </form>
+                                <!-- End Form -->
+                            </div>
+                        </div>
+    
+
+        <script>
+            function validateForm() {
+                // Get the value of the price field
+                var price = document.getElementById('price').value;
+    
+                // Remove leading and trailing whitespace
+                price = price.trim();
+    
+                // Check if the price is a non-negative number
+                if (price === "" || isNaN(price) || parseFloat(price) < 0) {
+                    alert("Price must be a non-negative number");
+                    return false;
+                }
+    
+                // Check if the price exceeds 80
+                if (parseFloat(price) > 80) {
+                    alert("Price cannot exceed 80");
+                    return false;
+                }
+    
+                // If all validations pass, return true
+                return true;
+            }
+        </script>
+  {% endblock %}

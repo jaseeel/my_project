@@ -1,0 +1,207 @@
+{% extends 'admin_side/base.html' %}
+
+
+{% block content %}
+
+<!-- Form style -->
+<style>
+    form {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    input[type="checkbox"] {
+        margin-top: 10px;
+    }
+
+    button[type="submit"] {
+        background-color: #4CAF50;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #45a049;
+    }
+</style>
+
+{% comment %} <!-- --------------------------------------------- Form------------------------------------------------- --> {% endcomment %}
+
+<form method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+    {% csrf_token %}
+    <!-- Product Fields -->
+    <label for="title">Title:</label><br>
+    <input type="text" id="title" name="title" value="{{product.title}}"><br><br>
+
+    <label for="category">Category:</label><br>
+    <select id="category" name="category" required>
+        {% for category in categories %}
+        <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label for="description">Description:</label><br>
+    <textarea id="description" name="description" rows="4" cols="50" oninput="removeWhitespace(this)" required></textarea><br><br>
+
+
+    <label for="price">Price:</label><br>
+    <input type="number" id="price" name="price" required><br><br>
+
+    <label for="brand">Brand:</label><br>
+    <select id="brand" name="brand" required>
+        {% for choice in brands %}
+        <option value="{{ choice.id }}">{{ choice.brand_name }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label for="status">Status:</label><br>
+    <select id="status" name="status" required>
+        {% for choice in status_choices %}
+        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label for="stock_count">Stock Count:</label><br>
+    <input type="number" id="stock_count" name="stock_count" required><br><br>
+
+    <label for="image">Image:</label><br>
+    <input type="file" id="image" name="image" accept="image/*" required><br><br>
+    
+
+    <label for="sku">SKU:</label><br>
+    <input type="text" id="sku" name="sku" required><br><br>
+
+    <label for="weight">Weight:</label><br>
+    <input type="number" id="weight" name="weight" step="0.01"><br><br>
+
+    <label for="size">Size:</label><br>
+    <input type="text" id="dimensions" name="size"><br><br>
+
+    <label for="featured">Featured</label>
+    <input type="checkbox" id="featured" name="featured"><br><br>
+
+    <label for="available">Available:</label>
+    <input type="checkbox" id="available" name="available" checked><br><br>
+
+    <label for="offer_price">Offer Price:</label>
+    <input type="number" id="offer_price" value="{{ product.offer_price }}" name="offer_price"><br><br>
+
+    <!-- Product Image Fields -->
+    <div class="form-group">
+        <label>Add multiple images</label>
+        <div>
+            <input class="form-control" type="file" placeholder="Select images" name="images" accept=".jpg, .jpeg, .gif, .png, .webp" multiple required>
+            <small class="form-text text-muted">Max. file size: 10 MB. Allowed images: jpg, gif, png.</small>
+        </div>
+    </div>
+
+    <!-- Other Product Image Fields -->
+    <!-- Add fields for the product (if any), like the product selection dropdown -->
+
+    <button style="margin-bottom:20px" type="submit">Submit</button>
+    <dv>
+        <button style="margin-bottom:20px"  type="submit">
+    <a style="color: #f9f9f9;" href="{% url 'product_management' %}" >
+         Back
+    </a></button>
+    <div>
+</form>
+
+
+<!--      Validate form using js           -->
+<script>
+    function validateForm() {
+    // Get the value of the price field
+    var price = document.getElementById('price').value;
+    
+    // Remove leading and trailing whitespace
+    price = price.trim();
+    
+    // Check if the price is a non-negative number
+    if (price === "" || isNaN(price) || parseFloat(price) < 0) {
+      alert("Price must be a non-negative number");
+      return false;
+    }
+    
+    if (description === ' ') {
+      alert('Description cannot be empty.');
+      return false;
+    }
+    
+    // If all validations pass, return true
+    return true;
+    }
+    </script>
+</script>
+
+<script>
+    document.getElementById('image').addEventListener('change', function(event) {
+        var files = event.target.files;
+        console.log("=========")
+        var imagePreview = document.getElementById('imagePreview');
+
+        imagePreview.innerHTML = ''; // Clear previous previews
+
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                var img = document.createElement('img');
+                img.src = e.target.result;
+                img.width = 100; // Adjust as needed
+                img.height = 100; // Adjust as needed
+                img.style.marginBottom = '5px'; // Adjust as needed
+
+                var container = document.createElement('div');
+                container.classList.add('me-3', 'mb-3');
+                container.appendChild(img);
+                imagePreview.appendChild(container);
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+<script>
+    // Get the checkbox element
+    var checkbox = document.getElementById('featured');
+
+    // Get the offer field div
+    var offerField = document.getElementById('offerField');
+
+    // Add event listener to the checkbox
+    checkbox.addEventListener('change', function() {
+        // If checkbox is checked, show the offer field; otherwise, hide it
+        if (checkbox.checked) {
+            offerField.style.display = 'block';
+        } else {
+            offerField.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

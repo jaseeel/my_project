@@ -1,0 +1,44 @@
+
+{% extends 'admin_side/base.html' %}
+{% block content %}
+<div class="card-body p-4">
+  <div class="container">
+    <!-- Form with Bootstrap Alerts -->
+    <h1 style="font-size: 24px; margin-bottom: 20px;">Add Banner</h1>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div style="margin-bottom: 15px;">
+          <label for="title">Title:</label>
+          <input type="text" id="title" name="title" required style="width: 100%; padding: 5px;">
+      </div>
+      <div style="margin-bottom: 15px;">
+          <label for="category">Category:</label><br>
+          <select id="category" name="category" required style="width: 100%; padding: 5px;">
+              {% for category in categories %}
+              <option value="{{ category.id }}">{{ category.name }}</option>
+              {% endfor %}
+          </select>
+      </div>
+      <div style="margin-bottom: 15px;">
+          <label for="image">Image:</label>
+          <input type="file" id="image" name="image" accept="image/*" required style="width: 100%; padding: 5px;">
+      </div>
+      <div style="margin-bottom: 15px;">
+          <label for="offer_details">Offer Details:</label>
+          <textarea id="offer_details" name="offer_details" required style="width: 100%; padding: 5px;"></textarea>
+      </div>
+      <div style="margin-bottom: 15px;">
+          <label for="price">Price:</label>
+          <input type="number" id="price" name="price" required style="width: 100%; padding: 5px;">
+      </div>
+      <div>
+          <button type="submit" style="background-color: #007bff; color: #fff; padding: 10px 20px; border: none; cursor: pointer;">Submit</button>
+      </div>
+      <br>
+      <div>
+          <button style="background-color: #008200; color: #dark; padding: 10px 20px; border: none; cursor: pointer;">Back</button>
+      </div>
+  </form>                
+    <!-- End Form -->
+  </div>
+{% endblock %}
