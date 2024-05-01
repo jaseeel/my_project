@@ -12,3 +12,12 @@ sportsio/media
 
 # Ignore the static directory within the sportsio directory
 sportsio/static
+
+sportsio/registration/__pycache__
+
+sportsio/userprofile/__pycache__
+
+# My email and  password
+.env
+
+
