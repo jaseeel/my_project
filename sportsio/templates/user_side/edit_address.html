@@ -13,19 +13,19 @@
           <!-- Address -->
           <div class="col-md-6 mb-3">
             <label for="validationTooltip01">House Name :</label>
-            <input type="description" class="form-control" id="validationTooltip01" name="address" placeholder="Address" required>
+            <input type="description" class="form-control" id="validationTooltip01" name="address" value={{ addy.address }} required>
             <div class="valid-tooltip"></div>
           </div>
           <!-- House_name -->
           <div class="col-md-6 mb-3">
             <label for="validationTooltip01">House Name :</label>
-            <input type="text" class="form-control" id="validationTooltip01" name="house_name" placeholder="House Name" required>
+            <input type="text" class="form-control" id="validationTooltip01" name="house_name" value={{ addy.house_name }} required>
             <div class="valid-tooltip"></div>
           </div>
           <!-- Street -->
           <div class="col-md-6 mb-3">
             <label for="validationTooltip02">Street :</label>
-            <input type="text" class="form-control" id="validationTooltip02" name="street" placeholder="Street" required>
+            <input type="text" class="form-control" id="validationTooltip02" name="street" value={{ addy.street }} required>
             <div class="valid-tooltip"></div>
           </div>
         </div>
@@ -33,17 +33,17 @@
         <div class="form-row">
           <div class="col-md-4 mb-3">
             <label for="validationTooltip03">City</label>
-            <input type="text" class="form-control" id="validationTooltip03" name="city" placeholder="City" required>
+            <input type="text" class="form-control" id="validationTooltip03" name="city" value={{ addy.city }} placeholder="City" required>
             <div class="invalid-tooltip">Please provide a valid city.</div>
           </div>
           <div class="col-md-4 mb-3">
             <label for="validationTooltip04">State</label>
-            <input type="text" class="form-control" id="validationTooltip04" name="state" placeholder="State" required>
+            <input type="text" class="form-control" id="validationTooltip04" name="state" value={{ addy.state }} placeholder="State" required>
             <div class="invalid-tooltip">Please provide a valid state.</div>
           </div>
           <div class="col-md-4 mb-3">
             <label for="validationTooltip05">Zip</label>
-            <input type="number" class="form-control" id="validationTooltip05" name="zip" placeholder="Zip" required>
+            <input type="number" class="form-control" id="validationTooltip05" name="zip" value={{ addy.zipcode }} placeholder="Zip" required>
             <div class="invalid-tooltip">Please provide a valid zip.</div>
           </div>
         </div>
