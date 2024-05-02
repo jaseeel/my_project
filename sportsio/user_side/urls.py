@@ -8,5 +8,6 @@ from . import views
 
 urlpatterns = [
     path('user_product_view/<int:id>',views.user_product_view,name='user_product_view'),
+    path('product_list',views.product_list,name="product_list")
     
 ]

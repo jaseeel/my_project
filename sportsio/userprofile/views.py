@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import *
 from admin_side.views import *
 # Create your views here.
@@ -19,6 +19,7 @@ def user_profile(request):
 
 
 #__________________Add Address_______________
+
 def add_address(request):
     user = request.user
 
@@ -42,7 +43,7 @@ def add_address(request):
         )
 
         # Update the addresses queryset to include the new address
-        return redirect("user_profile")
+        return redirect("user_profile:user_profile")
     return render(request, "user_side/add_address.html")
 
 
@@ -62,6 +63,14 @@ def edit_address(request, id):
         addy.zip_code = request.POST.get("zip")
     
         addy.save()
-        return redirect('user_profile')
+        return redirect('user_profile:user_profile')
     return render(request,"user_side/edit_address.html",context)
+
+#____________Delete Address_____________
+
+def delete_address(request,id):
+    addy = get_object_or_404(address, id=id)
+    addy.delete()
+    return redirect('user_profile:user_profile')
+    
         

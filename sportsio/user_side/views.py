@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
+from django.db.models import Q
 from category.models import category,Brand
 from banner.models import Banner
 from category.views import views
@@ -7,6 +8,9 @@ from django.utils import timezone
 from datetime import timedelta
 
 # Create your views here.
+
+#___________________ Base Views_____________________
+
 def base(request):
     Category=category.objects.filter(is_active=True)[:5]
     products=Products.objects.filter(is_active=True,status='In Stock')
@@ -18,8 +22,9 @@ def base(request):
     }
     return render(request, 'user_side/base.html',context)
 
+#___________________Main Page_______________
+
 def home(request):
-    print("This is printing from home page")
     Category=category.objects.filter(is_active=True)[:5]
     banner=Banner.objects.all()
     products=Products.objects.filter(is_active=True,status='In Stock')
@@ -38,6 +43,8 @@ def home(request):
     
     return render(request,'user_side/main.html',context)
 
+#________________ Single Product View_____________ 
+
 def user_product_view(request, id):
     product = Products.objects.get(id=id)
     related_products = Products.objects.filter(category=product.category).exclude(id=id)
@@ -51,29 +58,35 @@ def user_product_view(request, id):
 
     return render(request, 'user_side/product-view.html', context)
 
-#def banner_view(request):
-    # laptop_banner=category.objects.get(name='Laptop')
-    # Tvandbanner=category.objects.get(name='Tv and audio')
-    # smartphonebanner=category.objects.get(name='smartphone')
-    # wearablesbanner=category.objects.get(name='Wearables')
-    
-    # allban=Banner.objects.filter(is_active=True)
-    # lapban=Banner.objects.filter(category=laptop_banner,is_active=True)       
-    # tvban=Banner.objects.filter(category=Tvandbanner,is_active=True)
-    # smartphoneban=Banner.objects.filter(category=smartphonebanner,is_active=True)
-    # wearablesbanner=Banner.objects.filter(category=wearablesbanner,is_active=True)
-    
-    # context={
-    #     'allban':allban,
-    #     'lapban':lapban,
-    #     'tvban':tvban,
-    #     'wearablesbanner':wearablesbanner,
-    #     'smartphoneban':smartphoneban, 
-        
-    # }
-    # banner=Banner.objects.all()
-    #context ={
-     #   'banner' : banner
-    #}
-    
-    #return render(request, 'user_side/product-view.html', context)
+def product_list(request):
+    product=Products.objects.all()
+    context={
+        'product':product
+    }
+    return render(request,"user_side/product_list.html",context)
+
+#___________________Search________________
+
+def product_search(request):
+    if request.method == "POST":
+        searched = request.POST.get('searched')
+
+        # Split the searched term into individual words
+        search_terms = searched.split()
+
+        # Initialize an empty Q object to build the query dynamically
+        q_objects = Q()
+
+        # Iterate through each search term and construct the query
+        for term in search_terms:
+            q_objects |= Q(product__model__icontains=term) | Q(product__brand__name__icontains=term)
+
+        # Filter products based on the constructed query
+        products = Products.objects.filter(q_objects).distinct()
+
+        context = {
+            'products': products,
+        }
+        return render(request, 'user_side/product_list.html', context)
+
+    return redirect('home')
