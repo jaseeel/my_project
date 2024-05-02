@@ -150,7 +150,6 @@ def add_banner(request):
 def update_banner(request,id):
     if 'email' in request.session:
         banner=Banner.objects.get(id=id)
-        print(id)
         categories = Category.objects.all()
         
         context={
@@ -159,7 +158,7 @@ def update_banner(request,id):
         }
         if request.method=='POST':
             title=request.POST.get('title')
-            cat_id=request.POST.get('cat_id')
+            cat_id=request.POST.get('category')
             image=request.POST.get('image')
             price=request.POST.get('price')
             offer_details=request.POST.get('offer_details')
@@ -194,7 +193,7 @@ def block_banner(request,id):
 def unblock_banner(request,id):
     if 'email' in request.session:
         banner= Banner.objects.get(id=id)
-        banner.is_active=False
+        banner.is_active=True
         banner.save()
         return redirect('banner_management')  
     

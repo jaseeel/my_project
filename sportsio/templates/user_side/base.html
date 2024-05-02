@@ -68,7 +68,7 @@
 
                                 <!-- Search Form Start Here -->
 
-                                <form action="#" method="POST" class="hm-searchbox">
+                                <form action="{% url 'user_side:product_search' %}" method="POST" class="hm-searchbox">
                                     {% csrf_token %}
                                     <select class="nice-select select-search-category">
                                         <option value="0">All Categories</option>
