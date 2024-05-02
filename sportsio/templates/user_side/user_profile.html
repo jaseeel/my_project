@@ -112,12 +112,12 @@
                                         {% for addy in address %}
                                         <div class="address-box">
                                             <label for="address{{ addy.id }}">{{ addy.address }},{{ addy.house_name }},{{ addy.street }},{{ addy.city }},{{ addy.zipcode }},{{ addy.state }}</label>
-                                            <button class="btn btn-warning btn-sm"><a href="{% url "edit_address" addy.id %}">Edit</a> </button>
-                                            <button class="btn btn-danger btn-sm"><a href="#">Delete</a> </button>
+                                            <button class="btn btn-warning btn-sm"><a style="color:white;" href="{% url "user_profile:edit_address" addy.id %}">Edit</a> </button>
+                                            <button class="btn btn-danger btn-sm"><a style="color:white;" href="{% url 'user_profile:delete_address' addy.id %}">Delete</a> </button>
 
                                         </div>
                                     {% endfor %}                                    
-                                        <button class="btn btn-warning btn-sm"><a href={% url "add_address" %}>Add</a> </button>
+                                        <button class="btn btn-warning btn-sm"><a style="color:white;" href={% url "user_profile:add_address" %}>Add</a> </button>
 
                                     </div>
                                     

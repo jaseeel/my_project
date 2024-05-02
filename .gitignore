@@ -8,52 +8,52 @@ venv
 sportsio/registration/password.txt
 
 # Ignore staticfiles directory
-sportsio/staticfiles
+sportsio/staticfiles/
 
 # Ignore media directory
-sportsio/media
+sportsio/media/
 
 # Ignore the static directory within the sportsio directory
-sportsio/static
+sportsio/static/
 
 # Ignoring Pycaches from creating conflicts
 
-sportsio/registration/__pycache__
+sportsio/registration/__pycache__/
 
-sportsio/userprofile/__pycache__
+sportsio/userprofile/__pycache__/
 
-sportsio/category/__pycache__
+sportsio/category/__pycache__/
 
-sportsio/banner/__pycache__
+sportsio/banner/__pycache__/
 
-sportsio/inventory/__pycache__
+sportsio/inventory/__pycache__/
 
-sportsio/products/__pycache__
+sportsio/products/__pycache__/
 
-sportsio/sportsio/__pycache__
+sportsio/sportsio/__pycache__/
 
-sportsio/admin_side/__pycache__
+sportsio/admin_side/__pycache__/
 
-sportsio/user_side/__pycache__
+sportsio/user_side/__pycache__/
 
 #Ignoring Migrations pycache due to conflicts
-sportsio/registration/migrations__pycache__
+sportsio/registration/migrations__pycache__/
 
-sportsio/userprofile/migrations__pycache__
+sportsio/userprofile/migrations__pycache__/
 
-sportsio/category/migrations__pycache__
+sportsio/category/migrations__pycache__/
 
-sportsio/banner/migrations__pycache__
+sportsio/banner/migrations__pycache__/
 
-sportsio/inventory/migrations__pycache__
+sportsio/inventory/migrations__pycache__/
 
-sportsio/products/migrations__pycache__
+sportsio/products/migrations__pycache__/
 
-sportsio/sportsio/migrations__pycache__
+sportsio/sportsio/migrations__pycache__/
 
-sportsio/admin_side/migrations__pycache__
+sportsio/admin_side/migrations__pycache__/
 
-sportsio/user_side/migrations__pycache__
+sportsio/user_side/migrations__pycache__/
 
 # My email and  password
 .env

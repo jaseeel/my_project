@@ -24,9 +24,9 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('django-admin/', admin.site.urls),
     path('admin/',include('admin_side.urls')),
-    path('SS',views.home, name='home'),
+    path('',views.home, name='home'),
     path('base', views.base, name='base'),
     path('register/', include('registration.urls')),
     path('user_side/', include(('user_side.urls', 'user_side'), namespace='user_side')),
-    path('', include('userprofile.urls'))
+    path('user_profile/', include(('userprofile.urls', 'user_profile'), namespace='user_profile'))
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
