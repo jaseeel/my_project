@@ -58,5 +58,7 @@ sportsio/user_side/migrations__pycache__/
 # My email and  password
 .env
 
+*.pyc
+
 
 

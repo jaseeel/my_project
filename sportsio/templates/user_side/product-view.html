@@ -71,8 +71,12 @@
                                     <ul>
                                         <li>Brand: <a href="javascript:void(0)">{{ product.brand }}</a></li>
                                         <li>Status: <a href="javascript:void(0)">{{ product.status }}</a></li>
+                                        {% if product.offer_price > 0 %}
                                         <li>Price: <a href="javascript:void(0)"><span  style="text-decoration: line-through;">Rs {{ product.price }}</span></a></li>
                                         <li>Offer Price: <a style="font-weight: bold; font-size: x-large;" href="javascript:void(0)">Rs {{ product.offer_price}}</a></li>
+                                        {% else %}
+                                        <li>Price: <a href="javascript:void(0)"><span  style="text-decoration: line-through;">Rs {{ product.price }}</span></a></li>
+                                        {% endif %}
                                     </ul>
                                 </div>
                                 <div class="product-size_box">

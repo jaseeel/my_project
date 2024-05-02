@@ -26,7 +26,7 @@ def base(request):
 
 def home(request):
     Category=category.objects.filter(is_active=True)[:5]
-    banner=Banner.objects.all()
+    banner=Banner.objects.filter(is_active=True)
     products=Products.objects.filter(is_active=True,status='In Stock')
     brand=Brand.objects.all()
     seven_days_ago = timezone.now() - timedelta(days=7)
@@ -59,7 +59,7 @@ def user_product_view(request, id):
     return render(request, 'user_side/product-view.html', context)
 
 def product_list(request):
-    product=Products.objects.all()
+    product=Products.objects.filter(is_active=True)
     context={
         'product':product
     }
@@ -79,14 +79,40 @@ def product_search(request):
 
         # Iterate through each search term and construct the query
         for term in search_terms:
-            q_objects |= Q(product__model__icontains=term) | Q(product__brand__name__icontains=term)
+            # Include conditions for product title, category name, and brand name
+            q_objects |= Q(title__icontains=term) | Q(category__name__icontains=term) | Q(brand__brand_name__icontains=term)
 
         # Filter products based on the constructed query
-        products = Products.objects.filter(q_objects).distinct()
-
+        product = Products.objects.filter(q_objects,is_active=True).distinct()
+        advnced=True
         context = {
-            'products': products,
+            'product': product,
+            'advnced':advnced
         }
         return render(request, 'user_side/product_list.html', context)
 
     return redirect('home')
+
+#________________SORT_________________
+
+def sort(request):
+    product = Products.objects.filter(is_active=True).order_by('-id')  # Retrieve all products initially
+
+    # Sorting logic
+    sort_by = request.GET.get('sort_by')
+    print(sort_by)
+    if sort_by:
+        if sort_by == 'price-':
+            product = product.order_by('offer_price')
+        elif sort_by == 'price+':
+            product = product.order_by('-offer_price')
+        elif sort_by == 'a-z':
+            product = product.order_by('title')
+        elif sort_by == 'z-a':
+            product = product.order_by('-title')
+
+    return render(request, 'user_side/product_list.html', {'product': product})
+        
+        
+    
+
