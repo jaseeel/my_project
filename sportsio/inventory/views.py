@@ -15,7 +15,7 @@ def update_stock(request):
         if request.method == 'POST':
             product_id = request.POST.get('product_id')
             quantity = request.POST.get('quantity', 0)
-            print("Product ID received:", product_id)
+          
 
         # Ensure product_id is provided
             if not product_id:

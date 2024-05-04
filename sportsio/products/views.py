@@ -109,7 +109,7 @@ def update_product(request, id):
             stock_count = request.POST.get('stock_count')
             weight = request.POST.get('weight')
             featured = request.POST.get('featured')=='on'
-            print(featured)
+        
             offer_price = request.POST.get('offer_price')
             if offer_price:
                 try:
@@ -153,7 +153,7 @@ def block_product(request,id):
     product=Products.objects.get(id=id)
     product.is_active=False
     product.save()
-    print("block")
+   
     return redirect('product_management')
 
 

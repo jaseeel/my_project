@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from .models import *
 from admin_side.views import *
+from django.http import JsonResponse
 # Create your views here.
 
 #_____________Account Page ________________
@@ -73,4 +74,45 @@ def delete_address(request,id):
     addy.delete()
     return redirect('user_profile:user_profile')
     
+
+# ADD TO CART
         
+def add_tocart(request):
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            prod_id = int(request.POST.get('product_id'))
+            prod_qty = int(request.POST.get('product_qty'))
+            product_check = Products.objects.get(id=prod_id)
+           
+            if product_check:
+                if Cart.objects.filter(user=request.user, product_id=prod_id).exists():
+                    prod_qty += 1
+                else:
+                    
+                    if product_check.stock_count >= prod_qty:
+                        # print(prod_id)
+                        # print(prod_qty)
+                        val = Products.objects.get(id=prod_id)
+                        
+                        Cart.objects.create(
+                            user=request.user,
+                            product_id=val,
+                            product_qty=prod_qty
+                        )
+                        return JsonResponse({'status': "Product Added Successfully"})
+                    else:
+                        return JsonResponse({'status': "Limited stocks left"})
+            else:
+                return JsonResponse({'status': "Product not found"})
+        else:
+            return JsonResponse({"status": "User must be logged in"})
+    return redirect('/')
+
+
+# ______________Cart_view_________
+def cart_view(request):
+    carts=Cart.objects.all()
+    context={
+        'carts':carts
+    }
+    return render(request,"user_side/cart_view.html")

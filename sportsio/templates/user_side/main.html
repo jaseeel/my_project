@@ -117,10 +117,11 @@
                                             <span class="new-price new-price-2">Rs {{ pro.offer_price }}</span>
                                             <span class="old-price">Rs {{ pro.price }}</span>
                                         </div>
-                                        <div class="add-actions">
+                                        <div class="add-actions trending_prod">
                                             <ul>
-                                                <li><a class="uren-add_cart" href="cart.html" data-toggle="tooltip" data-placement="top" title="Add To Cart"><i
-                                                        class="ion-bag"></i>Add To Cart</a>
+                                                {% csrf_token %}
+                                                <input type ="hidden" value="{{ pro.id }}" class="prod_id">
+                                                <li><button type="button" class="btn btn-sm btn-warning" id="add_to_cart"> ADD to cart</button>
                                                 </li>
                                                 <li><a class="uren-wishlist" href="wishlist.html" data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
                                                 </li>
@@ -209,6 +210,35 @@
         </div>
     </div>
 </div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+   
+    $('#add_to_cart').click(function (e){
+        console.log("Hi hello")
+        e.preventDefault();
+        
+        var product_id = $(this).closest('.trending_prod').find('.prod_id').val();
+        var product_qty = 1;
+        var token= $('input[name=csrfmiddlewaretoken]').val();
+        console.log(product_id)
+        console.log(product_qty)
+        console.log(token)
+    
+        $.ajax({
+            type: 'POST',
+            url: "/user_profile/add_to_cart/",
+            data:{
+                'product_id':product_id,
+                'product_qty':product_qty,
+                csrfmiddlewaretoken : token
+                
+            }
+        })
+    
+    
+    })
+    
+</script>
 
 <!-- ########################################## NEW ARRIVALS END HERE ##############################-->
 

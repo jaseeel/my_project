@@ -85,7 +85,7 @@ def register(request):
             return redirect('register')
     
         user=CustomUser.objects.create_user(email=email, password=password, phone=phone, username=username, first_name=first_name, last_name=last_name)
-        print()
+  
         user.save()
         
         request.session['email'] =  email

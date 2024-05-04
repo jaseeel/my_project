@@ -7,6 +7,8 @@ from products.models import Products, ProductImage
 from django.utils import timezone
 from datetime import timedelta
 
+
+
 # Create your views here.
 
 #___________________ Base Views_____________________
@@ -38,7 +40,7 @@ def home(request):
         'banner' : banner,
         'recent_products' : recent_products
     }
-    print(recent_products.values())
+
     
     
     return render(request,'user_side/main.html',context)
@@ -100,7 +102,6 @@ def sort(request):
 
     # Sorting logic
     sort_by = request.GET.get('sort_by')
-    print(sort_by)
     if sort_by:
         if sort_by == 'price-':
             product = product.order_by('offer_price')
@@ -114,5 +115,6 @@ def sort(request):
     return render(request, 'user_side/product_list.html', {'product': product})
         
         
-    
+# ADD TO CART VIEWS 
+
 
