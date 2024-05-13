@@ -37,5 +37,11 @@ urlpatterns = [
     path('unblock_banner/<int:id>',category_views.unblock_banner,name='unblock_banner'),
     path('inventory/',inv_views.inventory,name='inventory'),
     path('update-stock/', inv_views.update_stock, name='update_stock'),
+    path('update-stock/', inv_views.order_management, name='order_management'),
+    path("ordermanagement/", inv_views.order_management, name="order_management"),
+    path("update-order/<int:order_id>/",inv_views.update_order_details,name="update_order_details"),
+    path("update_status/<int:order_id>/",inv_views.update_status,name="update_status"),
+    path("delete_order/<int:order_id>/",inv_views.delete_order,name="delete_order"),
+
     
 ]

@@ -1,0 +1,112 @@
+{% extends "admin_side/base.html"%}
+{% block content%}
+
+   
+<div class="card-body">
+    <h2 class="card-title">Order Management</h2>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Address</th>
+                    <th>Estimated Delivery Time</th>
+                    <th>Tracking Number</th>
+                    <th>Product Name</th>
+                    <th>Order Notes</th>
+                    <th>Product Quantity</th>
+                    <th>Image</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.user|truncatewords:1 }}</td>
+                    <td>{{ order.address.street }}, {{ order.address.city }}, {{ order.address.state }}</td>
+                    <td>{{ order.estimated_delivery_time }}</td>
+                    <td>{{ order.tracking_number }}</td>
+                    <td>
+                        {% for order_item in order.orderitem_set.all %}
+                        {{ order_item.product.title|truncatewords:2 }}
+                        {% endfor %}
+                    </td>
+                    <td>{{ order.order_notes }}</td>
+                    <td>
+                        {% for order_item in order.orderitem_set.all %}
+                        {{ order_item.quantity }}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for order_item in order.orderitem_set.all %}
+                        {% if order_item.product.image %}
+                        <img src="{{ order_item.product.image.url }}" alt="{{ order_item.product.title }}" class="img img-thumbnail product-image" style="max-width: 50px;">
+                        {% else %}
+                        <p>No image available</p>
+                        {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <form action="{% url 'update_status' order.id %}" method="post">
+                            {% csrf_token %}
+                            <select class="form-control" name="new_status" id="newStatusSelect">
+                                <option value="Pending" {% if order.status == "Pending" %} selected {% endif %}>Pending</option>
+                                <option value="Processing" {% if order.status == "Processing" %} selected {% endif %}>Processing</option>
+                                <option value="Shipped" {% if order.status == "Shipped" %} selected {% endif %}>Shipped</option>
+                                <option value="Delivered" {% if order.status == "Delivered" %} selected {% endif %}>Delivered</option>
+                                <option value="Out of delivery" {% if order.status == "Out of delivery" %} selected {% endif %}>Out of delivery</option>
+                                <option value="Cancelled" {% if order.status == "Cancelled" %} selected {% endif %}>Cancelled</option>
+                                <option value="Return" {% if order.status == "Return" %} selected {% endif %}>Return</option>
+                                <option value="Refunded" {% if order.status == "Refunded" %} selected {% endif %}>Refunded</option>
+                            </select>
+                            {% if order.status != "Cancelled" and order.status != "Return" and order.status != "Refunded" %}
+                            <button type="submit" class="btn btn-primary">Update Status</button>
+                            {%endif%}
+                        </form>
+                    </td>
+                    <td>
+                        {% if order.status == "Return" or order.status == "Cancelled" and order.paid == True %}
+                        <a href="{% url 'refund_order' order.id %}" class="btn btn-primary">Refund</a>
+                        {% elif order.status == "Return" or order.status == "Cancelled" %}
+                        <a href="{% url 'update_order_details' order.id %}" class="btn btn-primary" hidden>Update Details</a>
+                        {% else %}
+                        <a href="{% url 'update_order_details' order.id %}" class="btn btn-primary">Update Details</a>
+                        {% endif %}
+                    </td>
+                    <td class="uren-product-remove">
+                        {% if order.status == "Cancelled" %}
+                        
+                            <a href="{% url 'delete_order' order.id %}">
+                                <i class="fa fa-trash" title="Remove"></i>
+                            </a>
+                            {% endif %}
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      var newStatusSelect = document.getElementById('newStatusSelect');
+      var updateStatusBtn = document.getElementById('updateStatusBtn');
+
+      newStatusSelect.addEventListener('change', function() {
+          var selectedValue = this.value;
+          if (selectedValue === 'Cancelled' || selectedValue === 'Return' || selectedValue === 'Refunded') {
+              updateStatusBtn.style.display = 'none';
+          } else {
+              updateStatusBtn.style.display = 'block';
+          }
+      });
+  });
+</script>
+{% endblock %}

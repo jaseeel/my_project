@@ -2,7 +2,6 @@
 {% extends 'user_side/base.html' %}
 {%block content%}
 {% load static %}
-
 <!-- ######################### Banner Area ###########################-->
 <div class="uren-slider_area uren-slider_area-2">
     <div class="container-fluid">
@@ -64,7 +63,7 @@
 <!--   Single slide start here  -->
 {% for pro in products %}
 {% if pro.featured == 1 %}
-                    <div class="slide-item">
+                    <div class="slide-item trending_prod">
                         <div class="inner-slide">
                             <div class="single-product">
                                 <div class="product-img">
@@ -76,7 +75,7 @@
                                         <span class="sticker">New</span>
                                     </div>
                                 </div>
-                                <div class="product-content">
+                                <div class="product-content  ">
                                     <div class="product-desc_info">
                                         <div class="uren-countdown_area">
                                             <span class="product-offer">Hurry up!  Offer ends in:</span>
@@ -117,11 +116,12 @@
                                             <span class="new-price new-price-2">Rs {{ pro.offer_price }}</span>
                                             <span class="old-price">Rs {{ pro.price }}</span>
                                         </div>
-                                        <div class="add-actions trending_prod">
+                                        <div class="add-actions">
                                             <ul>
                                                 {% csrf_token %}
                                                 <input type ="hidden" value="{{ pro.id }}" class="prod_id">
-                                                <li><button type="button" class="btn btn-sm btn-warning" id="add_to_cart"> ADD to cart</button>
+                                                <li><a class="uren-add_cart add_to_cart"  data-toggle="tooltip" data-placement="top" title="Add To Cart"><i
+                                                    class="ion-bag"></i> Add to cart</a>
                                                 </li>
                                                 <li><a class="uren-wishlist" href="wishlist.html" data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
                                                 </li>
@@ -142,7 +142,7 @@
 
 <!-- #################################################### New Arrival Products Start Here ###################################-->
  <!-- Begin Uren's Product Area -->
- <div class="uren-product_area">
+ <div class="uren-product_area new_arrival">
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
@@ -177,7 +177,10 @@
                                     </div>
                                     <div class="add-actions">
                                         <ul>
-                                            <li><a class="uren-add_cart" href="cart.html" data-toggle="tooltip" data-placement="top" title="Add To Cart"><i class="ion-bag"></i></a>
+                                            {% csrf_token %}
+                                            <input type ="hidden" value="{{ product.id }}" class="prod_id">
+                                            <li><a class="uren-add_cart add_to_cart"  data-toggle="tooltip" data-placement="top" title="Add To Cart"><i
+                                                class="ion-bag"></i> Add to cart</a>
                                             </li>
                                             <li><a class="uren-wishlist" href="wishlist.html" data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
                                             </li>
@@ -210,35 +213,10 @@
         </div>
     </div>
 </div>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script>
-   
-    $('#add_to_cart').click(function (e){
-        console.log("Hi hello")
-        e.preventDefault();
-        
-        var product_id = $(this).closest('.trending_prod').find('.prod_id').val();
-        var product_qty = 1;
-        var token= $('input[name=csrfmiddlewaretoken]').val();
-        console.log(product_id)
-        console.log(product_qty)
-        console.log(token)
-    
-        $.ajax({
-            type: 'POST',
-            url: "/user_profile/add_to_cart/",
-            data:{
-                'product_id':product_id,
-                'product_qty':product_qty,
-                csrfmiddlewaretoken : token
-                
-            }
-        })
-    
-    
-    })
-    
-</script>
+
+
+
+
 
 <!-- ########################################## NEW ARRIVALS END HERE ##############################-->
 
@@ -247,8 +225,89 @@
    
             
                     
-                    
-                    
+  <!---#############################   SCRIPTS  ####################################-->
+  <script>
+    $('.add_to_cart').click(function (e){
+        e.preventDefault();
+        
+        var product_id = $(this).closest('.new_arrival').find('.prod_id').val();
+        var product_qty = 1;
+        var token= $('input[name=csrfmiddlewaretoken]').val();
+    
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'user_profile:add_to_cart'%}",
+            data:{
+                'product_id':product_id,
+                'product_qty':product_qty,
+                csrfmiddlewaretoken : token
+                
+            },
+            success: function(response) {
+                console.log(response);
+                if (response.status === "Product Added Successfully" || response.status.includes("Cart Updated Successfully")) {
+                    toastr.success(response.status);
+                } 
+                else {
+
+                    toastr.warning(response.status);
+                   
+                }
+
+            }
+        })
+    
+    
+    })
+  </script>
+  <script>$('.add_to_cart').click(function (e){
+    e.preventDefault();
+    
+    var product_id = $(this).closest('.trending_prod').find('.prod_id').val();
+    var product_qty = 1;
+    var token= $('input[name=csrfmiddlewaretoken]').val();
+
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'user_profile:add_to_cart'%}",
+        data:{
+            'product_id':product_id,
+            'product_qty':product_qty,
+            csrfmiddlewaretoken : token
+            
+        },
+        success: function(response) {
+            console.log(response);
+            if (response.status === "Product Added Successfully" || response.status.includes("Cart Updated Successfully")) {
+                toastr.success(response.status);
+            } 
+            else {
+
+                toastr.warning(response.status);
+               
+            }
+
+        }
+    })
+
+
+})</script>                  
+{% if messages %}
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        toastr.options = { "closeButton": false, "debug": false, "newestOnTop": true,
+            "progressBar": true, "positionClass": "toast-top-right", "preventDuplicates": true,
+            "onclick": null, "showDuration": "300", "hideDuration": "1000", "timeOut": "5000",
+            "extendedTimeOut": "1000", "showEasing": "swing", "hideEasing": "linear",
+            "showMethod": "fadeIn", "hideMethod": "fadeOut" };
+        {% autoescape on %}
+            {% for msg in messages %}
+                toastr.{{ msg.level_tag }}("{{ msg }}");
+            {% endfor %}
+        {% endautoescape %}
+    });
+</script>
+{% endif %}               
 
  
 

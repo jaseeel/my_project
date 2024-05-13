@@ -1,10 +1,19 @@
 {% extends 'user_side/base.html'%}
 {% block content %}
+<style>
+    .img-sm {
+        width: 150px; /* Adjust the width as needed */
+        height: 150px; /* Adjust the height as needed */
+        object-fit: contain;
+    }
+    
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <!-- Begin Uren's Breadcrumb Area -->
         <div class="breadcrumb-area">
             <div class="container">
                 <div class="breadcrumb-content">
-                    <h2>Other</h2>
+                    <h2>My Cart</h2>
                     <ul>
                         <li><a href="index.html">Home</a></li>
                         <li class="active">Cart</li>
@@ -14,11 +23,12 @@
         </div>
         <!-- Uren's Breadcrumb Area End Here -->
         <!-- Begin Uren's Cart Area -->
-        <div class="uren-cart-area">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12">
-                        <form action="javascript:void(0)">
+        <form action="{% url 'user_profile:order_checkout'%}" method="post">
+            {% csrf_token %}
+            <div class="uren-cart-area">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
                             <div class="table-content table-responsive">
                                 <table class="table">
                                     <thead>
@@ -26,76 +36,174 @@
                                             <th class="uren-product-remove">remove</th>
                                             <th class="uren-product-thumbnail">images</th>
                                             <th class="cart-product-name">Product</th>
-                                            <th class="uren-product-price">Unit Price</th>
+                                            <th class="uren-product-price li-product-price">Unit Price</th>
                                             <th class="uren-product-quantity">Quantity</th>
-                                            <th class="uren-product-subtotal">Total</th>
+                                                
+                                            
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        {% for items in cart %}
                                         <tr>
-                                            <td class="uren-product-remove"><a href="javascript:void(0)"><i class="fa fa-trash"
-                                                title="Remove"></i></a></td>
-                                            <td class="uren-product-thumbnail"><a href="javascript:void(0)"><img src="assets/images/product/small-size/1.jpg" alt="Uren's Cart Thumbnail"></a></td>
-                                            <td class="uren-product-name"><a href="javascript:void(0)">Juma rema pola</a></td>
-                                            <td class="uren-product-price"><span class="amount">$46.80</span></td>
-                                            <td class="quantity">
-                                                <label>Quantity</label>
-                                                <div class="cart-plus-minus">
-                                                    <input class="cart-plus-minus-box" value="1" type="text">
-                                                    <div class="dec qtybutton"><i class="fa fa-angle-down"></i></div>
-                                                    <div class="inc qtybutton"><i class="fa fa-angle-up"></i></div>
-                                                </div>
+                                            <td class="uren-product-remove">
+                                                <a href="{% url 'user_profile:remove_cart' items.id %}" onclick="removeItem(event, '{{ items.id }}')">
+                                                    <i class="fa fa-trash" title="Remove"></i>
+                                                </a>
                                             </td>
-                                            <td class="product-subtotal"><span class="amount">$46.80</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="uren-product-remove"><a href="javascript:void(0)"><i class="fa fa-trash"
-                                                title="Remove"></i></a></td>
-                                            <td class="uren-product-thumbnail"><a href="javascript:void(0)"><img src="assets/images/product/small-size/2.jpg" alt="Uren's Cart Thumbnail"></a></td>
-                                            <td class="uren-product-name"><a href="javascript:void(0)">Bag Goodscol model</a></td>
-                                            <td class="uren-product-price"><span class="amount">$71.80</span></td>
-                                            <td class="quantity">
-                                                <label>Quantity</label>
-                                                <div class="cart-plus-minus">
-                                                    <input class="cart-plus-minus-box" value="1" type="text">
-                                                    <div class="dec qtybutton"><i class="fa fa-angle-down"></i></div>
-                                                    <div class="inc qtybutton"><i class="fa fa-angle-up"></i></div>
-                                                </div>
+                                                                                        <td class="uren-product">
+                                                <a href="javascript:void(0)">
+                                                    <img class="img-sm img-thumbnail" src="{{ items.product.image.url }}" alt="Uren's Cart Thumbnail">
+                                                </a>
                                             </td>
-                                            <td class="product-subtotal"><span class="amount">$71.80</span></td>
+                                            
+                                            <td class="uren-product-name"><a href="javascript:void(0)">{{ items.product }}</a></td>
+                                            <td class="uren-product-price"><span class="amount">₹ {{ items.product.offer_price }}</span></td>
+                                            <td class="quantity tr">
+                                                {% if items.product_id.stock_count <= 0 %}
+                                                <span class="h6" style="color:red; ">OUT OF STOCK</span>
+                                                {% else %}
+                                                <input type="hidden" value="{{ items.product.id }}" class="prod_id">
+                                                <label>Quantity</label>
+                                            <div class="input-group text-center mb-3" style="width: 130px; margin: auto;">
+                                            <div class="input-group-prepend">
+                                                <button class="btn btn-outline-secondary minus-btn" type="button">-</button>
+                                            </div>
+                                            <input type="number" min="1" max="{{ items.product.stock_count }}" name="quantity" class="form-control qty-input text-center" value="{{ items.product_quantity }}">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary plus-btn" type="button">+</button>
+                                            </div>
+                                        </div>
+                                            {% endif %}
+                                            </td>
                                         </tr>
+                                        {% endfor %}
+                                        <!-- Display total_price outside of the loop -->
+                                        <td style="justify-content:center;" class="product-subtotal"><span class="amount">Total Price: ₹ {{ items.total_price }}</span></td>
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="coupon-all">
-                                        <div class="coupon">
-                                            <input id="coupon_code" class="input-text" name="coupon_code" value="" placeholder="Coupon code" type="text">
-                                            <input class="button" name="apply_coupon" value="Apply coupon" type="submit">
-                                        </div>
-                                        <div class="coupon2">
-                                            <input class="button" name="update_cart" value="Update cart" type="submit">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        </div>
+                    </div>
+                
+            
+      
                             <div class="row">
                                 <div class="col-md-5 ml-auto">
                                     <div class="cart-page-total">
                                         <h2>Cart totals</h2>
                                         <ul>
-                                            <li>Subtotal <span>$118.60</span></li>
-                                            <li>Total <span>$118.60</span></li>
+                                            <li>Subtotal <span class="li-product-price product-subtotal amount">₹ {{ total_price }}</span></li>
+                                            <li>Total <span>₹ {{ total_price }}</span></li>
                                         </ul>
-                                        <a href="javascript:void(0)">Proceed to checkout</a>
+                                        <button type="submit">Proceed to checkout</button>
+                                       
                                     </div>
                                 </div>
                             </div>
                         </form>
                     </div>
                 </div>
-            </div>
-        </div>
+          
+        
+                <script>
+                    $(document).ready(function(){
+                        // Function to update cart item totals
+                        function updateCartItem(row) {
+                            var quantity = parseInt(row.find('.qty-input').val());
+                            var price = parseFloat(row.find('.li-product-price').text().replace('₹', ''));
+                            var subtotal = quantity * price;
+                            row.find('.product-subtotal .amount').text('₹' + subtotal.toFixed(2));
+                            updateCartTotals();
+                            
+                            // Send AJAX request to update cart quantity
+                            var product_id = row.find('.prod_id').val();
+                            var quantity = quantity;
+                            $.ajax({
+                                url: "{% url 'user_profile:update_cart_quantity'%}",
+                                method: 'POST',
+                                data: {
+                                    'product_id': product_id,
+                                    'quantity': quantity,
+                                    'csrfmiddlewaretoken': '{{ csrf_token }}' // Ensure to include CSRF token
+                                },
+                                success: function(response) {
+                                    // Handle success response if needed
+                                    console.log(response);
+                                },
+                                error: function(xhr, errmsg, err) {
+                                    // Handle error response if needed
+                                   // console.log(xhr.status + ": " + xhr.responseText);
+                                   console.log('some error occured')
+                                }
+                            });
+                        }
+                    
+                        // Function to update cart totals
+                        function updateCartTotals() {
+                            var subtotal = 0;
+                            $('.product-subtotal .amount').each(function() {
+                                subtotal += parseFloat($(this).text().replace('₹', ''));
+                            });
+                            $('#subtotal').text('₹' + subtotal.toFixed(2));
+                            var total = subtotal + 50; // Assuming delivery charge is ₹50
+                            $('#total').text('₹' + total.toFixed(2));
+                        }
+                    
+                        // Initial calculation of cart totals when the page loads
+                        updateCartTotals();
+                    
+                        // Plus button click event
+                        $('.plus-btn').click(function() {
+                            console.log('Plus button clicked');
+                            var input = $(this).parent().prev('input.qty-input');
+                            var currentVal = parseInt(input.val());
+                            var stockCount = parseInt(input.attr('max'));
+
+                            console.log('Current value:', currentVal);
+                            console.log('Max stock count:', stockCount);
+                            if (!isNaN(currentVal) && currentVal < stockCount) {
+                                input.val(currentVal + 1).change();
+                                updateCartItem($(this).closest('tr'));
+                                console.log('Quantity increased');
+                            } else {
+                                console.log('Reached maximum stock count')
+                                toastr.warning("Reached maximum stock count");;
+                                
+                            }
+                        });
+                    
+                        // Minus button click event
+                        $('.minus-btn').click(function() {
+                            var input = $(this).parent().next('input.qty-input');
+                            var currentVal = parseInt(input.val());
+                            if (!isNaN(currentVal) && currentVal > 1) {
+                                input.val(currentVal - 1).change();
+                                updateCartItem($(this).closest('tr'));
+                            }
+                        });
+                    
+                        // Quantity input change event
+                        $('.qty-input').change(function() {
+                            var input = $(this);
+                            var newVal = parseInt(input.val());
+                            var stockCount = parseInt(input.attr('max'));
+                            if (!isNaN(newVal) && newVal > stockCount) {
+                                input.val(stockCount);
+                            }
+                            updateCartItem($(this).closest('tr'));
+                        });
+                    });
+                    
+                    </script>
+                    <script>
+                        function removeItem(event, itemId) {
+                            event.preventDefault(); // Prevent the default action of following the link
+                            // Perform the removal by redirecting to the remove_cart view
+                            window.location.href = "{% url 'user_profile:remove_cart' 0 %}".replace('0', itemId);
+                            // Show a success Toastr notification
+                            toastr.success("Item removed successfully");
+                        }
+                    </script>
+                    
         <!-- Uren's Cart Area End Here -->
         {% endblock %}

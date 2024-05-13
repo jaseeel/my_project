@@ -112,6 +112,7 @@ def user_login(request):
             if user is not None and user.check_password(password):
                 if not user.is_superuser and user.is_active:
                     login(request, user)
+                    messages.success(request,"You have logged in successfully")
                     return redirect('home')
             else:
                 # Authentication failed

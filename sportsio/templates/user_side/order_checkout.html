@@ -1,0 +1,142 @@
+{% extends 'user_side/base.html'%}
+{% block content %}
+
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Begin Uren's Breadcrumb Area -->
+<div class="breadcrumb-area">
+    <div class="container">
+        <div class="breadcrumb-content">
+            <h2>Other</h2>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li class="active">Checkout</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- Uren's Breadcrumb Area End Here -->
+<!-- Begin Uren's Checkout Area -->
+<div class="checkout-area">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Billing Details Section -->
+            <div class="col-lg-6 col-12 d-flex flex-column justify-content-between">
+                <form action="{% url 'user_profile:confirm_orders'%}" method="post">
+                    {% csrf_token %}
+                    <h2>BILLING DETAILS</h2>
+                    <div class="checkbox-form">
+                        <input type='text' value="{{order_id}}" name="order_id" hidden/>
+                        <input type='text' value="{{payments}}" name="payments" hidden/>
+                        <span style=" font-size:20px;">Choose Your Address</span>
+                        <select class="nice-select wide" name="saved_address" id="saved-address-select">
+                            {% for address in addresses %}
+                                <option value="{{ address.id }}">{{ address.house_name }}, {{ address.street }}, {{ address.city }}, {{ address.state }} - {{ address.zipcode }}</option>
+                            {% endfor %}
+                        </select>
+                        </div>
+                        <div class="different-address">
+                            <div class="ship-different-title">
+                                <h3>
+                                    <label>Ship to a different address?</label>
+                                    <input id="ship-box" type="checkbox">
+                                </h3>
+                            </div>
+                            <div id="ship-box-info" class="row">
+                                <div class="col-md-12">
+                                    <button class="btn btn-warning"><a style="color:white;" href="{% url 'user_profile:add_address'%}">Add Address</a></button>
+                                </div>
+                                </div>
+                            <div class="order-notes">
+                                <div class="checkout-form-list checkout-form-list-2">
+                                    <label>Order Notes</label>
+                                    <textarea name="order notes" id="checkout-mess" cols="30" rows="10" placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+            <div class="col-lg-6 col-12 d-flex flex-column justify-content-between">
+                <div class="your-order">
+                    <h3>Your order</h3>
+                    <div class="your-order-table table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="cart-product-name">Product</th>
+                                    <th class="cart-product-total">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart%}
+                                <tr class="cart_item">
+                                    
+                                    <td class="cart-product-name">{{item.product.title }}<strong class="product-quantity">
+                                    × {{item.product_quantity}}</strong></td>
+                                    <td class="cart-product-total"><span class="amount">{{ item.total_price }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="cart-subtotal">
+                                    <th>Cart Subtotal</th>
+                                    <td><span class="amount">Rs {{ sub_total }}</span></td>
+                                </tr>
+                                    <th> Delivery</th>
+                                    {% if delivery > 0 %}
+                                    <td><span >{{ delivery}}</span></td>
+                                    {% else %}
+                                    <td>    <span style="text-decoration: line-through;">Rs. 60</span>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                                <tr class="order-total">
+                                    <th>Order Total</th>
+                                    <td><strong><span class="amount">Rs. {{total_amount}}</span></strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="payment-method">
+                        <div class="payment-accordion">
+                            <div id="accordion">
+                                <div class="card">
+                                    <div class="card-header" id="#payment-2">
+                                        <h5 class="panel-title">
+                                            <div class="payment">
+                                                <h3>Payment</h3>
+                                                <div class="form-group">
+                                                    <label for="payment-method">Select Payment Method:</label>
+                                                    <select id="payment-method" class="form-control" name="payment_method">
+                                                        Total: {{ total }} <!-- Debugging output to check the value of total -->
+                                                        {% for key, value in payment_modes.items %}
+
+                                                                <option value="{{ key }}">{{ value }}</option>
+                                                           
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                    </div>
+                            <div class="order-button-payment">
+                                <input id="confirm-orders-button"  value="Place order" type="submit">
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Uren's Checkout Area End Here -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var savedAddressSelect = document.getElementById("saved-address-select");
+        var confirmOrdersButton = document.getElementById("confirm-orders-button");
+        var razorpayButton = document.getElementById("razorpaybtn");
+
+        // Check if no addresses are available
+        if (savedAddressSelect.options.length === 0) {
+            confirmOrdersButton.disabled = true;
+        }
+    });
+</script>
+{% endblock %}

@@ -6,6 +6,8 @@ from category.views import views
 from products.models import Products, ProductImage
 from django.utils import timezone
 from datetime import timedelta
+from userprofile.models import Cart
+from admin_side.views import *
 
 
 
@@ -17,10 +19,14 @@ def base(request):
     Category=category.objects.filter(is_active=True)[:5]
     products=Products.objects.filter(is_active=True,status='In Stock')
     brand=Brand.objects.all()
+    
+
+
     context={
         'Category': Category,
         'products': products,
         'brand': brand,
+
     }
     return render(request, 'user_side/base.html',context)
 
@@ -33,12 +39,15 @@ def home(request):
     brand=Brand.objects.all()
     seven_days_ago = timezone.now() - timedelta(days=7)
     recent_products = Products.objects.filter(created_date__gte=seven_days_ago,is_active=True,status='In Stock')
+
+    
     context={
         'Category': Category,
         'products': products,
         'brand': brand,
         'banner' : banner,
-        'recent_products' : recent_products
+        'recent_products' : recent_products,
+
     }
 
     
@@ -62,8 +71,14 @@ def user_product_view(request, id):
 
 def product_list(request):
     product=Products.objects.filter(is_active=True)
+            #Navbar Cart Items 
+    cart_count=Cart.objects.filter(user=request.user).count()
+    cart = Cart.objects.filter(user=request.user)
+    total_price = sum(item.product.offer_price * item.product_quantity for item in cart)
     context={
-        'product':product
+        'product':product,
+        'cart_count':cart_count,
+        'total_price':total_price
     }
     return render(request,"user_side/product_list.html",context)
 

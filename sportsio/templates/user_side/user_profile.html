@@ -1,6 +1,7 @@
 {% extends 'user_side/base.html' %}
 
 {% block content %}
+
 <style>
     .address-box {
     border: 1px solid #ccc; /* Border style */
@@ -55,6 +56,9 @@
                             <a class="nav-link" id="account-details-tab" data-toggle="tab" href="#account-details" role="tab" aria-controls="account-details" aria-selected="false">Account Details</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" id="account-detail-tab" data-toggle="tab" href="#account-detail" role="tab" aria-controls="account-detail" aria-selected="false">Reset Password</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" id="account-logout-tab" href="login-register.html" role="tab" aria-selected="false">Logout</a>
                         </li>
                     </ul>
@@ -77,27 +81,27 @@
                                         <tbody>
                                             <tr>
                                                 <th>ORDER</th>
-                                                <th>DATE</th>
+                                                <th>DELIVERY DATE</th>
                                                 <th>STATUS</th>
                                                 <th>TOTAL</th>
                                                 <th></th>
+                                                <th></th>
                                             </tr>
+                                            {% for item in orders %}
                                             <tr>
-                                                <td><a class="account-order-id" href="javascript:void(0)">#5364</a></td>
-                                                <td>Mar 27, 2019</td>
-                                                <td>On Hold</td>
-                                                <td>£162.00 for 2 items</td>
-                                                <td><a href="javascript:void(0)" class="uren-btn uren-btn_dark uren-btn_sm"><span>View</span></a>
+                                                <td><a class="account-order-id" href="javascript:void(0)">{{ item.id }}</a></td>
+                                                <td>{{ item.estimated_delivery_time }}</td>
+                                                <td>{{ item.status }}</td>
+                                                <td>Rs. {{ item.total_price}}</td>
+                                                <td><a href="#" class="uren-btn uren-btn_dark uren-btn_sm"><span>View</span></a>
+                                                </td>
+                                                <td >
+                                                    <a href="{% url 'user_profile:cancel_order' item.id %}"class="uren-btn uren-btn_dark uren-btn_sm"><span>Cancel</span>
+                                                    </a>
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td><a class="account-order-id" href="javascript:void(0)">#5356</a></td>
-                                                <td>Mar 27, 2019</td>
-                                                <td>On Hold</td>
-                                                <td>£162.00 for 2 items</td>
-                                                <td><a href="javascript:void(0)" class="uren-btn uren-btn_dark uren-btn_sm"><span>View</span></a>
-                                                </td>
-                                            </tr>
+                                            {% endfor %}
+
                                         </tbody>
                                     </table>
                                 </div>
@@ -124,39 +128,75 @@
                                 </div>
                             </div>
                         </div>
+
+
+                        <!-- Update Profile Start Here   -->
+
                         <div class="tab-pane fade" id="account-details" role="tabpanel" aria-labelledby="account-details-tab">
                             <div class="myaccount-details">
-                                <form action="#" class="uren-form">
+                                <form action="{% url 'user_profile:update_profile'%}" method="POST" class="uren-form" enctype="multipart/form-data">
+                                    {% csrf_token %}
                                     <div class="uren-form-inner">
                                         <div class="single-input single-input-half">
-                                            <label for="account-details-firstname">First Name*</label>
-                                            <input type="text" id="account-details-firstname">
+                                            <label for="account-details-firstname">Username*</label>
+                                            <input type="text" value="{{ user.username }}" name="username" >
+                                        </div>
+                                        <div class="single-input single-input-half">
+                                            <label for="account-details-lastname">First Name*</label>
+                                            <input type="text" name="first_name" value="{{ user.first_name }}" >
                                         </div>
                                         <div class="single-input single-input-half">
                                             <label for="account-details-lastname">Last Name*</label>
-                                            <input type="text" id="account-details-lastname">
+                                            <input type="text" name="last_name" value="{{ user.last_name }}" >
+                                        </div>
+                                        <div class="single-input single-input-half">
+                                            <label for="account-details-lastname">Phone</label>
+                                            <input type="number" name="phone" value="{{ user.phone }}" >
                                         </div>
                                         <div class="single-input">
-                                            <label for="account-details-email">Email*</label>
-                                            <input type="email" id="account-details-email">
+                                            <label for="account-details-lastname">Email*</label>
+                                            <input type="email" name="email" value="{{ user.email }}" >
+                                        </div>
+
+                                        <div class="single-input">
+                                            <label for="account-details-oldpass">Current Password</label>
+                                            <input type="password" name="currentpassword" >
+                                        </div>     
+                                        <div class="single-input">
+                                            <button id="submitButton" class="uren-btn uren-btn_dark" type="submit"><span>SAVE
+                                            CHANGES</span>
+                                            <span id="loader"></span></button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- Update Profile End Here-->
+
+                        <!-- Reset Password Start Here-->
+
+                        <div class="tab-pane fade" id="account-detail" role="tabpanel" aria-labelledby="account-detail-tab">
+                            <div class="myaccount-detail">
+                                <form action="{% url 'user_profile:reset_password'%}" method="POST" class="uren-form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="uren-form-inner">
+                                        <div class="single-input ">
+                                        <label for="account-details-oldpass">Current Password</label>
+                                        <input type="password" name="currentpassword" >
+                                    </div>     
+                                    
+                                        <div class="single-input ">
+                                            <label for="account-details-firstname">New Password</label>
+                                            <input type="password" name="pass1" >
                                         </div>
                                         <div class="single-input">
-                                            <label for="account-details-oldpass">Current Password(leave blank to leave
-                                                unchanged)</label>
-                                            <input type="password" id="account-details-oldpass">
+                                            <label for="account-details-lastname">Confirm Password</label>
+                                            <input type="password" name="pass2">
                                         </div>
                                         <div class="single-input">
-                                            <label for="account-details-newpass">New Password (leave blank to leave
-                                                unchanged)</label>
-                                            <input type="password" id="account-details-newpass">
-                                        </div>
-                                        <div class="single-input">
-                                            <label for="account-details-confpass">Confirm New Password</label>
-                                            <input type="password" id="account-details-confpass">
-                                        </div>
-                                        <div class="single-input">
-                                            <button class="uren-btn uren-btn_dark" type="submit"><span>SAVE
-                                            CHANGES</span></button>
+                                            <button id="submitButton" class="uren-btn uren-btn_dark" type="submit"><span>SAVE
+                                            CHANGES</span>
+                                            <span id="loader"></span></button>
                                         </div>
                                     </div>
                                 </form>
@@ -168,6 +208,27 @@
         </div>
     </div>
     <!-- Uren's Account Page Area End Here -->
+    {% if messages %}
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        toastr.options = { "closeButton": false, "debug": false, "newestOnTop": true,
+            "progressBar": true, "positionClass": "toast-top-right", "preventDuplicates": true,
+            "onclick": null, "showDuration": "300", "hideDuration": "1000", "timeOut": "5000",
+            "extendedTimeOut": "1000", "showEasing": "swing", "hideEasing": "linear",
+            "showMethod": "fadeIn", "hideMethod": "fadeOut" };
+        {% autoescape on %}
+            {% for msg in messages %}
+                toastr.{{ msg.level_tag }}("{{ msg }}");
+            {% endfor %}
+        {% endautoescape %}
+    });
+</script>
 </main>
+
+{% endif %}
+
+
+    
+    
     
 {% endblock %}

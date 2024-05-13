@@ -1,5 +1,7 @@
-from django.shortcuts import render,HttpResponse,redirect
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render,HttpResponse,redirect
 from products.models import Products
+from userprofile.models import Order
 # Create your views here.
 
 
@@ -42,3 +44,66 @@ def update_stock(request):
     # Return an HttpResponse with an error message if accessed via GET or any other method
             return HttpResponse("Method not allowed", status=405)
         return render(request,'admin_side/admin_login.html')
+    
+    # Order Management Views
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def order_management(request):
+    if "email" in request.session:
+        if request.method == "POST":
+            order_id = request.POST.get("order_id")
+            new_status = request.POST.get("new_status")
+
+            try:
+                order = Order.objects.get(pk=order_id)
+                order.status = new_status
+                order.save()
+                return JsonResponse(
+                    {"success": True, "message": "Status updated successfully"}
+                )
+            except Order.DoesNotExist:
+                return JsonResponse(
+                    {"success": False, "message": "Order not found"}, status=404
+                )
+
+        else:
+            # If it's a GET request, fetch orders and render the template
+            orders = Order.objects.all()
+            return render(
+                request, "admin_side/order_management.html", {"orders": orders}
+            )
+    return render(request, "admin_side/admin_login.html")
+
+
+# View for Updating Order Status
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def update_status(request, order_id):
+    if "email" in request.session:
+        order = get_object_or_404(Order, id=order_id)
+        if request.method == "POST":
+            new_status = request.POST.get("new_status")
+            order.status = new_status
+            order.save()
+        # Redirect back to the same page after updating status
+        return redirect("order_management")
+    return render(request, "admin_side/admin_login.html")
+
+
+# View for Updating Order Status
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def update_order_details(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == "POST":
+        # Update order details based on admin input
+        order.estimated_delivery_time = request.POST.get("estimated_delivery_time")
+        order.tracking_number = request.POST.get("tracking_number")
+        order.save()
+        return redirect("order_management")
+    # Render the custom HTML form for updating order details
+    return render(request, "admin_side/update_order_details.html", {"order": order})
+
+##Delete Cancelled Order
+def delete_order(request,order_id):
+    order= get_object_or_404(Order,id=order_id)
+    if order.status=="Cancelled":
+        order.delete()
+        return redirect("order_management")

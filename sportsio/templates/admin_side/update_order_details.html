@@ -1,0 +1,43 @@
+{% extends "admin_side/base.html"%}
+{% block content %}
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2>Update Order Details</h2>
+                <form method="POST" class="minimal-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="estimated_delivery_time">Estimated Delivery Time:(YYYY-MM-DD format)</label>
+                        <input type="text" id="estimated_delivery_time" name="estimated_delivery_time" value="{{ order.estimated_delivery_time }}" required class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <input type="text" id="status" name="status" value="{{ order.status }}" disabled class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tracking_number">Tracking Number:</label>
+                        <input type="text" id="tracking_number" name="tracking_number" value="{{ order.tracking_number }}" required class="form-control">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Update Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize date picker
+            $("#estimated_delivery_time").datepicker({
+                dateFormat: 'yy-mm-dd', // Format of the date
+                defaultDate: '2024-01-01', // Default date (2024-01-01)
+                changeMonth: true, // Allow changing month
+                changeYear: true // Allow changing year
+            });
+        });
+    </script>
+</body>
+{% endblock %}

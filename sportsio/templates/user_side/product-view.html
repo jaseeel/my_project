@@ -4,7 +4,7 @@
     <!-- ################################ Product View Start here ##################################-->
 
         <!-- Begin Uren's Tab Style Right Area -->
-        <div class="sp-area sp-tab-style_left sp-tab-style_right">
+        <div class="sp-area sp-tab-style_left sp-tab-style_right product-view">
             <div class="container-fluid">
                 <div class="sp-nav">
                     <div class="row">
@@ -94,15 +94,20 @@
                                 {% if product.stock_count > 0 %}
                                 <div class="quantity">
                                     <label>Quantity</label>
+                                    {% csrf_token %}
                                     <div class="cart-plus-minus">
-                                        <input class="cart-plus-minus-box" value="1" type="text">
+                                        <input class="cart-plus-minus-box prod_qty" value="1" type="text">
                                         <div class="dec qtybutton"><i class="fa fa-angle-down"></i></div>
                                         <div class="inc qtybutton"><i class="fa fa-angle-up"></i></div>
                                     </div>
                                 </div>
                                 <div class="qty-btn_area">
                                     <ul>
-                                        <li><a class="qty-cart_btn" href="cart.html">Add To Cart</a></li>
+                                        
+                                        <input type ="hidden" value="{{ product.id }}" class="prod_id">
+                                        <li><a class="uren-add_cart add_to_cart" > Add
+                                            to cart</a>
+                                        </li>
                                         <li><a class="qty-wishlist_btn" href="wishlist.html" data-toggle="tooltip" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
                                         </li>
                                     </ul>
@@ -309,7 +314,10 @@
                                             </a>
                                             <div class="add-actions">
                                                 <ul>
-                                                    <li><a class="uren-add_cart" href="cart.html" data-toggle="tooltip" data-placement="top" title="Add To Cart"><i class="ion-bag"></i></a>
+                                                    {% csrf_token %}
+                                                     <input type ="hidden" value="{{ pro.id }}" class="prod_id">
+                                                     <li><a class="uren-add_cart add_to_cart"  data-toggle="tooltip" data-placement="top" title="Add To Cart"><i
+                                                        class="ion-bag"></i> Add to cart</a>
                                                     </li>
                                                     <li><a class="uren-wishlist" href="wishlist.html" data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
                                                     </li>
@@ -343,4 +351,41 @@
             </div>
         </div>
         <!-- Uren's Product Area End Here -->
+
+        <!--######################## ADD TO CART ################-->
+        <script>
+            $('.add_to_cart').click(function (e){
+                e.preventDefault();
+                
+                var product_id = $(this).closest('.product-view').find('.prod_id').val();
+                var product_qty = $(this).closest('.product-view').find('.prod_qty').val(); ;
+                console.log(product_qty)
+                var token= $('input[name=csrfmiddlewaretoken]').val();
+            
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'user_profile:add_to_cart'%}",
+                    data:{
+                        'product_id':product_id,
+                        'product_qty':product_qty,
+                        csrfmiddlewaretoken : token
+                        
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        if (response.status === "Product Added Successfully" || response.status.includes("Cart Updated Successfully")) {
+                            toastr.success(response.status);
+                        } 
+                        else {
+        
+                            toastr.warning(response.status);
+                           
+                        }
+        
+                    }
+                })
+            
+            
+            })
+          </script>
         {% endblock content %}

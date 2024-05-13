@@ -2,6 +2,7 @@
 <!doctype html>
 <html class="no-js" lang="zxx">
 <head>
+   
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Uren - Car Accessories Shop HTML Template</title>
@@ -13,6 +14,9 @@
 
     <!-- CSS
 	============================================ -->
+    <!-- JQUERY-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{% static 'assets/user_side/css/vendor/bootstrap.min.css'%}">
@@ -32,6 +36,8 @@
     <link rel="stylesheet" href="{% static 'assets/user_side/css/plugins/lightgallery.min.css'%}">
     <!-- Nice Select -->
     <link rel="stylesheet" href="{% static 'assets/user_side/css/plugins/nice-select.css'%}">
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <!-- Vendor & Plugins CSS (Please remove the comment from below vendor.min.css & plugins.min.css for better website load performance and remove css files from the above) -->
     <!--
@@ -92,14 +98,19 @@
                                             <i class="ion-navicon"></i>
                                         </a>
                                     </li>
-                                    <a href="{% url 'user_profile:cart_view' %}" class="minicart-btn toolbar-btn">
+                                    
                                     <li class="minicart-wrap">
-                                        
+                                        <a href="{% url 'user_profile:cart_view' %}" class="minicart-btn ">
                                             <div class="minicart-count_area">
-                                                <span class="item-count">4</span>
+                                                <span class="item-count">{{ cart_count }}</span>
                                                 <i class="ion-bag"></i>
                                             </div>
+                                            <div class="minicart-front_text">
+                                                <span>Cart:</span>
+                                                <span class="total-price" style="font-weight:400; font-size:small">₹ {{ total_price }}</span>
+                                            </div>
                                         </a>
+                                    </li>
                                         
                                     </li>
                                    
@@ -497,19 +508,18 @@
                                         </a>
                                     </li>
                                     <li class="minicart-wrap">
-                                        <a href="#miniCart" class="minicart-btn toolbar-btn">
+                                        <a href="{% url 'user_profile:cart_view' %}" class="minicart-btn ">
                                             <div class="minicart-count_area">
-                                                <span class="item-count">3</span>
+                                            
+                                                <span class="item-count">{{ cart_count }}</span>
+                                              
                                                 <i class="ion-bag"></i>
                                             </div>
                                             <div class="minicart-front_text">
                                                 <span>Cart:</span>
-                                                <span class="total-price">462.4</span>
+                                                <span class="total-price" style="font-weight:400; font-size:small">₹{{ total_price }}</span>
                                             </div>
                                         </a>
-                                    </li>
-                                    <li class="contact-us_wrap">
-                                        <a href="tel://+123123321345"><i class="ion-android-call"></i>+123 321 345</a>
                                     </li>
                                 </ul>
                             </div>
@@ -885,6 +895,9 @@
 
     <!-- JS
 ============================================ -->
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- jQuery JS -->
     <script src="{% static 'assets/user_side/js/vendor/jquery-1.12.4.min.js'%}"></script>
