@@ -1,4 +1,6 @@
 from django.shortcuts import render, get_object_or_404
+
+from inventory.models import Coupon
 from .models import *
 from admin_side.models import CustomUser
 from admin_side.views import *
@@ -140,7 +142,8 @@ def cart_view(request):
     cart = Cart.objects.filter(user=request.user)
     cart_count=Cart.objects.filter(user=request.user).count()
     total_price = sum(item.product.offer_price * item.product_quantity for item in cart)
-
+    print(total_price)
+    Coupon_discount=0
 
     # Calculate stock_count_plus_one for each product in the cart
     max_stock_count_plus_one = Products.objects.aggregate(Max("stock_count"))[
@@ -149,6 +152,32 @@ def cart_view(request):
     # If there are no products or if the stock count is not available, default to 1
     stock_count_plus_one = max_stock_count_plus_one or 1
 
+    if request.method == "POST":
+       print("message sent here")
+       coupon_code = request.POST.get("coupon_code")
+       try:
+           coupon = Coupon.objects.get(code=coupon_code)
+           if coupon.discount_type == "percentage":
+               Coupon_discount = (total_price * coupon.discount_value) / 100
+           elif coupon.discount_type == "fixed_amount":
+               Coupon_discount = coupon.discount_value
+       except Coupon.DoesNotExist:
+           messages.error(
+               request, "Invalid coupon code. Please enter a valid coupon code."
+           )
+       for item in cart:
+           item.coupon_discount_amount = Coupon_discount
+
+        # Calculate total price for each cart item
+       for item in cart:
+            item.totalprice = (
+                item.product.price * item.product_quantity - item.coupon_discount_amount
+            )
+            item.save()
+            messages.success(
+               request, "Coupon Applied Successfully"
+             )
+   
     # Pass the cart items, total price, and coupon code to the template as context
     context = {
         "cart": cart,
@@ -215,6 +244,7 @@ def remove_cart(request, id):
     # Increase the stock count of the product
 
     cart_item.delete()
+    messages.success(request,"Cart item removed")
     return redirect("user_profile:cart_view")
 
 from django.contrib.auth.hashers import check_password
@@ -323,7 +353,7 @@ def order_checkout(request):
                 
                 
             
-# Confirm Orders
+#_________________Confirm Orders____________________
 @login_required
 def confirm_orders(request):
     print("reched here")
@@ -432,4 +462,20 @@ def cancel_order(request, order_id):
     else:
         # Handle error or redirect to appropriate page
         return redirect("some_error_page")
+    
+#______________Order View_________
+
+def order_view(request,id):
+    user=request.user
+    if user.is_authenticated:
+        order = Order.objects.get(id=id)
+        
+        context={
+            'order' : order
+        }
+        return render(request,"user_side/order_view.html",context)
+    else:
+        redirect("login")
+        
+    
 

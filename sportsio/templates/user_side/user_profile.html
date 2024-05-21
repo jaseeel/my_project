@@ -93,7 +93,7 @@
                                                 <td>{{ item.estimated_delivery_time }}</td>
                                                 <td>{{ item.status }}</td>
                                                 <td>Rs. {{ item.total_price}}</td>
-                                                <td><a href="#" class="uren-btn uren-btn_dark uren-btn_sm"><span>View</span></a>
+                                                <td><a href="{% url 'user_profile:order_view' item.id %}" class="uren-btn uren-btn_dark uren-btn_sm"><span>View</span></a>
                                                 </td>
                                                 <td >
                                                     <a href="{% url 'user_profile:cancel_order' item.id %}"class="uren-btn uren-btn_dark uren-btn_sm"><span>Cancel</span>

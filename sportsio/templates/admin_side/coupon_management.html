@@ -1,0 +1,40 @@
+{% extends "admin_side/base.html"%}
+{% block content %}
+<div class="card">
+    <div class="card-body p-4">
+        <button class="btn btn-primary btn-sm"><a href="{% url "add_coupon"%}">Add Coupon</a></button>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Coupon Code</th>
+                    <th>Discount Type</th>
+                    <th>Discount Value</th>
+                    <th>Min Order Value</th>
+                    <th>Expiration Date</th>
+                    <th>Max Uses</th>
+                    <th>Used Count</th>
+                    <th>Actions</th> <!-- New column for edit button -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for coupon in coupons %}
+                <tr>
+                    <td>{{ coupon.code }}</td>
+                    <td>{{ coupon.discount_type }}</td>
+                    <td>{{ coupon.discount_value }}</td>
+                    <td>{{ coupon.min_order_value }}</td>
+                    <td>{{ coupon.expiration_date }}</td>
+                    <td>{{ coupon.max_uses }}</td>
+                    <td>{{ coupon.used_count }}</td>
+                    <td>
+                       <a href="{% url 'edit_coupon' coupon.id %}" class="btn btn-info">Edit</a>
+                        <a href="{% url 'delete_coupon' coupon.id %}" class="btn btn-danger">Delete</a> 
+                        <!-- Edit button -->
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

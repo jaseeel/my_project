@@ -1,0 +1,87 @@
+{% extends 'user_side/base.html'%}
+
+{% block content %}
+
+<style>
+    .img-sm {
+        width: 150px; /* Adjust the width as needed */
+        height: 150px; /* Adjust the height as needed */
+        object-fit: contain;
+    }
+    .box-style {
+        border: 1px solid #ccc; /* Border thickness and color */
+        padding: 10px; /* Space between the border and the content inside */
+        margin: 20px; /* Space outside the box */
+        background-color: #f9f9f9; /* Background color */
+        border-radius: 5px; /* Rounded corners */
+    }
+    
+    
+</style>
+
+<div class="uren-cart-area">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="table-content table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="uren-product-remove">Order ID</th>
+                                <th class="uren-product-thumbnail">images</th>
+                                <th class="cart-product-name">Product</th>
+                                <th class="uren-product-price li-product-price">Unit Price</th>
+                                <th class="uren-product-quantity">Quantity</th>
+                                    
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for items in order.orderitem_set.all %}
+                            <tr>
+                                <td class="uren-product-remove">
+                                    <span>{{ items.id }}</span>
+                                </td>
+                                                                            <td class="uren-product">
+                                    <a href="javascript:void(0)">
+                                        <img class="img-sm img-thumbnail" src="{{ items.product.image.url }}" alt="Uren's Cart Thumbnail">
+                                    </a>
+                                </td>
+                                
+                                <td class="uren-product-name"><a href="javascript:void(0)">{{ items.product }}</a></td>
+                                <td class="uren-product-price"><span class="amount">{{ items.quantity }}</span></td>
+                                <td class="uren-product-price"><span class="amount">₹ {{ items.price }}</span></td>
+                                
+                               
+                            </tr>
+                            {% endfor %}
+                           
+                            <!-- Display total_price outside of the loop -->
+                        </tbody>
+                    </table>
+                    <div class="box-style">
+                        <span style="font-weight:bold">Delivery Address :</span><span> {{ order.address.address }} </span>
+                        <br>
+                        <span style="font-weight:bold">Payment Method :</span><span> {{ order.payment_method }} </span>
+                    <br>
+                    <span style="font-weight:bold">Order at :</span><span> {{ order.created_at }} </span>
+                    <br>
+                    <span style="font-weight:bold">Status :</span><span> {{ order.status }} </span>
+                    <br>
+                    {% if order.status != "Delivered"%}
+                    <span style="font-weight:bold">Estimated Delivery :</span><span> {{ order.estimated_delivery_time }} </span>
+                    <br>
+                    {% endif %}
+                    <span style="font-weight:bold">Track ID :</span><span> {{ order.tracking_number }} </span>
+                    <br><div style="padding-top:20px; font-size:20px; font-weight:bolder;">
+                        <span >Total :</span><span style="color: red;"> Rs {{ order.total_price }} </span>
+                    </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    
+
+
+{% endblock %}

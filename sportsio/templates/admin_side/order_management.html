@@ -32,22 +32,29 @@
                     <td>{{ order.tracking_number }}</td>
                     <td>
                         {% for order_item in order.orderitem_set.all %}
+                        <div style="border: 1px solid;">
                         {{ order_item.product.title|truncatewords:2 }}
+                        </div>
                         {% endfor %}
                     </td>
                     <td>{{ order.order_notes }}</td>
                     <td>
                         {% for order_item in order.orderitem_set.all %}
+                        <div style="border: 1px solid;">
                         {{ order_item.quantity }}
+                        </div>
                         {% endfor %}
                     </td>
                     <td>
                         {% for order_item in order.orderitem_set.all %}
+                        <div style="border: 1px solid;">
                         {% if order_item.product.image %}
+                        
                         <img src="{{ order_item.product.image.url }}" alt="{{ order_item.product.title }}" class="img img-thumbnail product-image" style="max-width: 50px;">
                         {% else %}
                         <p>No image available</p>
                         {% endif %}
+                        </div>
                         {% endfor %}
                     </td>
                     <td>

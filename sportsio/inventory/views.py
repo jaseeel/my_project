@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render,HttpResponse,redirect
 from products.models import Products
 from userprofile.models import Order
+from .models import  *
 # Create your views here.
 
 
@@ -107,3 +108,74 @@ def delete_order(request,order_id):
     if order.status=="Cancelled":
         order.delete()
         return redirect("order_management")
+    # Coupon Management Views
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def coupon_list(request):
+    coupons = Coupon.objects.all()
+
+    context = {"coupons": coupons}
+
+    return render(request, "admin_side/coupon_management.html", context)
+
+
+# View for Adding Coupon
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def add_coupon(request):
+    if request.method == "POST":
+        code = request.POST.get("code")
+        discount_type = request.POST.get("discount_type")
+        discount_value = request.POST.get("discount_value")
+        min_order_value = request.POST.get("min_order_value")
+        expiration_date = request.POST.get("expiration_date")
+        max_uses = request.POST.get("max_uses")
+
+        # Validate and save the coupon (You might want to add more validation logic here)
+        if (
+            code
+            and discount_type
+            and discount_value
+            and min_order_value
+            and expiration_date
+            and max_uses
+        ):
+            Coupon.objects.create(
+                code=code,
+                discount_type=discount_type,
+                discount_value=discount_value,
+                min_order_value=min_order_value,
+                expiration_date=expiration_date,
+                max_uses=max_uses,
+            )
+            return redirect("coupon_management")
+    return render(request, "admin_side/add_coupon.html")
+
+
+# View for Deleting Coupon
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def delete_coupon(request, coupon_id):
+    coupon = get_object_or_404(Coupon, pk=coupon_id)
+    context = {
+        "coupon": coupon,
+    }
+    coupon.delete()
+    return redirect("coupon_management")
+
+
+# View for Deleting Coupon
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def edit_coupon(request, coupon_id):
+    coupon = get_object_or_404(Coupon, pk=coupon_id)
+    context = {
+        "coupon": coupon,
+    }
+    if request.method == "POST":
+        # Update the coupon with the new data from the form
+        coupon.code = request.POST.get("code")
+        coupon.discount_type = request.POST.get("discount_type")
+        coupon.discount_value = request.POST.get("discount_value")
+        coupon.min_order_value = request.POST.get("min_order_value")
+        coupon.expiration_date = request.POST.get("expiration_date")
+        coupon.max_uses = request.POST.get("max_uses")
+        coupon.save()
+        return redirect("coupon_management")  # Redirect to the coupon list page after editing
+    return render(request, "admin_side/edit_coupon.html", context)

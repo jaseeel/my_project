@@ -21,6 +21,8 @@ urlpatterns = [
     path('reset_password/',views.reset_password,name="reset_password"),
     path('order_checkout/',views.order_checkout,name='order_checkout'),
     path('confirm_orders',views.confirm_orders,name='confirm_orders'),
+    path('order_view/',views.order_view,name="order_view"),
     path("orders/<int:order_id>/", views.order_confirmation, name="order_confirmation"),
     path("cancel-order/<int:order_id>/", views.cancel_order, name="cancel_order"),
+    path("order_view/<int:id>/",views.order_view,name="order_view")
     ]
