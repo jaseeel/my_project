@@ -1,0 +1,18 @@
+{% extends 'user_side/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container" style="text-align: center;">  
+        <div class="photos-container" style="display: inline-block;">
+            <div class="photo" style="display: inline-block; margin-right: 20px;">
+                <img src="{% static 'assets/user_auth/images/png-transparent-razorpay-logo-tech-companies.png' %}" alt="Razorpay Logo" style="max-width: 100px; margin-bottom: 10px;">
+            </div>
+
+        </div>
+        <h1>Payment Successful</h1>
+        <p>Thank you for your payment!</p>           
+         <div class="photo" style="display: inline-block;">
+                <img src="{% static 'assets/user_auth/images/Eo_circle_green_checkmark.svg.png' %}" alt="Green Tick" style="max-width: 100px; margin-bottom: 10px;">
+                <p>Payment Successful</p>
+            </div>
+    </div>
+{% endblock content %}

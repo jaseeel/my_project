@@ -71,18 +71,19 @@
                                 <option value="Refunded" {% if order.status == "Refunded" %} selected {% endif %}>Refunded</option>
                             </select>
                             {% if order.status != "Cancelled" and order.status != "Return" and order.status != "Refunded" %}
-                            <button type="submit" class="btn btn-primary">Update Status</button>
+                            <button style="margin-top:5px;" type="submit" class="btn btn-sm btn-primary">Update Status</button>
                             {%endif%}
                         </form>
                     </td>
                     <td>
                         {% if order.status == "Return" or order.status == "Cancelled" and order.paid == True %}
-                        <a href="{% url 'refund_order' order.id %}" class="btn btn-primary">Refund</a>
+                        <a href="#" class="btn btn-sm btn-primary">Refund</a>
                         {% elif order.status == "Return" or order.status == "Cancelled" %}
-                        <a href="{% url 'update_order_details' order.id %}" class="btn btn-primary" hidden>Update Details</a>
+                        <a href="{% url 'update_order_details' order.id %}" class="btn btn-sm btn-primary" hidden>Update Details</a>
                         {% else %}
-                        <a href="{% url 'update_order_details' order.id %}" class="btn btn-primary">Update Details</a>
+                        <a href="{% url 'update_order_details' order.id %}" class="btn btn-sm btn-primary">Update Details</a>
                         {% endif %}
+                        <a style="margin-top:5px;" class="btn btn-sm btn-primary">Order View</a>
                     </td>
                     <td class="uren-product-remove">
                         {% if order.status == "Cancelled" %}

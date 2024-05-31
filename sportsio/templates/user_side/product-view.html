@@ -305,7 +305,7 @@
                             <!-- Product Slide Area Start Here-->
 
                             {% for pro in related_products %}
-                            <div class="product-slide_item">
+                            <div class="product-slide_item related-products">
                                 <div class="inner-slide">
                                     <div class="single-product">
                                         <div class="product-img">
@@ -317,9 +317,9 @@
                                                     {% csrf_token %}
                                                      <input type ="hidden" value="{{ pro.id }}" class="prod_id">
                                                      <li><a class="uren-add_cart add_to_cart"  data-toggle="tooltip" data-placement="top" title="Add To Cart"><i
-                                                        class="ion-bag"></i> Add to cart</a>
+                                                        class="ion-bag"></i> </a>
                                                     </li>
-                                                    <li><a class="uren-wishlist" href="wishlist.html" data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
+                                                    <li><a class="uren-wishlist" href="{% url 'user_profile:wishlist'%}" data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
                                                     </li>
                                                 </ul>
                                             </div>

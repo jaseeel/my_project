@@ -8,6 +8,37 @@
     }
     
 </style>
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 80%; /* Ensure the body takes full height */
+    }
+    
+    .wishlist-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%; /* Take up the full height of the viewport */
+        border: 3px solid #aaa; /* Add a border */
+        border-radius: 10px; /* Optional: round the corners */
+        padding: 20px; /* Add some space between the border and the content */
+        box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    }
+    
+    .icon {
+        font-size: 24px; /* Adjust the size of the icon */
+        color: #f00; /* Change the color of the icon */
+        margin-bottom: 10px; /* Space between the icon and the text */
+    }
+    
+    h1 {
+        font-size: 32px; /* Adjust the size of the heading */
+        color: #333; /* Change the color of the heading */
+    }
+    
+</style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <!-- Begin Uren's Breadcrumb Area -->
         <div class="breadcrumb-area">
@@ -22,6 +53,7 @@
             </div>
         </div>
         <!-- Uren's Breadcrumb Area End Here -->
+        {% if cart %}
         <!-- Begin Uren's Cart Area -->
             <div class="uren-cart-area">
                 <div class="container-fluid">
@@ -36,14 +68,16 @@
                                             <th class="cart-product-name">Product</th>
                                             <th class="uren-product-price">Unit Price</th>
                                             <th class="uren-product-quantity">Quantity</th>
-                                            <th > Product Subtotal</th>
+                                            <th class="uren-product-quantity">Product Total</th>
+                                           
                                                 
                                             
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for items in cart %}
-                                        <tr>
+                                        
+                                        <tr class="product_data">
                                             <td class="uren-product-remove">
                                                 <a href="{% url 'user_profile:remove_cart' items.id %}" onclick="removeItem(event, '{{ items.id }}')">
                                                     <i class="fa fa-trash" title="Remove"></i>
@@ -56,7 +90,7 @@
                                             </td>
                                             
                                             <td class="uren-product-name"><a href="javascript:void(0)">{{ items.product }}</a></td>
-                                            <td class="uren-product-price"><span class="amount li-product-price">₹ {{ items.product.offer_price }}</span></td>
+                                            <td class="uren-product-price"><span>&#x20B9;</span><span class="amount li-product-price"> {{ items.product.offer_price }}</span></td>
                                             <td class="quantity tr">
                                                 {% if items.product_id.stock_count <= 0 %}
                                                 <span class="h6" style="color:red; ">OUT OF STOCK</span>
@@ -73,8 +107,13 @@
                                             </div>
                                         </div>
                                             {% endif %}
+
+                                            
                                             </td>
-                                            <td class="product-subtotal"><span class="amount">₹{{ item.total_price }}</span></td>
+                                            <td class="totel-price  uren-product-price"> <span>&#x20B9;</span> <span class="totel-price"> {{items.in_totel}}</span>
+
+                                            </td>
+                                            
                                         </tr>
                                         {% endfor %}
                                         <!-- Display total_price outside of the loop -->
@@ -83,29 +122,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="coupon-all">
-                                <form method="POST" action="{% url 'user_profile:cart_view'%}">
-                                    {% csrf_token %}
-                                <div class="coupon">
-                                    <input id="coupon_code" class="input-text" name="coupon_code" value="" placeholder="Coupon code" type="text">
-                                    <input class="button" name="apply_coupon" value="Apply coupon" type="submit">
-                                </div>
-                            </form>
-                            </div>
-                        </div>
-                    </div>
                             <div class="row">
                                 <div class="col-md-5 ml-auto">
                                     <div class="cart-page-total">
                                         <h2>Cart totals</h2>
                                         <ul>
-                                            <li>Subtotal <span id="subtotal">₹{{ subtotal }}</span></li>   
-                                            <li>Delivery <span>₹50</span></li>                                         <li>Total 
-                                                 <span id="total">₹{{ subtotal }}</span>
+                                            <li>Subtotal  <span class="sub_total"> {{ sub_total }}</span> <span>&#x20B9; </span></li> 
+                                            <li>You Saved<span class="saved_price" style="color:red;"> {{ saved_price }} </span> <span>- &#x20B9; </span></li>  
+                                                                 <li>Total  
+                                                 <span class="total-price" > {{ total_price }} </span> <span>&#x20B9; </span>
                                                 
                                             </li>
+
 
                                         </ul>
                                         <button ><a href="{% url 'user_profile:order_checkout' %}">Proceed to checkout</a></button>
@@ -113,6 +141,13 @@
                                     </div>
                                 </div>
                             </div>
+                            {%else%}
+                            <div class="wishlist-empty">
+                                <i class="icon">❤️</i>
+                                <h1>Cart is empty</h1>
+                                <button class="btn btn-md btn-warning"><a href="{% url "user_side:product_list"%}">Shop Now</a></button>
+                            </div>
+                            {% endif%}
                     </div>
                 </div>
           
@@ -145,61 +180,54 @@
         // Function to update cart item totals
         function updateCartItem(row) {
             var quantity = parseInt(row.find('.qty-input').val());
-            var price = parseFloat(row.find('.li-product-price').text().replace('₹', ''));
-            var subtotal = quantity * price;
-            row.find('.product-subtotal .amount').text('₹' + subtotal.toFixed(2));
-            updateCartTotals();
             
             // Send AJAX request to update cart quantity
             var product_id = row.find('.prod_id').val();
             var quantity = quantity;
             $.ajax({
-                url: "{% url 'user_profile:update_cart_quantity'%}",
+                url: '{% url "user_profile:update_cart_quantity" %}',
                 method: 'POST',
                 data: {
                     'product_id': product_id,
                     'quantity': quantity,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    'csrfmiddlewaretoken': '{{ csrf_token }}' // Ensure to include CSRF token
                 },
-                success: function(response) {
-                    console.log(response);
+                success: function(response) { 
+                    if(response.success) {
+                        console.log("applied")
+                    $('.total-price').text(response.total_price);
+                    $('.sub_total').text(response.sub_total);
+                    $('.saved_price').text(response.saved_price);
+                 
+                } else {
+                    alert('Failed to update total price');
+                }
                 },
                 error: function(xhr, errmsg, err) {
-                    console.log('some error occured')
+                    // Handle error response if needed
+                    console.log(xhr.status + ": " + xhr.responseText);
                 }
             });
         }
-        
-        function updateCartTotals() {
-            var subtotal = 0; // Initialize subtotal to 0
-            $('.product-subtotal .amount').each(function() {
-                // Extract the numeric part of the text content and add it to the subtotal
-                subtotal += parseFloat($(this).text().replace('₹', '').trim()); // Trim removes any whitespace around the number
-            });
-            $('#subtotal').text('₹' + subtotal.toFixed(2));
-        
-            // Assuming a fixed delivery charge of ₹50
-            var deliveryCharge = 50; // Convert to float if necessary
-            var total = subtotal + deliveryCharge; // Add the delivery charge to the subtotal
-            $('#total').text('₹' + total.toFixed(2));
-        }
-        
-        // Initial calculation of cart totals when the page loads
-        updateCartTotals();
+    
     
         // Plus button click event
         $('.plus-btn').click(function() {
+            console.log('Plus button clicked');
             var input = $(this).parent().prev('input.qty-input');
             var currentVal = parseInt(input.val());
             var stockCount = parseInt(input.attr('max'));
+            console.log('Current value:', currentVal);
+            console.log('Max stock count:', stockCount);
             if (!isNaN(currentVal) && currentVal < stockCount) {
                 input.val(currentVal + 1).change();
                 updateCartItem($(this).closest('tr'));
+                console.log('Quantity increased');
             } else {
-                toastr.warning("Reached maximum stock count");
+                console.log('Reached maximum stock count');
             }
         });
-        
+    
         // Minus button click event
         $('.minus-btn').click(function() {
             var input = $(this).parent().next('input.qty-input');
@@ -209,7 +237,7 @@
                 updateCartItem($(this).closest('tr'));
             }
         });
-        
+    
         // Quantity input change event
         $('.qty-input').change(function() {
             var input = $(this);
@@ -221,6 +249,7 @@
             updateCartItem($(this).closest('tr'));
         });
     });
+    
     </script>
                     
         <!-- Uren's Cart Area End Here -->

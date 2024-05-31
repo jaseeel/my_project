@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.db import models
 from products.models import *
 from admin_side.models import CustomUser
+from inventory.models import Coupon
 # Create your models here.
 
 
@@ -28,6 +29,7 @@ class Cart(models.Model):
 
     product_quantity = models.IntegerField(default=1, null=True, blank=False)
     created_date = models.DateField(default=timezone.now)
+
 
 
 class payment(models.Model):
@@ -59,13 +61,17 @@ class Order(models.Model):
     products = models.ManyToManyField(Products, through="OrderItem")
     address = models.ForeignKey("Address", on_delete=models.SET_NULL, null=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount_price = models.DecimalField(max_digits=10, decimal_places=2,default=0)
     payment_method = models.CharField(max_length=100)
+    coupon_used=models.CharField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pending")
     estimated_delivery_time = models.DateField(null=True, blank=True)
     tracking_number = models.CharField(max_length=10, blank=True, null=True)
     order_notes=models.TextField(max_length=50, null=True)
     paid = models.BooleanField(default=False)
+    razorpay_order_id = models.CharField(max_length=100, null=True, blank=True)
+
 
     # Add status field with choices
 
@@ -78,3 +84,9 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Products, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    product = models.ForeignKey(Products, on_delete=models.CASCADE, null=True, blank=True)
+    

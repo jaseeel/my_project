@@ -1,0 +1,151 @@
+        {% extends 'user_side/base.html'%}
+        {% block content%}
+        <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+                height: 100%; /* Ensure the body takes full height */
+            }
+            
+            .wishlist-empty {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100%; /* Take up the full height of the viewport */
+                border: 3px solid #aaa; /* Add a border */
+                border-radius: 10px; /* Optional: round the corners */
+                padding: 20px; /* Add some space between the border and the content */
+                box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            }
+            
+            .icon {
+                font-size: 24px; /* Adjust the size of the icon */
+                color: #f00; /* Change the color of the icon */
+                margin-bottom: 10px; /* Space between the icon and the text */
+            }
+            
+            h1 {
+                font-size: 32px; /* Adjust the size of the heading */
+                color: #333; /* Change the color of the heading */
+            }
+         
+                .img-sm {
+                    width: 250px; /* Adjust the width as needed */
+                    height: 250px; /* Adjust the height as needed */
+                    object-fit: contain;
+                }
+                
+           
+            
+        </style>
+        
+        <!--Begin Uren's Wishlist Area -->
+        <div class="uren-wishlist_area">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form action="javascript:void(0)">
+                            <div class="table-content table-responsive">
+                                {% if wishlist %}
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="uren-product_remove">remove</th>
+                                            <th class="uren-product-thumbnail">images</th>
+                                            <th class="cart-product-name">Product</th>
+                                            <th class="uren-product-price">Unit Price</th>
+                                            <th class="uren-product-stock-status">Stock Status</th>
+                                            <th class="uren-cart_btn">add to cart</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for wlist in wishlist %}
+                                        <tr class="product-view">
+                                            <td class="uren-product_remove"><a href="{% url "user_profile:delete_wishlist" wlist.id %}"><i class="fa fa-trash"
+                                                title="Remove"></i></a></td>
+                                                {% csrf_token%}
+                                                <input type="hidden" class="prod_id" value="{{ wlist.product.id }}">
+                                            <td class="uren-product-thumbnail img-sm img-thumbnail"><a href="{% url 'user_side:user_product_view' wlist.product.id %}"><img class="img-thumbnail" src="{{ wlist.product.image.url}}" alt="Uren's Wishlist Thumbnail"></a>
+                                            </td>
+                                            <td class="uren-product-name"><a href="javascript:void(0)">{{ wlist.product.title}}</a></td>
+                                            <td class="uren-product-price"><span class="amount">{{ wlist.product.offer_price}}</span></td>
+                                            <td class="uren-product-stock-status"><span class="in-stock">{{ wlist.product.stock_count}} left</span></td>
+                                            <td class="uren-cart_btn add_to_cart"><a href="javascript:void(0)">add to cart</a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% else %}
+                                <div class="wishlist-empty">
+                                    <i class="icon">❤️</i>
+                                    <h1>Wishlist is empty</h1>
+                                    <button class="btn btn-md btn-warning"><a href="{% url "user_side:product_list"%}">Add to wishlist</a></button>
+                                </div>
+                                
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Uren's Wishlist Area End Here -->
+
+
+
+        <!-- Add to cart code-->
+        <script>
+            $('.add_to_cart').click(function (e){
+                e.preventDefault();
+                
+                var product_id = $(this).closest('.product-view').find('.prod_id').val();
+                var product_qty = 1 ;
+                console.log(product_qty)
+                var token= $('input[name=csrfmiddlewaretoken]').val();
+            
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'user_profile:add_to_cart'%}",
+                    data:{
+                        'product_id':product_id,
+                        'product_qty':product_qty,
+                        csrfmiddlewaretoken : token
+                        
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        if (response.status === "Product Added Successfully" | response.status.includes("Cart Updated Successfully")) {
+                            toastr.success(response.status);
+                        } 
+                        else {
+        
+                            toastr.warning(response.status);
+                           
+                        }
+        
+                    }
+                })
+            
+            
+            })
+          </script>
+        {% endblock %}
+
+<!-- Toasters -->
+{% if messages %}
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        toastr.options = { "closeButton": false, "debug": false, "newestOnTop": true,
+            "progressBar": true, "positionClass": "toast-top-right", "preventDuplicates": true,
+            "onclick": null, "showDuration": "300", "hideDuration": "1000", "timeOut": "5000",
+            "extendedTimeOut": "1000", "showEasing": "swing", "hideEasing": "linear",
+            "showMethod": "fadeIn", "hideMethod": "fadeOut" };
+        {% autoescape on %}
+            {% for msg in messages %}
+                toastr.{{ msg.level_tag }}("{{ msg }}");
+            {% endfor %}
+        {% endautoescape %}
+    });
+</script>
+{% endif %} 

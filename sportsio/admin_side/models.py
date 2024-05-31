@@ -35,6 +35,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     date_joined = models.DateTimeField(default=timezone.now)
     phone = models.CharField(max_length=15, blank=False)
+    wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     
 
     objects = CustomUserManager()

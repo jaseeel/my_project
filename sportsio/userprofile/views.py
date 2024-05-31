@@ -11,8 +11,11 @@ from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Max
 from django.contrib.auth import update_session_auth_hash
-
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
+
+from django.utils.timezone import now as timezone_now
 
 # Create your views here.
 
@@ -23,14 +26,16 @@ def user_profile(request):
     if user.is_authenticated:
         addresses=address.objects.filter(username=user)
         reset_user=CustomUser.objects.filter(username=user)
+        cart_count=Cart.objects.filter(user=request.user).count()
  
         # Fetch orders related to the current user
-        user_orders = Order.objects.filter(user=request.user).exclude(status='Cancelled')
+        user_orders = Order.objects.filter(user=request.user)
         context={
              'user':user,
              'address':addresses,
              "reset_user":reset_user,
              "orders": user_orders,
+             'cart_count':cart_count
          }
         return render(request,"user_side/user_profile.html",context)
     else:
@@ -98,12 +103,11 @@ def delete_address(request,id):
 from django.db.models import F
 
 def add_tocart(request):
-    if request.method == 'POST':
-        if request.user.is_authenticated:
+    if request.user.is_authenticated:
+        if request.method == 'POST':
             prod_id = int(request.POST.get('product_id'))
             prod_qty = int(request.POST.get('product_qty'))
             product_check = Products.objects.get(id=prod_id)
-           
             if product_check:
                 if Cart.objects.filter(user=request.user, product=prod_id).exists():
                     # Use update() to increment the product_qty of the existing cart item
@@ -121,73 +125,44 @@ def add_tocart(request):
                             )
                         return JsonResponse({'status': "Product Added Successfully"})
                     else:
-                        return JsonResponse({'status': "Limited stocks left"})
+                        return JsonResponse({'status': "No stocks left"})
             else:
                 return JsonResponse({'status': "Product not found"})
-        else:
-            # Use Django's messaging framework to inform the user
-            messages.error(request, "Login Required")
-            # Redirect the user to the login page
-            return redirect('login')
-    return redirect('/')
+    else:
+        # Use Django's messaging framework to inform the user
+        return JsonResponse({'status': "Login Required"})
+    
 
 
 # ______________Cart_view_________
-
 def cart_view(request):
     if not request.user.is_authenticated:
-        messages.error(request, "You need to log in to access Cart.")
+        messages.error(request, "You need to log in to access wallet payment.")
         return redirect("login")
-    # Retrieve the current user's cart items
-    cart = Cart.objects.filter(user=request.user)
-    cart_count=Cart.objects.filter(user=request.user).count()
-    total_price = sum(item.product.offer_price * item.product_quantity for item in cart)
-    print(total_price)
-    Coupon_discount=0
 
-    # Calculate stock_count_plus_one for each product in the cart
-    max_stock_count_plus_one = Products.objects.aggregate(Max("stock_count"))[
-        "stock_count__max"
-    ]
-    # If there are no products or if the stock count is not available, default to 1
-    stock_count_plus_one = max_stock_count_plus_one or 1
+    cart_items = Cart.objects.filter(user=request.user)
+    total_price = sum(item.product.offer_price * item.product_quantity for item in cart_items)
+    sub_total = sum(item.product.price * item.product_quantity for item in cart_items)
+    saved_price= sub_total-total_price
+    
+    # To set maximum quantity can be added to cart
+    max_stock_count_plus_one = Products.objects.aggregate(Max("stock_count"))["stock_count__max"] or 1
+    stock_count_plus_one = max_stock_count_plus_one
 
-    if request.method == "POST":
-       print("message sent here")
-       coupon_code = request.POST.get("coupon_code")
-       try:
-           coupon = Coupon.objects.get(code=coupon_code)
-           if coupon.discount_type == "percentage":
-               Coupon_discount = (total_price * coupon.discount_value) / 100
-           elif coupon.discount_type == "fixed_amount":
-               Coupon_discount = coupon.discount_value
-       except Coupon.DoesNotExist:
-           messages.error(
-               request, "Invalid coupon code. Please enter a valid coupon code."
-           )
-       for item in cart:
-           item.coupon_discount_amount = Coupon_discount
 
-        # Calculate total price for each cart item
-       for item in cart:
-            item.totalprice = (
-                item.product.price * item.product_quantity - item.coupon_discount_amount
-            )
-            item.save()
-            messages.success(
-               request, "Coupon Applied Successfully"
-             )
-   
-    # Pass the cart items, total price, and coupon code to the template as context
     context = {
-        "cart": cart,
-        "total_price": total_price,
+        "cart": cart_items,
+        "sub_total": float(sub_total),  # Same consideration as above
+        "total_price": float(total_price),  # Same consideration as above
         "stock_count_plus_one": stock_count_plus_one,
-        "cart_count":cart_count
+        'saved_price':saved_price,
     }
 
-    # Pass the cart items to the template
     return render(request, "user_side/cart_view.html", context)
+
+
+            
+
 
     
 
@@ -206,6 +181,7 @@ def update_cart_quantity(request):
         
             # Retrieve the product object
             product = get_object_or_404(Products, id=product_id)
+            cart_items = Cart.objects.filter(user=request.user)
             
 
             # Get or create the cart item for the user and product
@@ -217,14 +193,19 @@ def update_cart_quantity(request):
             # Update the cart item quantity
             cart_item.product_quantity = new_quantity
             cart_item.save()
-            
-            total_price = product.price * new_quantity
+
+        
+            total_price = sum(item.product.offer_price * item.product_quantity for item in cart_items)
+            sub_total = sum(item.product.price * item.product_quantity for item in cart_items)
+            saved_price= sub_total-total_price
             # Return JSON response with updated details
             return JsonResponse(
                 {
                     "success": "Cart quantity updated successfully",
 
                     'total_price': total_price,
+                    'sub_total':sub_total,
+                    'saved_price':saved_price
                 }
             ) 
         else:
@@ -319,33 +300,57 @@ def order_checkout(request):
         return redirect("login")
     # Retrieve saved addresses from the Address model
     user = request.user
+    total_amount = 0
     addresses = address.objects.filter(username=user)
 
     # Retrieve payment modes from the payment module
     payment_modes = dict(payment.PAYMENT_CHOICES)
-
+    
     # Retrieve cart items from the Cart model for the current user
     cart = Cart.objects.filter(user=user)
-    total_amount = 0
+    Coupon_discount=0
     # Calculate the total price for each cart item and print quantity of each product
+    total_amount = sum(item.product.offer_price * item.product_quantity for item in cart)
+    sub_total=total_amount
     for item in cart:
         item.total_price = (
-            item.product.price * item.product_quantity
+            item.product.offer_price * item.product_quantity
         )
-        total_amount += item.total_price
-    sub_total=total_amount
+        item.save()
+    #Apply Coupon Here
+    if request.method == "POST":
+        coupon_code = request.POST.get("coupon_code")
+        try:
+            coupon = Coupon.objects.get(code=coupon_code)
+            if coupon.expiration_date < timezone_now().date():
+                messages.error(request,"Coupon Expired")
+            else:
+                if coupon.discount_type == "percentage":
+                    Coupon_discount = (total_amount * coupon.discount_value) / 100
+                elif coupon.discount_type == "fixed":
+                    Coupon_discount = coupon.discount_value
+                # Apply Coupon Discount to the price
+                total_amount -= Coupon_discount
+                messages.success(request, "Coupon Applied Successfully")
+        except Coupon.DoesNotExist:
+            messages.error(request, "Invalid coupon code. Please enter a valid coupon code.")
+
+    
     delivery=0
     if total_amount<5000:
         delivery=60
         total_amount+=delivery
 
+    
     context = {
         "addresses": addresses,
         "cart": cart,
         "payment_modes": payment_modes,
-        'sub_total':sub_total,
-        "total_amount": total_amount,
-        'delivery':delivery
+        'sub_total':total_amount,
+        "total_amount": sub_total,
+        'delivery':delivery,
+        'Coupon_discount':Coupon_discount,
+        "coupon_code": coupon_code if "coupon_code" in locals() else None,
     }
 
     # Render the checkout template with the context
@@ -356,21 +361,20 @@ def order_checkout(request):
 #_________________Confirm Orders____________________
 @login_required
 def confirm_orders(request):
-    print("reched here")
     if not request.user.is_authenticated:
         messages.error(request, "You need to log in to access wallet payment.")
         return redirect("login")
     if request.method == "POST":
         # Process form submission
         user = request.user
+        
         address_id = request.POST.get("saved_address")
         payment_method = request.POST.get("payment_method")
         order_notes=request.POST.get("order_notes")
+        coupon_used=request.POST.get("code")
+        total_price=request.POST.get('total_price')
         cart = Cart.objects.filter(user=user)
-        total_price = sum(
-            item.product.price * item.product_quantity
-            for item in cart
-        )
+        
 
         for item in cart:
             product = item.product
@@ -387,9 +391,10 @@ def confirm_orders(request):
         order = Order.objects.create(
             user=user,
             address_id=address_id,
-            total_price=total_price,
             payment_method=payment_method,
+            coupon_used=coupon_used,
             order_notes=order_notes,
+            total_price=total_price
         )
 
         # Create order items
@@ -398,7 +403,8 @@ def confirm_orders(request):
                 order=order,
                 product=item.product,
                 quantity=item.product_quantity,
-                price=item.product.price * item.product_quantity,
+                price=item.product.offer_price * item.product_quantity,
+                
             )
 
         # Clear the cart
@@ -420,7 +426,7 @@ def confirm_orders(request):
             "payment_modes": payment_modes,
             "total": total,
         }
-        return render(request, "user_auth/confirm_orders.html", context)
+        return render(request, "user_side/confirm_orders.html", context)
 
 def order_confirmation(request, order_id):
     if not request.user.is_authenticated:
@@ -477,5 +483,104 @@ def order_view(request,id):
     else:
         redirect("login")
         
-    
+#_______________Wishlist__________
 
+@login_required
+def wishlist(request):
+    if request.user.is_authenticated:
+        try:
+            product_id = int(request.POST.get('product_id'))
+            product = get_object_or_404(Products, id=product_id)
+        except (ValueError, Products.DoesNotExist):
+            messages.error(request, "Invalid product ID or product does not exist.")
+            return redirect("home")
+
+        if Wishlist.objects.filter(user=request.user, product=product).exists():
+            return JsonResponse({'status': "Product already exists"})
+        else:
+            wishlist_item = Wishlist(user=request.user, product=product)
+            wishlist_item.save()
+
+        return JsonResponse({'status': "Product added to Wishlist"})
+    
+    return JsonResponse({'status': "Login Required"})
+
+
+
+        
+#___________---Wish List View---____________
+def wishlist_view(request):
+    user=request.user
+    if user.is_authenticated:
+        wishlist_view=Wishlist.objects.filter(user=user)   
+        context={
+            'wishlist':wishlist_view
+        }
+        return render(request,"user_side/wishlist.html",context)
+    else:
+        messages.error(request,"Login to access wishlist")
+    return redirect("home")
+
+#_______________--- Delete Wishlist Items---__________
+def delete_wishlist(request,id):
+    if request.user.is_authenticated:
+        w_item=Wishlist.objects.get(user=request.user,id=id)
+        w_item.delete()
+        messages.success(request,"Removed item")
+        return redirect("user_profile:wishlist_view")
+    else:
+        messages.info("Login to access wishlist")
+        return redirect("home")
+
+
+# ------------------------razorpay----------------------
+
+@csrf_exempt
+
+def razorpay_callback(request):
+    if request.method == "POST":
+        data = request.POST
+        cart_items = Cart.objects.filter(user=request.user)
+        total_price = sum(cart_item.product.offer_price for cart_item in cart_items)
+            
+            
+        
+        
+        try:
+            with transaction.atomic():
+                order = Order.objects.create(
+                    user=request.user,
+                    total_price=total_price,
+                    payment_method="Razorpay",
+                    paid=True,  # Assume payment is successful initially
+                    razorpay_order_id=data.get("razorpay_payment_id"),
+                )
+                for cart_item in cart_items:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=cart_item.product,
+                        quantity=cart_item.product_quantity,
+                        price=cart_item.product.price,
+                    )
+                
+                for item in cart_items:
+                    product = item.product
+                    quantity = item.product_quantity
+                    product.stock_count -= quantity
+                    product.save()
+                
+                cart_items.delete()
+                
+                # Redirect to success page after successful payment
+                return render(request,
+                "user_side/success.html",)
+        except Exception as e:
+            # If an exception occurs, rollback changes and return error response
+            if order:
+                order.paid = False
+                order.status = "Payment pending"
+                order.save()
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+    else:
+        return JsonResponse({"status": "error", "message": "Only POST method is allowed"}, status=405)
+    

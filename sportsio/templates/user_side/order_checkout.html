@@ -2,7 +2,78 @@
 {% block content %}
 
  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+ <style>
+    .container {
+        margin-top: 20px;
+    }
 
+    .checkout-area {
+        background-color: #f9f9f9;
+        padding: 30px;
+        border-radius: 10px;
+    }
+
+    .coupon-accordion {
+        margin-bottom: 20px;
+    }
+
+    .coupon-accordion h3 {
+        margin-top: 0;
+    }
+
+    .your-order {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-pay-razorpay {
+        background-color: #f76900;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-pay-razorpay:hover {
+        background-color: #f55500;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #5a6268;
+    }
+    .btn razorpay {
+        background-color: #13abc4; 
+      margin : 300px 200px auto;
+      font-family: "Trebuchet MS"
+    }
+
+        /* Existing styles */
+        
+       .center-items {
+            display: flex;
+            margin-left:40px;
+            margin-bottom:20px;
+        }
+
+    
+</style>
 <!-- Begin Uren's Breadcrumb Area -->
 <div class="breadcrumb-area">
     <div class="container">
@@ -18,6 +89,19 @@
 <!-- Uren's Breadcrumb Area End Here -->
 <!-- Begin Uren's Checkout Area -->
 <div class="checkout-area">
+    <div class="row">
+            <div class="coupon-all center-items">
+               
+                <form method="POST" action="{% url 'user_profile:order_checkout'%}">
+                    {% csrf_token %}
+                    
+                <div class="coupon">
+                    <input id="coupon_code" class="input-text" name="coupon_code" value="" placeholder="Coupon code" type="text">
+                    <input class="button" name="apply_coupon" value="Apply coupon" type="submit">
+                </div>
+            </form>
+        </div>
+    </div>
     <div class="container-fluid">
         <div class="row">
             <!-- Billing Details Section -->
@@ -50,9 +134,10 @@
                             <div class="order-notes">
                                 <div class="checkout-form-list checkout-form-list-2">
                                     <label>Order Notes</label>
-                                    <textarea name="order notes" id="checkout-mess" cols="30" rows="10" placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
+                                    <textarea name="order_notes" id="checkout-mess" cols="30" rows="10" placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
                                 </div>
                             </div>
+                           
                         </div>
                     </div>
 
@@ -70,29 +155,35 @@
                             <tbody>
                                 {% for item in cart%}
                                 <tr class="cart_item">
-                                    
+                                    <input type="hidden" value={{ item.code }} name="code">
                                     <td class="cart-product-name">{{item.product.title }}<strong class="product-quantity">
                                     × {{item.product_quantity}}</strong></td>
-                                    <td class="cart-product-total"><span class="amount">{{ item.total_price }}</span></td>
+                                    <td class="cart-product-total" ><span>+ &#x20B9;</span> <span class="amount" > {{ item.total_price }}</span></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                             <tfoot>
                                 <tr class="cart-subtotal">
                                     <th>Cart Subtotal</th>
-                                    <td><span class="amount">Rs {{ sub_total }}</span></td>
+                                    <td><span>&#x20B9;</span><span class="amount"> {{ total_amount }}</span></td>
                                 </tr>
+                                <th> Coupon Discount</th>
+                                <td><strong><span style="color:red;"><span style="color:red;">- &#x20B9; </span>{{ Coupon_discount }}</span></td>
+                            </tr>
                                     <th> Delivery</th>
                                     {% if delivery > 0 %}
                                     <td><span >{{ delivery}}</span></td>
                                     {% else %}
-                                    <td>    <span style="text-decoration: line-through;">Rs. 60</span>
+                                    <td>    <span style="text-decoration: line-through;"><span>&#x20B9;</span> 60</span>
                                     </td>
                                     {% endif %}
                                 </tr>
+                            </tr>
+                          
                                 <tr class="order-total">
                                     <th>Order Total</th>
-                                    <td><strong><span class="amount">Rs. {{total_amount}}</span></strong></td>
+                                    <td><strong><span>&#x20B9;</span><span class="amount">{{sub_total}}</span></strong></td>
+                                    <input type="hidden" name="total_price"  value='{{ sub_total }}'>
                                 </tr>
                             </tfoot>
                         </table>
@@ -119,13 +210,51 @@
                                     </div>
                             <div class="order-button-payment">
                                 <input id="confirm-orders-button"  value="Place order" type="submit">
+                                <button id="razorpaybtn" type="button" class="btn btn-outline-dark btn-lg razorpay" style="margin:10px 0px; padding: 3px 165px;"><i class="fas fa-money-bill"></i> Pay with Razorpay</button>
                             </div>
                     </form>
+                    
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#razorpaybtn').click(function (e){
+            e.preventDefault();
+            var totalAmount = {{ total_amount }}; // Get total amount from Django context
+            
+            if (totalAmount > 0) {
+                var options = {
+                    "key": "rzp_test_G7fjGttWAWG2Bd", // Replace with your Razorpay Key ID
+                    "amount": totalAmount * 100, // Amount is in currency subunits. Convert to paisa
+                    "currency": "INR",
+                    "name": "QickMart", // Your business name
+                    "description": "Test Transaction",
+                    "image": "", // URL of your business logo
+                    "callback_url": "{% url 'user_profile:razorpay_callback' %}",
+                    "prefill": {
+                        "name": "", // Your customer's name
+                        "email": "gaurav.kumar@example.com",
+                        "contact": "9000090000" // Your customer's phone number
+                    },
+                    "theme": {
+                        "color": "#3399cc" // Customize the Razorpay Checkout theme color
+                    }
+                };
+                var rzp1 = new Razorpay(options);
+
+                // Open Razorpay Checkout when the button is clicked
+                rzp1.open();
+            } else {
+                alert('Cart is empty!');
+            }
+        });
+    });
+</script>
 <!-- Uren's Checkout Area End Here -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {

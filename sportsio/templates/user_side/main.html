@@ -111,7 +111,7 @@
                                                 <li class="silver-color"><i class="ion-android-star"></i></li>
                                             </ul>
                                         </div>
-                                        <h6 class="product-name"><a href="single-product.html">{{ pro.title }}</a></h6>
+                                        <h6 class="product-name"><a href="single-product.html">{{ pro.title| truncatewords:3 }}</a></h6>
                                         <div class="price-box">
                                             <span class="new-price new-price-2">Rs {{ pro.offer_price }}</span>
                                             <span class="old-price">Rs {{ pro.price }}</span>
@@ -123,7 +123,7 @@
                                                 <li><a class="uren-add_cart add_to_cart"  data-toggle="tooltip" data-placement="top" title="Add To Cart"><i
                                                     class="ion-bag"></i> Add to cart</a>
                                                 </li>
-                                                <li><a class="uren-wishlist" href="wishlist.html" data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
+                                                <li><a class="uren-wishlist"  data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
                                                 </li>
                                                 <li class="quick-view-btn" data-toggle="modal" data-target="#exampleModalCenter"><a href="javascript:void(0)" data-toggle="tooltip" data-placement="top" title="Quick View"><i class="ion-android-open"></i></a></li>
                                             </ul>
@@ -180,9 +180,9 @@
                                             {% csrf_token %}
                                             <input type ="hidden" value="{{ product.id }}" class="prod_id">
                                             <li><a class="uren-add_cart add_to_cart"  data-toggle="tooltip" data-placement="top" title="Add To Cart"><i
-                                                class="ion-bag"></i> Add to cart</a>
+                                                class="ion-bag"></i> </a>
                                             </li>
-                                            <li><a class="uren-wishlist" href="wishlist.html" data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
+                                            <li><a class="uren-wishlist"  data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
                                             </li>
                                         </ul>
                                     </div>
@@ -225,73 +225,91 @@
    
             
                     
-  <!---#############################   SCRIPTS  ####################################-->
+  <!---#############################   SCRIPTS  ####################################--> 
+
+  <!-- Add To cart Scripts-->
+
   <script>
-    $('.add_to_cart').click(function (e){
-        e.preventDefault();
-        
-        var product_id = $(this).closest('.new_arrival').find('.prod_id').val();
-        var product_qty = 1;
-        var token= $('input[name=csrfmiddlewaretoken]').val();
-    
-        $.ajax({
-            type: 'POST',
-            url: "{% url 'user_profile:add_to_cart'%}",
-            data:{
-                'product_id':product_id,
-                'product_qty':product_qty,
-                csrfmiddlewaretoken : token
-                
-            },
-            success: function(response) {
-                console.log(response);
-                if (response.status === "Product Added Successfully" || response.status.includes("Cart Updated Successfully")) {
-                    toastr.success(response.status);
-                } 
-                else {
-
-                    toastr.warning(response.status);
-                   
-                }
-
-            }
-        })
-    
-    
-    })
-  </script>
-  <script>$('.add_to_cart').click(function (e){
-    e.preventDefault();
-    
-    var product_id = $(this).closest('.trending_prod').find('.prod_id').val();
-    var product_qty = 1;
-    var token= $('input[name=csrfmiddlewaretoken]').val();
-
-    $.ajax({
-        type: 'POST',
-        url: "{% url 'user_profile:add_to_cart'%}",
-        data:{
-            'product_id':product_id,
-            'product_qty':product_qty,
-            csrfmiddlewaretoken : token
+    $(document).ready(function() {
+        // Common function to handle add to cart logic
+        function addToCart(e, productClass) {
+            e.preventDefault();
             
-        },
-        success: function(response) {
-            console.log(response);
-            if (response.status === "Product Added Successfully" || response.status.includes("Cart Updated Successfully")) {
-                toastr.success(response.status);
-            } 
-            else {
-
-                toastr.warning(response.status);
-               
-            }
-
+            var product_id = $(this).closest(productClass).find('.prod_id').val();
+            var product_qty = 1;
+            var token = $('input[name=csrfmiddlewaretoken]').val();
+        
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'user_profile:add_to_cart' %}", // Ensure the URL is correctly formatted
+                data: {
+                    'product_id': product_id,
+                    'product_qty': product_qty,
+                    csrfmiddlewaretoken: token
+                },
+                success: function(response) {
+                    console.log(response);
+                    if (response.status === "Product Added Successfully" || response.status.includes("Cart Updated Successfully")) {
+                        toastr.success(response.status);
+                    } else {
+                        toastr.warning(response.status);
+                    }
+                }
+            });
         }
-    })
+    
+        // Attach click event handler to both.new_arrival and.trending_prod classes
+        $('.add_to_cart').on('click', function(e) {
+            addToCart.call(this, e, '.new_arrival');
+        });
+    
+        $('.add_to_cart').on('click', function(e) {
+            addToCart.call(this, e, '.trending_prod');
+        });
+    });
+    </script>
+    <!-- End Cart-->
 
+   <!-- Wishlist Scripts-->
+<script>
+    $(document).ready(function() {
+        // Function to handle adding to wishlist
+        function addToWishlist(e, productClass) {
+            e.preventDefault();
+            
+            var product_id = $(this).closest(productClass).find('.prod_id').val();
+            var token = $('input[name=csrfmiddlewaretoken]').val();
+        
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'user_profile:wishlist' %}", // Ensure the URL is correctly set up in your Django views.py
+                data: {
+                    'product_id': product_id,
+                    csrfmiddlewaretoken: token
+                },
+                success: function(response) {
+                    console.log(response);
+                    if (response.status === "Product added to Wishlist") {
+                        toastr.success(response.status);
+                        // Additional client-side actions like updating the UI to reflect the change
+                    } else {
+                        toastr.warning(response.status);
+                    }
+                }
+            });
+        }
+    
+        // Attach click event handler to.uren-wishlist elements within.trending_prod and.new_arrival containers
+        $('.uren-wishlist').on('click', function(e) {
+            addToWishlist.call(this, e, '.trending_prod'); // First attempt to find within.trending_prod
+            addToWishlist.call(this, e, '.new_arrival'); // Then within.new_arrival
+        });
+    });
+    </script>
+    <!-- End Wishlist -->
+    
 
-})</script>                  
+    
 {% if messages %}
 <script>
     document.addEventListener("DOMContentLoaded", function(event) {

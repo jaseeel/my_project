@@ -24,5 +24,9 @@ urlpatterns = [
     path('order_view/',views.order_view,name="order_view"),
     path("orders/<int:order_id>/", views.order_confirmation, name="order_confirmation"),
     path("cancel-order/<int:order_id>/", views.cancel_order, name="cancel_order"),
-    path("order_view/<int:id>/",views.order_view,name="order_view")
-    ]
+    path("order_view/<int:id>/",views.order_view,name="order_view"),
+    path("wishlist/",views.wishlist,name="wishlist"),
+    path("wishlist_view",views.wishlist_view,name="wishlist_view"),
+    path("delete_wishlist/<int:id>",views.delete_wishlist,name="delete_wishlist"),
+    path("razorpay/callback/", views.razorpay_callback, name="razorpay_callback"),
+]
