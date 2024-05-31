@@ -222,9 +222,9 @@
             if (!isNaN(currentVal) && currentVal < stockCount) {
                 input.val(currentVal + 1).change();
                 updateCartItem($(this).closest('tr'));
-                console.log('Quantity increased');
+                toast.success('Quantity increased');
             } else {
-                console.log('Reached maximum stock count');
+                toast.warning('Reached maximum stock count');
             }
         });
     
