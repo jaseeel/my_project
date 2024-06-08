@@ -112,6 +112,8 @@
                                             </ul>
                                         </div>
                                         <h6 class="product-name"><a href="single-product.html">{{ pro.title| truncatewords:3 }}</a></h6>
+                                      
+                                        {% if pro.stock_count > 0 %}
                                         <div class="price-box">
                                             <span class="new-price new-price-2">Rs {{ pro.offer_price }}</span>
                                             <span class="old-price">Rs {{ pro.price }}</span>
@@ -125,9 +127,20 @@
                                                 </li>
                                                 <li><a class="uren-wishlist"  data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
                                                 </li>
-                                                <li class="quick-view-btn" data-toggle="modal" data-target="#exampleModalCenter"><a href="javascript:void(0)" data-toggle="tooltip" data-placement="top" title="Quick View"><i class="ion-android-open"></i></a></li>
+                                               
                                             </ul>
                                         </div>
+                                        {% else %}
+
+                                        <!-- Out of Stock Start Here -->
+        
+                                        <div class="out-of-stock ">
+                                            <p></p>
+                                            <p style="color: red; font-size: 25px; font-weight:Bold;">Out of Stock</p>
+                                            <p style="font-size: 16px; opacity:0.8;">We'll notify you when available</p>
+                                            <!-- Add your notification form or link here -->
+                                        </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>

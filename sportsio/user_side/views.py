@@ -1,9 +1,10 @@
+from django.http import JsonResponse
 from django.shortcuts import render,redirect
 from django.db.models import Q
 from category.models import category,Brand
 from banner.models import Banner
 from category.views import views
-from products.models import Products, ProductImage
+from products.models import Products, ProductImage,product_review
 from django.utils import timezone
 from datetime import timedelta
 from userprofile.models import Cart
@@ -19,6 +20,9 @@ def base(request):
     Category=category.objects.filter(is_active=True)[:5]
     products=Products.objects.filter(is_active=True,status='In Stock')
     brand=Brand.objects.all()
+    if request.user.is_authenticated:
+        cart_count=Cart.objects.filter(user=request.user).count()
+        return JsonResponse({"cart_count":cart_count})
     context={
         'Category': Category,
         'products': products,
@@ -30,14 +34,13 @@ def base(request):
 #___________________Main Page_______________
 
 def home(request):
-    Category=category.objects.filter(is_active=True)[:5]
+    Category=category.objects.filter(is_active=True)
     banner=Banner.objects.filter(is_active=True)
     products=Products.objects.filter(is_active=True,status='In Stock')
     brand=Brand.objects.all()
-    seven_days_ago = timezone.now() - timedelta(days=7)
+    seven_days_ago = timezone.now() - timedelta(days=30)
     recent_products = Products.objects.filter(created_date__gte=seven_days_ago,is_active=True,status='In Stock')
-    if request.user.is_authenticated:
-        cart_count=Cart.objects.filter(user=request.user).count()
+   
     
     context={
         'Category': Category,
@@ -45,7 +48,7 @@ def home(request):
         'brand': brand,
         'banner' : banner,
         'recent_products' : recent_products,
-        'cart_count':cart_count if request.user.is_authenticated else None
+   
 
     }
 
@@ -56,34 +59,44 @@ def home(request):
 #________________ Single Product View_____________ 
 
 def user_product_view(request, id):
-    
-    
     product = Products.objects.get(id=id)
     related_products = Products.objects.filter(category=product.category).exclude(id=id)
     product_images =ProductImage.objects.filter(product=product)
     if request.user.is_authenticated:
-        cart_count=Cart.objects.filter(user=request.user).count()
+        email=request.user.email
+        if request.method == "POST":
+           user=request.object.POST.get('email')
+           stars=request.object.POST.get('star-rating')
+           Title=request.object.POST.get('prodTitle')
+           review=request.POST.get('review')
+
+           user_rev=CustomUser.objects.get(email=user)
+           product_rev=Products.object.get(id=Title)
+           review=product_review.objects.create(
+               user=user_rev,
+               stars=stars,
+               Title=product_rev,
+               review=review,
+           )
+           print(user,stars,Title,review)
+           messages.success(request,"Review Submitted")
+
+    rating=product_review.objects.filter()
 
     context = {
         'product_images': product_images,
         'product': product,
         'related_products':related_products,
-        'cart_count':cart_count if request.user.is_authenticated else None
+        'email':email,
+
     }
 
     return render(request, 'user_side/product-view.html', context)
 
 def product_list(request):
     product=Products.objects.filter(is_active=True)
-            #Navbar Cart Items 
-    if request.user.is_authenticated:
-        cart_count=Cart.objects.filter(user=request.user).count()
-        cart = Cart.objects.filter(user=request.user)
-        total_price = sum(item.product.offer_price * item.product_quantity for item in cart)
     context={
         'product':product,
-        'cart_count':cart_count if request.user.is_authenticated else None,
-        
     }
     return render(request,"user_side/product_list.html",context)
 
@@ -133,8 +146,13 @@ def sort(request):
             product = product.order_by('-title')
 
     return render(request, 'user_side/product_list.html', {'product': product})
+
+
         
         
-# ADD TO CART VIEWS 
+        
+        
+        
+
 
 

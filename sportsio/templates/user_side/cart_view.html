@@ -68,7 +68,7 @@
                                             <th class="cart-product-name">Product</th>
                                             <th class="uren-product-price">Unit Price</th>
                                             <th class="uren-product-quantity">Quantity</th>
-                                            <th class="uren-product-quantity">Product Total</th>
+                                           
                                            
                                                 
                                             
@@ -90,7 +90,7 @@
                                             </td>
                                             
                                             <td class="uren-product-name"><a href="javascript:void(0)">{{ items.product }}</a></td>
-                                            <td class="uren-product-price"><span>&#x20B9;</span><span class="amount li-product-price"> {{ items.product.offer_price }}</span></td>
+                                            <td class="uren-product-price"><span>&#x20B9;</span><span class="amount li-product-price"> {{ items.product.price }}</span></td>
                                             <td class="quantity tr">
                                                 {% if items.product_id.stock_count <= 0 %}
                                                 <span class="h6" style="color:red; ">OUT OF STOCK</span>
@@ -110,9 +110,7 @@
 
                                             
                                             </td>
-                                            <td class="totel-price  uren-product-price"> <span>&#x20B9;</span> <span class="totel-price"> {{items.in_totel}}</span>
-
-                                            </td>
+                                            
                                             
                                         </tr>
                                         {% endfor %}
@@ -222,9 +220,9 @@
             if (!isNaN(currentVal) && currentVal < stockCount) {
                 input.val(currentVal + 1).change();
                 updateCartItem($(this).closest('tr'));
-                toast.success('Quantity increased');
+               
             } else {
-                toast.warning('Reached maximum stock count');
+                toastr.warning('Reached maximum stock count');
             }
         });
     

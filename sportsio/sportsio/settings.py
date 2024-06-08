@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'banner',
     'userprofile',
     'inventory',
+    "reportlab",
+    'xhtml2pdf',
     
 ]
 

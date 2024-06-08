@@ -1,66 +1,62 @@
 {% extends "admin_side/base.html"%}
 {% block content%}
+<style>
+    .btn-custom {
+        width: 90px; /* Fixed width */
+        height: 30px; /* Fixed height */
+        margin: 10px; /* Optional: Adds space around the buttons */
+        text-align: center!important; 
+        
+    }
+    select.form-control {
+        width: 80px; /* Ensures the select fills the td */
+        border: 1px solid #000!important; /* Custom border style */
+        height:30px;
+        text-align:center;
+        font-size:10px;
+        padding:0px;
+        
+    }
+    
+</style>
+<div class="card">
+    <div class="card-body p-4">
 
-   
-<div class="card-body">
     <h2 class="card-title">Order Management</h2>
-    <div class="table-responsive">
-        <table class="table table-hover table-striped">
+   
+        <table style="text-align:center;border:5px transparent !important;" class="table table-bordered">
             <thead>
-                <tr>
+                <tr class="table-active">
                     <th>Order ID</th>
                     <th>Customer</th>
                     <th>Address</th>
                     <th>Estimated Delivery Time</th>
                     <th>Tracking Number</th>
-                    <th>Product Name</th>
+                    <th>Order Price</th>
                     <th>Order Notes</th>
-                    <th>Product Quantity</th>
-                    <th>Image</th>
                     <th>Status</th>
                     <th>Action</th>
-                    <th></th>
+                
                 </tr>
             </thead>
-            <tbody>
+            <tbody style="justify-contents:center;">
                 {% for order in orders %}
-                <tr>
+                <tr class="{% if order.status == "Cancelled"%} table-danger {%elif order.status == "Delivered"%} table-success {% elif order.status == "Return"%} table-warning  {% elif order.status == "Refunded"%} table-info {% endif %} ">
                     <td>{{ order.id }}</td>
                     <td>{{ order.user|truncatewords:1 }}</td>
-                    <td>{{ order.address.street }}, {{ order.address.city }}, {{ order.address.state }}</td>
+                    <td style="width:200px;">{{ order.address.street }}, {{ order.address.city }}, {{ order.address.state }}</td>
                     <td>{{ order.estimated_delivery_time }}</td>
                     <td>{{ order.tracking_number }}</td>
                     <td>
-                        {% for order_item in order.orderitem_set.all %}
-                        <div style="border: 1px solid;">
-                        {{ order_item.product.title|truncatewords:2 }}
-                        </div>
-                        {% endfor %}
+                        ₹ {{ order.total_price }}
                     </td>
-                    <td>{{ order.order_notes }}</td>
-                    <td>
-                        {% for order_item in order.orderitem_set.all %}
-                        <div style="border: 1px solid;">
-                        {{ order_item.quantity }}
-                        </div>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        {% for order_item in order.orderitem_set.all %}
-                        <div style="border: 1px solid;">
-                        {% if order_item.product.image %}
-                        
-                        <img src="{{ order_item.product.image.url }}" alt="{{ order_item.product.title }}" class="img img-thumbnail product-image" style="max-width: 50px;">
-                        {% else %}
-                        <p>No image available</p>
-                        {% endif %}
-                        </div>
-                        {% endfor %}
-                    </td>
+                    <td style="width:100px;">{{ order.order_notes }}</td>
+                    
+
                     <td>
                         <form action="{% url 'update_status' order.id %}" method="post">
                             {% csrf_token %}
-                            <select class="form-control" name="new_status" id="newStatusSelect">
+                            <select class="form-control"  name="new_status" id="newStatusSelect">
                                 <option value="Pending" {% if order.status == "Pending" %} selected {% endif %}>Pending</option>
                                 <option value="Processing" {% if order.status == "Processing" %} selected {% endif %}>Processing</option>
                                 <option value="Shipped" {% if order.status == "Shipped" %} selected {% endif %}>Shipped</option>
@@ -70,30 +66,27 @@
                                 <option value="Return" {% if order.status == "Return" %} selected {% endif %}>Return</option>
                                 <option value="Refunded" {% if order.status == "Refunded" %} selected {% endif %}>Refunded</option>
                             </select>
+                            
                             {% if order.status != "Cancelled" and order.status != "Return" and order.status != "Refunded" %}
-                            <button style="margin-top:5px;" type="submit" class="btn btn-sm btn-primary">Update Status</button>
+                            <button style="margin-top:5px;" type="submit" class="btn btn-sm btn-primary">Status</button>
                             {%endif%}
                         </form>
                     </td>
                     <td>
-                        {% if order.status == "Return" or order.status == "Cancelled" and order.paid == True %}
-                        <a href="#" class="btn btn-sm btn-primary">Refund</a>
-                        {% elif order.status == "Return" or order.status == "Cancelled" %}
-                        <a href="{% url 'update_order_details' order.id %}" class="btn btn-sm btn-primary" hidden>Update Details</a>
-                        {% else %}
-                        <a href="{% url 'update_order_details' order.id %}" class="btn btn-sm btn-primary">Update Details</a>
-                        {% endif %}
-                        <a style="margin-top:5px;" class="btn btn-sm btn-primary">Order View</a>
-                    </td>
-                    <td class="uren-product-remove">
-                        {% if order.status == "Cancelled" %}
-                        
-                            <a href="{% url 'delete_order' order.id %}">
-                                <i class="fa fa-trash" title="Remove"></i>
-                            </a>
+                        <div class="action">
+                            {% if order.status == "Return" or order.status == "Cancelled" and order.paid == True %}
+                            <a href="{% url 'refund_order' order.id %}" class="btn btn-sm btn-primary btn-custom">Refund</a>
+                            {% elif order.status == "Return" or order.status == "Cancelled" or order.status == "Refunded" %}
+                            <span>Return and Refunded</span>
+                            {% else %}
+                            <a href="{% url 'update_order_details' order.id %}" class="btn btn-sm btn-primary btn-custom">Update</a>
                             {% endif %}
-
+                            <a style="margin-top:5px;" href="{% url 'admin_order_view' order.id%}" class="btn btn-sm btn-primary btn-custom">View</a>
+                        </div>
                     </td>
+                    
+                    
+                   
                 </tr>
                 {% endfor %}
             </tbody>

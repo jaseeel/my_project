@@ -1,7 +1,7 @@
 from category.models import category as Category 
 from category.models import Brand as Brand
 from django.db import models
-
+from admin_side.models import CustomUser
 # Create your models here.
 class Products(models.Model):
     Status_choices=(
@@ -54,6 +54,7 @@ class ProductImage(models.Model):
     
 
 class product_review(models.Model):
+    user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True)
     stars= [
     ("1", "1"),
     ("2", "2"),

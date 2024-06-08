@@ -76,7 +76,7 @@
 </style>
 <!-- Begin Uren's Breadcrumb Area -->
 <div class="breadcrumb-area">
-    <div class="container">
+    
         <div class="breadcrumb-content">
             <h2>Other</h2>
             <ul>
@@ -86,19 +86,24 @@
         </div>
     </div>
 </div>
+
 <!-- Uren's Breadcrumb Area End Here -->
 <!-- Begin Uren's Checkout Area -->
 <div class="checkout-area">
     <div class="row">
             <div class="coupon-all center-items">
                
-                <form method="POST" action="{% url 'user_profile:order_checkout'%}">
+                <form method="POST" action="{% url 'user_profile:order_checkout'%}" id="couponForm">
                     {% csrf_token %}
                     
                 <div class="coupon">
                     <input id="coupon_code" class="input-text" name="coupon_code" value="" placeholder="Coupon code" type="text">
                     <input class="button" name="apply_coupon" value="Apply coupon" type="submit">
                 </div>
+                {% if coupon_message %}
+                <div style="margin-top:50px;"><span style="color:green;font-weight:bold;padding-top:50px;" id="couponResponse"> {{ coupon_message }} </span></div>
+               {% endif %}
+                
             </form>
         </div>
     </div>
@@ -128,7 +133,7 @@
                             </div>
                             <div id="ship-box-info" class="row">
                                 <div class="col-md-12">
-                                    <button class="btn btn-warning"><a style="color:white;" href="{% url 'user_profile:add_address'%}">Add Address</a></button>
+                                    <button class="btn btn-warning"><a style="color:white;" href="{% url 'user_profile:add_address'%}?redirect=checkout">Add Address</a></button>
                                 </div>
                                 </div>
                             <div class="order-notes">
@@ -168,13 +173,14 @@
                                     <td><span>&#x20B9;</span><span class="amount"> {{ total_amount }}</span></td>
                                 </tr>
                                 <th> Coupon Discount</th>
-                                <td><strong><span style="color:red;"><span style="color:red;">- &#x20B9; </span>{{ Coupon_discount }}</span></td>
+                                <td><strong><span style="color:red;"><span style="color:red;" >- &#x20B9; </span>{{ Coupon_discount }}</span></td>
+                                    <input type="hidden" value="{{ Coupon_discount }}" name="discount_price">
                             </tr>
                                     <th> Delivery</th>
                                     {% if delivery > 0 %}
                                     <td><span >{{ delivery}}</span></td>
                                     {% else %}
-                                    <td>    <span style="text-decoration: line-through;"><span>&#x20B9;</span> 60</span>
+                                    <td>    <span>+ &#x20B9;</span><span style="text-decoration: line-through;"> 60</span>
                                     </td>
                                     {% endif %}
                                 </tr>
@@ -207,6 +213,7 @@
                                                         {% endfor %}
                                                     </select>
                                                 </div>
+                                                <span class="fw-bold" >Wallet Balance : &#x20B9;</span><span class="fw-light"> {{ wallet_balance }}</span>
                                     </div>
                             <div class="order-button-payment">
                                 <input id="confirm-orders-button"  value="Place order" type="submit">
@@ -221,11 +228,31 @@
 </div>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+<!-- Toast Messages-->
+{% if messages %}
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        toastr.options = { "closeButton": false, "debug": false, "newestOnTop": true,
+            "progressBar": true, "positionClass": "toast-top-right", "preventDuplicates": true,
+            "onclick": null, "showDuration": "300", "hideDuration": "1000", "timeOut": "5000",
+            "extendedTimeOut": "1000", "showEasing": "swing", "hideEasing": "linear",
+            "showMethod": "fadeIn", "hideMethod": "fadeOut" };
+        {% autoescape on %}
+            {% for msg in messages %}
+                toastr.{{ msg.level_tag }}("{{ msg }}");
+            {% endfor %}
+        {% endautoescape %}
+    });
+</script>
+{% endif %}
+
+<!-- Razorpay -->
+
 <script>
     $(document).ready(function() {
         $('#razorpaybtn').click(function (e){
             e.preventDefault();
-            var totalAmount = {{ total_amount }}; // Get total amount from Django context
+            var totalAmount = {{ sub_total }}; // Get total amount from Django context
             
             if (totalAmount > 0) {
                 var options = {
@@ -255,7 +282,7 @@
         });
     });
 </script>
-<!-- Uren's Checkout Area End Here -->
+<!-- Disable Confirm order button -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         var savedAddressSelect = document.getElementById("saved-address-select");
@@ -268,4 +295,49 @@
         }
     });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get elements
+        var subTotalElement = document.querySelector('.amount');
+        var walletBalanceElement = document.querySelector('.fw-light');
+        var placeOrderButton = document.getElementById('confirm-orders-button');
+    
+        // Update the comparison whenever the payment method changes
+        document.getElementById('payment-method').addEventListener('change', function() {
+            var selectedPaymentMethod = this.value;
+    
+            // Check if the selected payment method is 'wallet'
+            if (selectedPaymentMethod === 'walletbalance') {
+                // Compare sub_total and wallet_balance
+                var subTotal = parseFloat(subTotalElement.textContent.replace(/[^0-9.-]+/g, "")); // Remove currency symbol and convert to float
+                var walletBalance = parseFloat(walletBalanceElement.textContent.replace(/[^0-9.-]+/g, "")); // Remove currency symbol and convert to float
+    
+                // Check if sub_total is greater than wallet_balance
+                if (subTotal > walletBalance) {
+                    // Display insufficiency message
+                    var messageElement = document.createElement('p');
+                    messageElement.textContent = "Insufficient funds in wallet";
+                    messageElement.style.color = "red"; // Optional: Change color to red
+                    walletBalanceElement.parentNode.insertBefore(messageElement, walletBalanceElement.nextSibling);
+    
+                    // Disable the Place order button
+                    placeOrderButton.disabled = true;
+                } else {
+                    // Enable the Place order button if everything is okay
+                    placeOrderButton.disabled = false;
+                    // Optionally remove the insufficiency message
+                    var messageElements = document.querySelectorAll('.insufficiency-message');
+                    messageElements.forEach(function(element) {
+                        element.remove();
+                    });
+                }
+            }
+        });
+    
+        // Initial check in case the page loads with the payment method already selected
+        document.getElementById('payment-method').dispatchEvent(new Event('change'));
+    });
+    </script>
+
+    
 {% endblock %}

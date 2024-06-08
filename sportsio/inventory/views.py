@@ -3,6 +3,8 @@ from django.shortcuts import get_object_or_404, render,HttpResponse,redirect
 from products.models import Products
 from userprofile.models import Order
 from .models import  *
+from django.utils import timezone
+from datetime import datetime 
 # Create your views here.
 
 
@@ -68,7 +70,7 @@ def order_management(request):
 
         else:
             # If it's a GET request, fetch orders and render the template
-            orders = Order.objects.all()
+            orders = Order.objects.all().order_by('-created_at')
             return render(
                 request, "admin_side/order_management.html", {"orders": orders}
             )
@@ -83,6 +85,10 @@ def update_status(request, order_id):
         if request.method == "POST":
             new_status = request.POST.get("new_status")
             order.status = new_status
+            current_date = timezone.now().date()
+            if order.status == "Delivered":
+                order.paid=True
+                order.estimated_delivery_time=current_date
             order.save()
         # Redirect back to the same page after updating status
         return redirect("order_management")
@@ -102,12 +108,6 @@ def update_order_details(request, order_id):
     # Render the custom HTML form for updating order details
     return render(request, "admin_side/update_order_details.html", {"order": order})
 
-##Delete Cancelled Order
-def delete_order(request,order_id):
-    order= get_object_or_404(Order,id=order_id)
-    if order.status=="Cancelled":
-        order.delete()
-        return redirect("order_management")
     # Coupon Management Views
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def coupon_list(request):
@@ -179,3 +179,31 @@ def edit_coupon(request, coupon_id):
         coupon.save()
         return redirect("coupon_management")  # Redirect to the coupon list page after editing
     return render(request, "admin_side/edit_coupon.html", context)
+
+def refund_order(request, id):
+    order = get_object_or_404(Order, id=id)
+    # Add total price to user's wallet balance
+    order.user.wallet_balance += order.total_price
+    order.user.save()
+    # Update order status to reflect refund
+    order.status = "Refunded"
+    order.save()
+    Transaction.objects.create(
+        user=order.user,
+        transaction_type='R',
+        amount=order.total_price
+    )
+    for order_item in order.orderitem_set.all():
+        product = order_item.product
+        product.stock_count += order_item.quantity
+        product.save()
+
+        # Redirect to order management page or any other appropriate page
+    return redirect("order_management")
+
+def order_view(request,id):
+    order = Order.objects.get(id=id)
+    context = {"order": order}
+
+    return render(request,"admin_side/admin_order_view.html",context)  
+   

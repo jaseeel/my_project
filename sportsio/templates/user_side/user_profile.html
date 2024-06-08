@@ -59,6 +59,9 @@
                             <a class="nav-link" id="account-detail-tab" data-toggle="tab" href="#account-detail" role="tab" aria-controls="account-detail" aria-selected="false">Reset Password</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" id="account-detailed-tab"  data-toggle="tab" href="#account-detailed" role="tab" aria-controls="account-detail" aria-selected="false">My Wallet</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" id="account-logout-tab" href="{% url "logout_view"%}" onclick="return confirm('Are you sure you want to Logout ?')" role="tab" aria-selected="false">Logout</a>
                         </li>
                     </ul>
@@ -93,11 +96,20 @@
                                                 <td>{{ item.estimated_delivery_time }}</td>
                                                 <td>{{ item.status }}</td>
                                                 <td>Rs. {{ item.total_price}}</td>
-                                                <td><a href="{% url 'user_profile:order_view' item.id %}" class="uren-btn uren-btn_dark uren-btn_sm" ><span>View</span></a>
+                                                <td><a href="{% url 'user_profile:order_view' item.id %}" class="uren-btn  uren-btn_sm" ><span>View</span></a>
                                                 </td>
                                                 <td >
-                                                    <a href="{% url 'user_profile:cancel_order' item.id %}" onclick="return confirm('Are you sure you want to Cancel this Order ?')" class="uren-btn uren-btn_dark uren-btn_sm"><span>Cancel</span>
+                                                    {% if item.paid and item.status == "Delivered" %}
+                                                        <a href="{% url 'user_profile:return_order' item.id %}" onclick="return confirm('Are you sure you want to Cancel this Order ?')" class="uren-btn uren-btn_dark uren-btn_sm"><span>Return</span>
+                                                        </a>
+                                                    {% elif item.status == "Refunded"%}
+                                                    <span>Refund Done</done>
+                                                        {%elif item.status == "Cancelled"%}
+                                                        <span>Order Cancelled</done>
+                                                    {% elif item.status != "Cancelled" or item.status == "Out of delivery" or item.status == "Return" %}
+                                                    <a href="{% url 'user_profile:cancel_order' item.id %}" onclick="return confirm('Are you sure you want to Cancel this Order ?')" class="uren-btn  uren-btn_sm"><span>Cancel</span>
                                                     </a>
+                                                    {% endif %}
                                                 </td>
                                             </tr>
                                             {% endfor %}
@@ -172,6 +184,62 @@
                             </div>
                         </div>
                         <!-- Update Profile End Here-->
+
+                        <!-- My wallet Starts here -->
+                        <div class="tab-pane fade" id="account-detailed" role="tabpanel" aria-labelledby="account-detailed-tab">
+                            <div class="myaccount-details" style="padding: 3%; padding-left:0;">
+                                <h2>Wallet Balance</h2>
+                                <div>
+                                <span>Balance<span>
+                                    <h1>₹ {{ wallet_balance }}</h1>
+                                    {% if wallet_history %}
+                                </div>
+                            </div>
+                            
+                                <table class="table table-striped">
+                                    <thead>
+                                      <tr>
+                                        <th scope="col">Transaction ID</th>
+                                        <th scope="col">Transaction Type</th>
+                                        <th scope="col">Amount</th>
+                                        <th scope="col">Time</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                        {% for tran in wallet_history%}
+                                      <tr>
+                                        <th scope="row">{{ tran.id }}</th>
+                                        {% if tran.transaction_type == 'R'%}
+                                        <td>Refund</td>
+                                        <td style="color:green; font-weight:bold;">+ ₹ {{ tran.amount}}</td>
+                                        {%else%}
+                                        <td>Payment</td>
+                                        <td style="color:red; font-weight:bold;">- ₹ {{ tran.amount}}</td>
+                                        {%endif%}
+                                        <td>{{ tran.timestamp }}</td>
+                                      </tr>
+                                      {% endfor %}
+                                      {% else %}
+                                      <span style ="text-align:center;">NO TRANSACTIONS DONE YET</span>
+                                    </div>
+                                </div>
+                                      
+                                        {%endif%}
+
+                                    </tbody>
+                                  </table>
+
+
+
+
+
+
+
+
+                            
+                        </div>
+                        <!-- My Wallet Ends Here-->
 
                         <!-- Reset Password Start Here-->
 

@@ -1,6 +1,7 @@
 from datetime import timezone
 from django.db import models
 from products.models import Products
+from admin_side.models import CustomUser
 # Create your models here.
 
    
@@ -31,3 +32,20 @@ class Coupon(models.Model):
             return order_total - self.discount_value
         else:
             return order_total
+
+
+#______________Save Wallet Transactions___________________
+
+class Transaction(models.Model):
+    TRANSACTION_TYPES = (
+        ('P', 'Payment'),  # New transaction type for payments
+        ('R', 'Refund'),
+        # Add other types if needed
+    )
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    transaction_type = models.CharField(max_length=1, choices=TRANSACTION_TYPES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.transaction_type} - {self.amount}"

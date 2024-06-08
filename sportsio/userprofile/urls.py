@@ -29,4 +29,8 @@ urlpatterns = [
     path("wishlist_view",views.wishlist_view,name="wishlist_view"),
     path("delete_wishlist/<int:id>",views.delete_wishlist,name="delete_wishlist"),
     path("razorpay/callback/", views.razorpay_callback, name="razorpay_callback"),
+    path("return_order/<int:id>",views.returnorder,name="return_order"),
+    path("download_invoice/<int:order_id>",views.download_invoice,name="download_invoice",),
+    path("wallet_payment/<int:order_id>/", views.wallet_payment, name="wallet_payment"),
+    
 ]

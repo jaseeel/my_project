@@ -105,11 +105,11 @@ def update_product(request, id):
             status = request.POST.get('status')
             price = request.POST.get('price')
             brand_id = request.POST.get('brand')
+            image = request.FILES.get('image')
             product_details = request.POST.get('product_details')
             stock_count = request.POST.get('stock_count')
             weight = request.POST.get('weight')
             featured = request.POST.get('featured')=='on'
-        
             offer_price = request.POST.get('offer_price')
             if offer_price:
                 try:
@@ -122,6 +122,7 @@ def update_product(request, id):
             product.description = description
             product.price = price
             product.brand = Brand.objects.get(id=brand_id)
+            product.image = image
             product.stock_count = stock_count  
             product.status = status
             product.weight = weight

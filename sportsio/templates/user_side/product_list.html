@@ -58,16 +58,16 @@
                                 <div class="inner-slide">
                                     <div class="single-product">
                                         <div class="product-img">
+                                            <input type="hidden" class="prod_id" value={{prod.id}}>
                                             <a href="{% url 'user_side:user_product_view' prod.id%}">
                                                 <img class="primary-img" src="{{ prod.image.url }}" alt="Product Image">
                                             </a>
-                                            <div class="sticker">
-                                                <span class="sticker">New</span>
-                                            </div>
+                                           
                                             <div class="add-actions">
+                                                {% csrf_token %}
                                                 <ul>
-                                                    <li><a class="uren-add_cart" href="cart.html" data-toggle="tooltip" data-placement="top" title="Add To Cart"><i class="ion-bag"></i></a></li>
-                                                    <li><a class="uren-wishlist" href="{% url 'user_profile:wishlist'%}" data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a></li>
+                                                    <li><a class="add_to_cart"  data-toggle="tooltip" data-placement="top" title="Add To Cart"><i class="ion-bag"></i></a></li>
+                                                    <li><a class="uren-wishlist"  data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -124,4 +124,97 @@
     </div>
 </div>
 
+  <!-- Add To cart Scripts-->
+
+  <script>
+    $(document).ready(function() {
+        // Common function to handle add to cart logic
+        function addToCart(e, productClass) {
+            e.preventDefault();
+            
+            var product_id = $(this).closest(productClass).find('.prod_id').val();
+            var product_qty = 1;
+            var token = $('input[name=csrfmiddlewaretoken]').val();
+        
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'user_profile:add_to_cart' %}", // Ensure the URL is correctly formatted
+                data: {
+                    'product_id': product_id,
+                    'product_qty': product_qty,
+                    csrfmiddlewaretoken: token
+                },
+                success: function(response) {
+                    console.log(response);
+                    if (response.status === "Product Added Successfully" || response.status.includes("Cart Updated Successfully")) {
+                        toastr.success(response.status);
+                    } else {
+                        toastr.warning(response.status);
+                    }
+                }
+            });
+        }
+    
+        // Attach click event handler to both.new_arrival and.trending_prod classes
+        $('.add_to_cart').on('click', function(e) {
+            addToCart.call(this, e, '.product-slide_item');
+        });
+    
+ 
+    });
+    </script>
+    <!-- End Cart-->
+
+   <!-- Wishlist Scripts-->
+<script>
+    $(document).ready(function() {
+        // Function to handle adding to wishlist
+        function addToWishlist(e, productClass) {
+            e.preventDefault();
+            
+            var product_id = $(this).closest(productClass).find('.prod_id').val();
+            var token = $('input[name=csrfmiddlewaretoken]').val();
+        
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'user_profile:wishlist' %}", // Ensure the URL is correctly set up in your Django views.py
+                data: {
+                    'product_id': product_id,
+                    csrfmiddlewaretoken: token
+                },
+                success: function(response) {
+                    console.log(response);
+                    if (response.status === "Product added to Wishlist") {
+                        toastr.success(response.status);
+                        // Additional client-side actions like updating the UI to reflect the change
+                    } else {
+                        toastr.warning(response.status);
+                    }
+                }
+            });
+        }
+    
+        // Attach click event handler to.uren-wishlist elements within.trending_prod and.new_arrival containers
+        $('.uren-wishlist').on('click', function(e) {
+            addToWishlist.call(this, e, '.product-slide_item'); // First attempt to find within.trending_prod
+        });
+    });
+    </script>
+    {% if messages %}
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        toastr.options = { "closeButton": false, "debug": false, "newestOnTop": true,
+            "progressBar": true, "positionClass": "toast-top-right", "preventDuplicates": true,
+            "onclick": null, "showDuration": "300", "hideDuration": "1000", "timeOut": "5000",
+            "extendedTimeOut": "1000", "showEasing": "swing", "hideEasing": "linear",
+            "showMethod": "fadeIn", "hideMethod": "fadeOut" };
+        {% autoescape on %}
+            {% for msg in messages %}
+                toastr.{{ msg.level_tag }}("{{ msg }}");
+            {% endfor %}
+        {% endautoescape %}
+    });
+</script>
+{% endif %}      
+    <!-- End Wishlist -->
 {% endblock %}

@@ -4,7 +4,7 @@
     <!-- ################################ Product View Start here ##################################-->
 
         <!-- Begin Uren's Tab Style Right Area -->
-        <div class="sp-area sp-tab-style_left sp-tab-style_right product-view">
+        <div class="sp-area sp-tab-style_left sp-tab-style_right product-view product-main">
             <div class="container-fluid">
                 <div class="sp-nav">
                     <div class="row">
@@ -79,15 +79,6 @@
                                         {% endif %}
                                     </ul>
                                 </div>
-                                <div class="product-size_box">
-                                    <span>Size</span>
-                                    <select class="myniceselect nice-select">
-                                        <option value="1">S</option>
-                                        <option value="2">M</option>
-                                        <option value="3">L</option>
-                                        <option value="4">XL</option>
-                                    </select>
-                                </div>
 
                                 <!-- Add to cart and  Out of stock -->
 
@@ -104,11 +95,11 @@
                                 <div class="qty-btn_area">
                                     <ul>
                                         
-                                        <input type ="hidden" value="{{ product.id }}" class="prod_id">
+                                        <input  type ="hidden" value="{{ product.id }}" class="prod_id">
                                         <li><a class="uren-add_cart add_to_cart" > Add
                                             to cart</a>
                                         </li>
-                                        <li><a class="qty-wishlist_btn" href="wishlist.html" data-toggle="tooltip" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
+                                        <li><a class="uren-wishlist"  data-toggle="tooltip" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
                                         </li>
                                     </ul>
                                 </div>
@@ -208,7 +199,7 @@
 
                                 <div id="reviews" class="tab-pane" role="tabpanel">
                                     <div class="tab-pane active" id="tab-review">
-                                        <form class="form-horizontal" id="form-review">
+                                        <form class="form-horizontal" id="form-review" action="{% url 'user_side:user_product_view' product.id %}">
                                             <div id="review">
                                                 <table class="table table-striped table-bordered">
                                                     <tbody>
@@ -233,19 +224,15 @@
                                                     </tbody>
                                                 </table>
                                             </div>
+                                            {% if user.is_authenticated %}
+                                            {% csrf_token %}
                                             <h2>Write a review</h2>
                                             <div class="form-group required">
                                                 <div class="col-sm-12 p-0">
+                                                    <input  type ="hidden" name="prodTitle" value="{{ product.id }}" class="prod_id">
+
                                                     <label>Your Email <span class="required">*</span></label>
-                                                    <input class="review-input" type="email" name="con_email" id="con_email" required>
-                                                </div>
-                                            </div>
-                                            <div class="form-group required second-child">
-                                                <div class="col-sm-12 p-0">
-                                                    <label class="control-label">Share your opinion</label>
-                                                    <textarea class="review-textarea" name="con_message" id="con_message"></textarea>
-                                                    <div class="help-block"><span class="text-danger">Note:</span> HTML is not
-                                                        translated!</div>
+                                                    <input class="review-input" value="{{email}}" type="email" name="con_email" id="con_email" readonly >
                                                 </div>
                                             </div>
                                             <div class="form-group last-child required">
@@ -253,7 +240,7 @@
                                                     <div class="your-opinion">
                                                         <label>Your Rating</label>
                                                         <span>
-                                                    <select class="star-rating">
+                                                    <select class="star-rating" name="star-rating">
                                                         <option value="1">1</option>
                                                         <option value="2">2</option>
                                                         <option value="3">3</option>
@@ -263,10 +250,19 @@
                                                 </span>
                                                     </div>
                                                 </div>
-                                                <div class="uren-btn-ps_right">
-                                                    <button class="uren-btn-2">Continue</button>
+                                            <div class="form-group required second-child">
+                                                <div class="col-sm-12 p-0">
+                                                    <label class="control-label">Share your opinion</label>
+                                                    <textarea class="review-textarea" name="con_message" id="con_message"></textarea>
+           
                                                 </div>
                                             </div>
+                                            
+                                                <div class="uren-btn-ps_right">
+                                                    <button type="submit" class="uren-btn-2">Continue</button>
+                                                </div>
+                                            </div>
+                                            {%endif%}
                                         </form>
                                     </div>
                                 </div>
@@ -307,7 +303,7 @@
                             {% for pro in related_products %}
                             <div class="product-slide_item related-products">
                                 <div class="inner-slide">
-                                    <div class="single-product">
+                                    <div class="single-product related">
                                         <div class="product-img">
                                             <a href="single-product.html">
                                                 <img class="primary-img" src="{{ pro.image.url }}" alt="Uren's Product Image">
@@ -319,7 +315,7 @@
                                                      <li><a class="uren-add_cart add_to_cart"  data-toggle="tooltip" data-placement="top" title="Add To Cart"><i
                                                         class="ion-bag"></i> </a>
                                                     </li>
-                                                    <li><a class="uren-wishlist" href="{% url 'user_profile:wishlist'%}" data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
+                                                    <li><a class="uren-wishlist"  data-toggle="tooltip" data-placement="top" title="Add To Wishlist"><i class="ion-android-favorite-outline"></i></a>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -351,6 +347,7 @@
             </div>
         </div>
         <!-- Uren's Product Area End Here -->
+
 
         <!--######################## ADD TO CART ################-->
         <script>
@@ -388,4 +385,45 @@
             
             })
           </script>
+
+          
+   <!-- Wishlist Scripts-->
+<script>
+    $(document).ready(function() {
+        // Function to handle adding to wishlist
+        function addToWishlist(e, productClass) {
+            e.preventDefault();
+            
+            var product_id = $(this).closest(productClass).find('.prod_id').val();
+            var token = $('input[name=csrfmiddlewaretoken]').val();
+        
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'user_profile:wishlist' %}", // Ensure the URL is correctly set up in your Django views.py
+                data: {
+                    'product_id': product_id,
+                    csrfmiddlewaretoken: token
+                },
+                success: function(response) {
+                    console.log(response);
+                    if (response.status === "Product added to Wishlist") {
+                        toastr.success(response.status);
+                        // Additional client-side actions like updating the UI to reflect the change
+                    } else {
+                        toastr.warning(response.status);
+                    }
+                }
+            });
+        }
+    
+        // Attach click event handler to.uren-wishlist elements within.trending_prod and.new_arrival containers
+        $('.uren-wishlist').on('click', function(e) {
+            addToWishlist.call(this, e, '.product-main'); // First attempt to find within.trending_prod
+        });
+        $('.uren-wishlist').on('click', function(e) {
+            addToWishlist.call(this, e, '.related'); // First attempt to find within.trending_prod
+        });
+    });
+    </script>
+    <!-- End Wishlist -->
         {% endblock content %}

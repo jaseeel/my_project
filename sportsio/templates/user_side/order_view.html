@@ -2,29 +2,215 @@
 
 {% block content %}
 
-<style>
-    .img-sm {
-        width: 150px; /* Adjust the width as needed */
-        height: 150px; /* Adjust the height as needed */
-        object-fit: contain;
-    }
-    .box-style {
-        border: 1px solid #ccc; /* Border thickness and color */
-        padding: 10px; /* Space between the border and the content inside */
-        margin: 20px; /* Space outside the box */
-        background-color: #f9f9f9; /* Background color */
-        border-radius: 5px; /* Rounded corners */
-    }
-    
-    
-</style>
 
-<div class="uren-cart-area">
-    <div class="container-fluid">
+
+
+
+        <style>
+
+            @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
+        body {
+            background-color: #eeeeee;
+            font-family: 'Open Sans', serif;
+        }
+        .container {
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+        .img-sm {
+            width: 150px; /* Adjust the width as needed */
+            height: 150px; /* Adjust the height as needed */
+            object-fit: contain;
+        }
+        .box-style {
+            border: 1px solid #ccc; /* Border thickness and color */
+            padding: 10px; /* Space between the border and the content inside */
+            margin: 20px; /* Space outside the box */
+            background-color: #f9f9f9; /* Background color */
+            border-radius: 5px; /* Rounded corners */
+        }
+        
+        .card {
+            position: relative;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+            -ms-flex-direction: column;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-color: #fff;
+            background-clip: border-box;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0.10rem;
+        }
+        .card-header:first-child {
+            border-radius: calc(0.37rem - 1px) calc(0.37rem - 1px) 0 0;
+        }
+        .card-header {
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 0;
+            background-color: #fff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .track {
+            position: relative;
+            background-color: #ddd;
+            height: 7px;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            margin-bottom: 60px;
+            margin-top: 50px;
+        }
+        .track .step {
+            -webkit-box-flex: 1;
+            -ms-flex-positive: 1;
+            flex-grow: 1;
+            width: 25%;
+            margin-top: -18px;
+            text-align: center;
+            position: relative;
+        }
+        .track .step.active:before {
+            background: #FF5722;
+        }
+        .track .step::before {
+            height: 7px;
+            position: absolute;
+            content: "";
+            width: 100%;
+            left: 0;
+            top: 18px;
+        }
+        .track .step.active .icon {
+            background: #ee5435;
+            color: #fff;
+        }
+        .track .icon {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            position: relative;
+            border-radius: 100%;
+            background: #ddd;
+        }
+        .track .step.active .text {
+            font-weight: 400;
+            color: #000;
+        }
+        .track .text {
+            display: block;
+            margin-top: 7px;
+        }
+        .itemside {
+            position: relative;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            width: 100%;
+        }
+        .itemside .aside {
+            position: relative;
+            -ms-flex-negative: 0;
+            flex-shrink: 0;
+        }
+        .img-sm {
+            width: 80px;
+            height: 80px;
+            padding: 7px;
+        }
+        ul.row,
+        ul.row-sm {
+            list-style: none;
+            padding: 0;
+        }
+        .itemside .info {
+            padding-left: 15px;
+            padding-right: 7px;
+        }
+        .itemside .title {
+            display: block;
+            margin-bottom: 5px;
+            color: #212529;
+        }
+        p {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        .btn-warning {
+            color: #ffffff;
+            background-color: #ee5435;
+            border-color: #ee5435;
+            border-radius: 1px;
+        }
+        .btn-warning:hover {
+            color: #ffffff;
+            background-color: #ff2b00;
+            border-color: #ff2b00;
+            border-radius: 1px;
+        }
+        </style>
+        
+        
+        
+        <div class="container-fluid">
+            <article class="card">
+                
+                <div class="card-body">
+                    <h6>Order ID: {{ order.id}}</h6>
+                    <article class="card">
+                        <div class="card-body row">
+                            <div class="col"> <strong>Estimated Delivery time:</strong> <br>{{ order.estimated_delivery_time }} </div>
+                            <div class="col"> <strong>Status:</strong> <br>{{ order.get_status_display }} </div>
+                            <div class="col"> <strong>Tracking #:</strong> <br>{{ order.tracking_number }} </div>
+                            <div class="col"> <strong>payment:</strong> <br>{{ order.payment_method }} </div>
+                            
+                        </div>
+                    </article>
+                    <h1>Download Invoice</h1>
+                    
+                    <p>Click the button below to download your invoice:</p>
+                    <form action="{% url 'user_profile:download_invoice' order.id %}" method="get">
+                        {% csrf_token %}
+                        <button type="submit" style="background-color: #4CAF50; /* Green */
+                                       border: none;
+                                       color: white;
+                                       padding: 15px 32px;
+                                       text-align: center;
+                                       text-decoration: none;
+                                       display: inline-block;
+                                       font-size: 16px;
+                                       margin: 4px 2px;
+                                       cursor: pointer;
+                                       border-radius: 4px;">Download Invoice</button>
+                    </form>
+              
+                    <div class="track">
+                        {%if order.status == "Cancelled"%}
+                        <div class="step active">
+                            <span class="icon"> <i class="fa fa-ban"></i> </span>
+                            <span class="text">Cancelled</span>
+                        </div>
+                        
+                        {% else %}
+                        {% for step in tracking_steps %}
+                            <div class="step {% if step.active %}active{% endif %}">
+                                <span class="icon"> <i class="{{ step.icon }}"></i> </span>
+                                <span class="text">{{ step.text }}</span>
+                            </div>
+                        {% endfor %}
+                        {%endif%}
+                    </div>
+                    <hr>
+                    
         <div class="row">
             <div class="col-12">
                 <div class="table-content table-responsive">
-                    <table class="table">
+                    <table class="table" style="justify-content:center;">
                         <thead>
                             <tr>
                                 <th class="uren-product-remove">Order ID</th>
@@ -43,12 +229,12 @@
                                     <span>{{ items.id }}</span>
                                 </td>
                                                                             <td class="uren-product">
-                                    <a href="javascript:void(0)">
+                                    <a href="{% url "user_side:user_product_view" items.product.id%}">
                                         <img class="img-sm img-thumbnail" src="{{ items.product.image.url }}" alt="Uren's Cart Thumbnail">
                                     </a>
                                 </td>
                                 
-                                <td class="uren-product-name"><a href="javascript:void(0)">{{ items.product }}</a></td>
+                                <td class="uren-product-name"><a href="{% url "user_side:user_product_view" items.product.id%}">{{ items.product }}</a></td>
                                 <td class="uren-product-price"><span class="amount">{{ items.quantity }}</span></td>
                                 <td class="uren-product-price"><span class="amount">₹ {{ items.price }}</span></td>
                                 
@@ -63,7 +249,15 @@
                         <span style="font-weight:bold">Delivery Address :</span><span> {{ order.address.address }} </span>
                         <br>
                         <span style="font-weight:bold">Payment Method :</span><span> {{ order.payment_method }} </span>
+                        {% if order.paid %}
+                        <br>
+                        
+                        <span style="font-weight:bold">Payment :</span><span> Paid</span>
+                        <br>
+                        {% else %}
+                        <span style="font-weight:bold">Payment :</span><span> Unpaid </span>
                     <br>
+                    {% endif %}
                     <span style="font-weight:bold">Order at :</span><span> {{ order.created_at }} </span>
                     <br>
                     <span style="font-weight:bold">Status :</span><span> {{ order.status }} </span>
@@ -72,9 +266,11 @@
                     <span style="font-weight:bold">Estimated Delivery :</span><span> {{ order.estimated_delivery_time }} </span>
                     <br>
                     {% endif %}
-                    <span style="font-weight:bold">Track ID :</span><span> {{ order.tracking_number }} </span>
+                    <span style="font-weight:bold;">Track ID :</span><span> {{ order.tracking_number }} </span>
+                    <br>
+                    <span style="font-weight:bold">Discount Price : </span><span>-&#x20B9;</span></span> {{ order.discount_price }}</span>
                     <br><div style="padding-top:20px; font-size:20px; font-weight:bolder;">
-                        <span >Total :</span><span style="color: red;"> Rs {{ order.total_price }} </span>
+                        <span >Total : </span><span style="color: red;"><span>&#x20B9;</span> {{ order.total_price }} </span>
                     </div>
                     </div>
                     

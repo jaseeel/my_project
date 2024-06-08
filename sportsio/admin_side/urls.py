@@ -41,11 +41,15 @@ urlpatterns = [
     path("ordermanagement/", inv_views.order_management, name="order_management"),
     path("update-order/<int:order_id>/",inv_views.update_order_details,name="update_order_details"),
     path("update_status/<int:order_id>/",inv_views.update_status,name="update_status"),
-    path("delete_order/<int:order_id>/",inv_views.delete_order,name="delete_order"),
     path("coupon_management",inv_views.coupon_list,name="coupon_management"),
     path("add_coupon",inv_views.add_coupon,name="add_coupon"),
     path("delete_coupon/<int:coupon_id>/",inv_views.delete_coupon,name="delete_coupon"),
     path("edit_coupon/<int:coupon_id>/",inv_views.edit_coupon,name="edit_coupon"),
+    path("refund_order/<int:id>/",inv_views.refund_order,name="refund_order"),
+    path("admin_order/<int:id>/",inv_views.order_view,name="admin_order_view"),
+    path("generate-pdf-report/", report_pdf_order, name="generate_pdf_report"),
+    
+    
 
 
     
