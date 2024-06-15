@@ -7,7 +7,10 @@
   <style>
       .product-image {
           width: 1.5in; /* Set the width to 8 inches */
-          height: 1in; /* Set the height to 10 inches */
+          height: 1.5 in; /* Set the height to 10 inches */
+      }
+      .btn {
+            margin:2px;
       }
   </style>
 
@@ -49,17 +52,16 @@
                         <td style="vertical-align: middle;">{{ product.status }}</td>
                         <td style="vertical-align: middle;">{{ product.stock_count }}</td>
                         <td style="vertical-align: middle;">{{ product.is_active }}</td>
-                        <td style="vertical-align: middle;">{{ product.featured }}</td>
                         <td style="vertical-align: middle;">{{ product.offer_price }}</td>
                         <td style="vertical-align: middle;">
-                          <div class="d-flex align-items-center">
-                              <a href="{% url 'edit' product.id %}" class="btn btn-info mr-2" role="button">Update</a>
+                          <div class="d-flex justify-content-between align-items-center buttonser">
+                              <a href="{% url 'edit' product.id %}" class="btn btn-secondary btn-sm" role="button">Update</a>
                               {% if product.is_active %}
-                                  <a href="{% url 'block_product' product.id %}" class="btn btn-warning mr-2" role="button">Block</a>
+                                  <a href="{% url 'block_product' product.id %}"  onclick="return confirm('Are you sure you want to Block this Product ?')" class="btn btn-secondary btn-sm" role="button">Block</a>
                               {% else %}
-                                  <a href="{% url 'unblock_product' product.id %}" class="btn btn-success mr-2" role="button">Unblock</a>
+                                  <a href="{% url 'unblock_product' product.id %}"  onclick="return confirm('Are you sure you want to Unblock this Product ?')" class="btn btn-secondary btn-sm" role="button">Unblock</a>
                               {% endif %}
-                              <a href="{% url 'delete_product' product.id %}" class="btn btn-danger" role="button">Delete</a>
+                              <a href="{% url 'delete_product' product.id %}"  onclick="return confirm('Are you sure you want to Delete this Product ?')" class="btn btn-secondary btn-sm" role="button">Delete</a>
                           </div>
                       </td>
                       

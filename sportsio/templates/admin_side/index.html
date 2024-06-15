@@ -2,34 +2,7 @@
 
 {% block content %}
 {% load static %}
-<style>
-    /* Style the dropdown options */
-  #time-interval {
-      padding: 5px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-  }
-  
-  #time-interval option {
-      padding: 5px 10px;
-      background-color: #f8f8f8;
-      color: #333;
-      font-size: 16px;
-      border: none;
-  }
-  
-  #time-interval option:hover {
-      background-color: #e0e0e0;
-  }
-  .chart-container {
-    width: 300px;
-    height: 300px;
-    margin: 36px 26px 7px 434px;
-  }
-  
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <div class="container">
+<div class="container">
     <div class="row">
       <div class="col-xl-3 col-lg-3">
         <div class="card l-bg-cherry">
@@ -104,17 +77,19 @@
         <div class="card l-bg-orange-dark">
             <div class="card-statistic-3 p-4">
                 <div class="card-icon card-icon-large"><i class="fas fa-dollar-sign"></i></div>
-                <div class="mb-4">
+                <div class="mb-0">
                     <h5 class="card-title mb-0">Total Revenue </h5>
                 </div>
-                <div class="row align-items-center mb-2 d-flex">
+                <div class="row align-items-center mb-0 d-flex">
                     <div class="col-8">
                         <h2 class="d-flex align-items-center mb-0">
-                            ₹{{ total_amount_received }}k
+                            ₹ {{ total_amount }}k
                         </h2>
                     </div>
-                    <div class="col-4 text-right">
-                        <span><i class="fa fa-arrow-up"> {{ total_amount_received_last_week }}k</i></span>
+                    <div class="col-12 ">
+                        <span>Coupon Discounts : </span>
+                        
+                        <span style="font-weight:800;">-₹ {{ total_coupon_price }}k</span>
                     </div>
                 </div>
                 <div class="progress mt-1 " data-height="8" style="height: 8px;">
@@ -145,32 +120,25 @@
     <!-- Add this script at the end of your HTML template -->
     <script>
         // JavaScript to handle the button click event for filtered sales report
-        document.getElementById('filter-sales-btn').addEventListener('click', function(event) {
-            event.preventDefault(); 
+        document.getElementById('filter-sales-btn').addEventListener('click', function() {
             const fromDateInput = document.getElementById('from-date');
             const toDateInput = document.getElementById('to-date');
-            console.log(`${fromDateInput} from date`)
-            console.log(`${toDateInput} toDateInput`)
             
             // Get the current date
             const currentDate = new Date().toISOString().split('T')[0];
-            console.log(`${currentDate} currentDate`)
     
             // Get the selected dates from the inputs
             const fromDate = fromDateInput.value;
             const toDate = toDateInput.value;
-            console.log(`${fromDate} fromDate`)
-            console.log(`${toDate} toDate`)
+    
             // Check if the selected dates are in the future
             if (fromDate > currentDate || toDate > currentDate) {
                 alert("Please enter a valid date.");
                 return; // Prevent further execution
-
             }
     
             // Redirect to the same page with query parameters for filtered sales report
             window.location.href = `?from_date=${fromDate}&to_date=${toDate}`;
-            console.log(window.location.href)
         });
     </script>
     
@@ -300,10 +268,7 @@
                                     <span class="round-8 bg-primary rounded-circle me-2 d-inline-block"></span>
                                     <span class="fs-2">{{ revenue.year|date:"Y" }}</span>
                                 </div>
-                                <div>
-                                    <span class="round-8 bg-light-primary rounded-circle me-2 d-inline-block"></span>
-                                    <span class="fs-2">{{ revenue.year|date:"Y" }}</span>
-                                </div>
+                               
                             </div>
                             {% endfor %}
                         </div>
@@ -325,7 +290,7 @@
                           <h5 class="card-title mb-9 fw-semibold"> Monthly Earnings </h5>
                           <!-- Display monthly revenue -->
                           {% for revenue in monthly_revenue %}
-                          <h4 class="fw-semibold mb-3">&#8377;{{ revenue.total_revenue }}</h4>
+                          <h4 class="fw-semibold mb-3">{{ revenue.month|date:"M"}} : &#8377;{{ revenue.total_revenue }} </h4>
                           <div class="d-flex align-items-center pb-1">
                               <!-- You can add additional elements here if needed -->
                           </div>
@@ -365,13 +330,26 @@
             <input type="date" class="form-control" id="to-date" name="to_date">
         </div>
     </div>
-    <button class="btn btn-primary ml-2" type="submit">Generate Report</button>
+    <div style="margin-bottom:15px;">
+        <label for="format">Choose Format:</label>
+        <select id="format" name="format" required>
+            <option value="pdf">PDF</option>
+            <option value="excel">Excel</option>
+        </select><br>
+    </div>
+        <button class="btn btn-primary ml-2" type="submit">Generate Report</button>
   </form>
   
   
   
   
-
+  <script src="{% static 'assets/admin_side/libs/jquery/dist/jquery.min.js' %}"></script>
+  <script src="{% static 'assets/admin_side/libs/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/admin_side/js/sidebarmenu.js' %}"></script>
+  <script src="{% static 'assets/admin_side/js/app.min.js' %}"></script>
+  <script src="{% static 'assets/admin_side/libs/apexcharts/dist/apexcharts.min.js' %}"></script>
+  <script src="{% static 'assets/admin_side/libs/simplebar/dist/simplebar.js' %}"></script>
+  <script src="{% static 'assets/admin_side/js/dashboard.js' %}"></script>
   <script>
   document.addEventListener("DOMContentLoaded", function () {
       // Populate yearly revenue
@@ -428,6 +406,8 @@
           },
       };
       var chart = new ApexCharts(document.querySelector("#breakup"), breakup);
+      console.log(chart,'chart is showing')
+
       chart.render();
       var earning = {
           chart: {
@@ -491,7 +471,210 @@
         return true;  // Allow the form to submit
     }
   </script>
-  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+  <script>
+    $(function () {
+        // =====================================
+        // Profit
+        // =====================================
+        var monthlyRevenueData = []; // Placeholder for monthly revenue data
+        var yearlyRevenueData = []; // Placeholder for yearly revenue data
+
+        // Populate monthly and yearly revenue data from backend
+        {% for item in monthly_revenue %}
+            monthlyRevenueData.push({ month: "{{ item.month }}", total_revenue: {{ item.total_revenue }} });
+        {% endfor %}
+
+        {% for item in yearly_revenue %}
+            yearlyRevenueData.push({ year: "{{ item.year }}", total_revenue: {{ item.total_revenue }} });
+        {% endfor %}
+
+        var profitChartOptions = {
+            series: [
+                { name: "Monthly Revenue", data: monthlyRevenueData.map(item => item.total_revenue) },
+                { name: "Expense this month:", data: [280, 250, 325, 215, 250, 310, 280, 250] },
+            ],
+            chart: {
+                type: "bar",
+                height: 345,
+                offsetX: -15,
+                toolbar: { show: true },
+                foreColor: "#adb0bb",
+                fontFamily: 'inherit',
+                sparkline: { enabled: false },
+            },
+            colors: ["#5D87FF", "#49BEFF"],
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: "35%",
+                    borderRadius: [6],
+                    borderRadiusApplication: 'end',
+                    borderRadiusWhenStacked: 'all'
+                },
+            },
+            markers: { size: 0 },
+            dataLabels: {
+                enabled: false,
+            },
+            legend: {
+                show: false,
+            },
+            grid: {
+                borderColor: "rgba(0,0,0,0.1)",
+                strokeDashArray: 3,
+                xaxis: {
+                    lines: {
+                        show: false,
+                    },
+                },
+            },
+            xaxis: {
+                type: "category",
+                categories: monthlyRevenueData.map(item => item.month),
+                labels: {
+                    style: { cssClass: "grey--text lighten-2--text fill-color" },
+                },
+            },
+            yaxis: {
+                show: true,
+                min: 0,
+                max: 400,
+                tickAmount: 4,
+                labels: {
+                    style: {
+                        cssClass: "grey--text lighten-2--text fill-color",
+                    },
+                },
+            },
+            stroke: {
+                show: true,
+                width: 3,
+                lineCap: "butt",
+                colors: ["transparent"],
+            },
+            tooltip: { theme: "light" },
+            responsive: [
+                {
+                    breakpoint: 600,
+                    options: {
+                        plotOptions: {
+                            bar: {
+                                borderRadius: 3,
+                            }
+                        },
+                    }
+                }
+            ]
+        };
+
+        var profitChart = new ApexCharts(document.querySelector("#chart"), profitChartOptions);
+        profitChart.render();
+
+        // =====================================
+        // Breakup
+        // =====================================
+        var breakupOptions = {
+            color: "#adb5bd",
+            series: [38, 40, 25],
+            labels: ["2022", "2021", "2020"],
+            chart: {
+                width: 180,
+                type: "donut",
+                fontFamily: "Plus Jakarta Sans', sans-serif",
+                foreColor: "#adb0bb",
+            },
+            plotOptions: {
+                pie: {
+                    startAngle: 0,
+                    endAngle: 360,
+                    donut: {
+                        size: '75%',
+                    },
+                },
+            },
+            stroke: {
+                show: false,
+            },
+            dataLabels: {
+                enabled: false,
+            },
+            legend: {
+                show: false,
+            },
+            colors: ["#5D87FF", "#ecf2ff", "#F9F9FD"],
+            responsive: [
+                {
+                    breakpoint: 991,
+                    options: {
+                        chart: {
+                            width: 150,
+                        },
+                    },
+                },
+            ],
+            tooltip: {
+                theme: "dark",
+                fillSeriesColor: false,
+            },
+        };
+
+        var breakupChart = new ApexCharts(document.querySelector("#breakup"), breakupOptions);
+        breakupChart.render();
+
+        // =====================================
+        // Earning
+        // =====================================
+        var earningOptions = {
+            chart: {
+                id: "sparkline3",
+                type: "area",
+                height: 60,
+                sparkline: {
+                    enabled: true,
+                },
+                group: "sparklines",
+                fontFamily: "Plus Jakarta Sans', sans-serif",
+                foreColor: "#adb0bb",
+            },
+            series: [
+                {
+                    name: "Earnings",
+                    color: "#49BEFF",
+                    data: [25, 66, 20, 40, 12, 58, 20],
+                },
+            ],
+            stroke: {
+                curve: "smooth",
+                width: 2,
+            },
+            fill: {
+                colors: ["#f3feff"],
+                type: "solid",
+                opacity: 0.05,
+            },
+            markers: {
+                size: 0,
+            },
+            tooltip: {
+                theme: "dark",
+                fixed: {
+                    enabled: true,
+                    position: "right",
+                },
+                x: {
+                    show: false,
+                },
+            },
+        };
+
+        new ApexCharts(document.querySelector("#earning"), earningOptions).render();
+    });
+    </script>
+
   <script>
     // const lab = JSON.parse(`{{ labels|safe }}`);
     // const da = JSON.parse(`{{ data|safe }}`);
@@ -589,3 +772,11 @@
     });
     </script>
 {% endblock %}
+    <div style="margin-bottom:15px;">
+    <label for="format">Choose Format:</label>
+    <select id="format" name="format" required>
+        <option value="pdf">PDF</option>
+        <option value="excel">Excel</option>
+    </select><br>
+</div>
+    <button class="btn btn-primary ml-2" type="submit">Generate Report</button>

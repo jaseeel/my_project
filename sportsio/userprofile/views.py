@@ -126,6 +126,11 @@ def add_tocart(request):
             prod_id = int(request.POST.get('product_id'))
             prod_qty = int(request.POST.get('product_qty'))
             product_check = Products.objects.get(id=prod_id)
+            wishlee= request.POST.get('wishlee')=='true'
+            
+            if wishlee:
+                wish=Wishlist.objects.get(user=request.user,product=prod_id)
+                wish.delete()
             if product_check:
                 if Cart.objects.filter(user=request.user, product=prod_id).exists():
                     # Use update() to increment the product_qty of the existing cart item

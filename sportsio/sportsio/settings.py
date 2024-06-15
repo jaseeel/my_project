@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'inventory',
     "reportlab",
     'xhtml2pdf',
+    "django.contrib.humanize",
     
 ]
 
