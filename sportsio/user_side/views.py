@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render,redirect
-from django.db.models import Q
+from django.db.models import Q,Avg, F
 from category.models import category,Brand
 from banner.models import Banner
 from category.views import views
@@ -40,7 +40,17 @@ def home(request):
     brand=Brand.objects.all()
     seven_days_ago = timezone.now() - timedelta(days=30)
     recent_products = Products.objects.filter(created_date__gte=seven_days_ago,is_active=True,status='In Stock')
-   
+    for rev in products :
+        average_stars=product_review.objects.filter(Title_id=rev.id).aggregate(Avg('stars'))
+        if average_stars['stars__avg']:
+            rev.stars=int(average_stars["stars__avg"])
+            rev.save()
+    for rev in recent_products :
+        average_stars=product_review.objects.filter(Title_id=rev.id).aggregate(Avg('stars'))
+        if average_stars['stars__avg']:
+            rev.stars=int(average_stars["stars__avg"])
+            rev.save()
+    
     
     context={
         'Category': Category,
@@ -65,29 +75,36 @@ def user_product_view(request, id):
     if request.user.is_authenticated:
         email=request.user.email
         if request.method == "POST":
-           user=request.object.POST.get('email')
-           stars=request.object.POST.get('star-rating')
-           Title=request.object.POST.get('prodTitle')
-           review=request.POST.get('review')
-
+           user=request.POST.get('con_email')
+           stars=request.POST.get('star-rating')
+           Title=request.POST.get('prodid')
+           review=request.POST.get('con_message')
            user_rev=CustomUser.objects.get(email=user)
-           product_rev=Products.object.get(id=Title)
+           product_rev=Products.objects.get(id=Title)
            review=product_review.objects.create(
                user=user_rev,
                stars=stars,
                Title=product_rev,
                review=review,
            )
-           print(user,stars,Title,review)
            messages.success(request,"Review Submitted")
 
-    rating=product_review.objects.filter()
+    rating=product_review.objects.filter(Title_id=id)
+    rating_count=product_review.objects.filter(Title_id=id).count()
+    average_stars=product_review.objects.filter(Title_id=id).aggregate(Avg('stars'))
+    if average_stars['stars__avg']:
+        product.stars=int(average_stars["stars__avg"])
+        product.save()
+        
+        
 
     context = {
         'product_images': product_images,
         'product': product,
         'related_products':related_products,
         'email':email,
+        'rating':rating,
+        'rating_count':rating_count,
 
     }
 
@@ -95,6 +112,12 @@ def user_product_view(request, id):
 
 def product_list(request):
     product=Products.objects.filter(is_active=True)
+    for rev in product:
+        average_stars=product_review.objects.filter(Title_id=rev.id).aggregate(Avg('stars'))
+        if average_stars['stars__avg']:
+            rev.stars=int(average_stars["stars__avg"])
+            rev.save()
+    
     context={
         'product':product,
     }
@@ -133,6 +156,7 @@ def product_search(request):
 def sort(request):
     product = Products.objects.filter(is_active=True).order_by('-id')  # Retrieve all products initially
 
+    
     # Sorting logic
     sort_by = request.GET.get('sort_by')
     if sort_by:
@@ -144,6 +168,19 @@ def sort(request):
             product = product.order_by('title')
         elif sort_by == 'z-a':
             product = product.order_by('-title')
+        elif sort_by == 'rating+':
+            product=Products.objects.annotate(avg_stars=Avg(F('reviews__stars'), output_field=models.FloatField())).order_by('-avg_stars')
+            
+        elif sort_by == 'rating-':
+            product = Products.objects.annotate(avg_stars=Avg(F('reviews__stars'), output_field=models.FloatField())).order_by('avg_stars')
+        
+        for rev in product:
+            average_stars=product_review.objects.filter(Title_id=rev.id).aggregate(Avg('stars'))
+            if average_stars['stars__avg']:
+                rev.stars=int(average_stars["stars__avg"])
+                rev.save()
+
+   
 
     return render(request, 'user_side/product_list.html', {'product': product})
 

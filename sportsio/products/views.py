@@ -27,7 +27,7 @@ def product_view(request):
 def add_product(request):
     if 'email' in request.session:
         status_choices = Products.Status_choices  # Use the model's choices
-        categories = Category.objects.all()
+        categories = Category.objects.filter(is_active=True)
         brands = Brand.objects.all()
         
         context = {
@@ -49,16 +49,19 @@ def add_product(request):
             weight = request.POST.get('weight')
             featured = request.POST.get('featured')=='on'
             offer_price = request.POST.get('offer_price')
-            if offer_price:
+            if offer_price :
                 try:
-                    offer_price = int(offer_price)
+                    offer_price = float(offer_price)
                 except ValueError:
                     offer_price = price
 
-            
-
             # Retrieve category and brand objects
             category = Category.objects.get(id=category_id)
+            
+            if category.category_offer:
+                cat_offer=int(price)*(category.category_offer/100)
+                offer_price=int(price) - cat_offer
+            
             brand = Brand.objects.get(id=brand_id)
             
           

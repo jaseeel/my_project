@@ -101,7 +101,9 @@
                 
                 var product_id = $(this).closest('.product-view').find('.prod_id').val();
                 var product_qty = 1 ;
-                console.log(product_qty)
+                var wishlee="true";
+
+                console.log(wishlee)
                 var token= $('input[name=csrfmiddlewaretoken]').val();
             
                 $.ajax({
@@ -110,6 +112,7 @@
                     data:{
                         'product_id':product_id,
                         'product_qty':product_qty,
+                        'wishlee':wishlee,
                         csrfmiddlewaretoken : token
                         
                     },

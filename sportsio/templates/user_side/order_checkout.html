@@ -1,5 +1,6 @@
 {% extends 'user_side/base.html'%}
 {% block content %}
+{% load humanize%}
 
  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
  <style>
@@ -128,8 +129,9 @@
                             <div class="ship-different-title">
                                 <h3>
                                     <label>Ship to a different address?</label>
-                                    <input id="ship-box" type="checkbox">
-                                </h3>
+                                     <!-- <input id="ship-box" type="checkbox">  -->
+                                     <i class='fas fa-angle-down p-1' id="ship-box"></i>
+                                    </h3>
                             </div>
                             <div id="ship-box-info" class="row">
                                 <div class="col-md-12">
@@ -163,17 +165,17 @@
                                     <input type="hidden" value={{ item.code }} name="code">
                                     <td class="cart-product-name">{{item.product.title }}<strong class="product-quantity">
                                     × {{item.product_quantity}}</strong></td>
-                                    <td class="cart-product-total" ><span>+ &#x20B9;</span> <span class="amount" > {{ item.total_price }}</span></td>
+                                    <td class="cart-product-total" ><span>+ &#x20B9;</span> <span class="amount" > {{ item.total_price|intcomma }}</span></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                             <tfoot>
                                 <tr class="cart-subtotal">
                                     <th>Cart Subtotal</th>
-                                    <td><span>&#x20B9;</span><span class="amount"> {{ total_amount }}</span></td>
+                                    <td><span>&#x20B9;</span><span class="amount"> {{ total_amount|intcomma }}</span></td>
                                 </tr>
                                 <th> Coupon Discount</th>
-                                <td><strong><span style="color:red;"><span style="color:red;" >- &#x20B9; </span>{{ Coupon_discount }}</span></td>
+                                <td><strong><span style="color:red;"><span style="color:red;" >- &#x20B9; </span>{{ Coupon_discount|intcomma }}</span></td>
                                     <input type="hidden" value="{{ Coupon_discount }}" name="discount_price">
                             </tr>
                                     <th> Delivery</th>
@@ -188,8 +190,8 @@
                           
                                 <tr class="order-total">
                                     <th>Order Total</th>
-                                    <td><strong><span>&#x20B9;</span><span class="amount">{{sub_total}}</span></strong></td>
-                                    <input type="hidden" name="total_price"  value='{{ sub_total }}'>
+                                    <td><strong><span>&#x20B9;</span><span class="amount">{{sub_total|intcomma }}</span></strong></td>
+                                    <input type="hidden" name="total_price"  value={{ sub_total }}>
                                 </tr>
                             </tfoot>
                         </table>
@@ -213,7 +215,7 @@
                                                         {% endfor %}
                                                     </select>
                                                 </div>
-                                                <span class="fw-bold" >Wallet Balance : &#x20B9;</span><span class="fw-light"> {{ wallet_balance }}</span>
+                                                <span class="fw-bold" >Wallet Balance : &#x20B9;</span><span class="fw-light"> {{ wallet_balance|intcomma }}</span>
                                     </div>
                             <div class="order-button-payment">
                                 <input id="confirm-orders-button"  value="Place order" type="submit">

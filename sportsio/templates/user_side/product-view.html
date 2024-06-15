@@ -1,5 +1,6 @@
 {% extends 'user_side/base.html'%}
 {% block content %}        
+{% load humanize %}
         
     <!-- ################################ Product View Start here ##################################-->
 
@@ -57,25 +58,56 @@
                                 <span class="reference">{{ product.category }}</span>
                              
                                 <!-- Rating Start Here -->
-
                                 <div class="rating-box">
-                                    <ul>
-                                        <li><i class="ion-android-star"></i></li>
-                                        <li><i class="ion-android-star"></i></li>
-                                        <li><i class="ion-android-star"></i></li>
-                                        <li class="silver-color"><i class="ion-android-star"></i></li>
-                                        <li class="silver-color"><i class="ion-android-star"></i></li>
-                                    </ul>
-                                </div>
+                                <ul>
+                                {% if product.stars == 5 %}
+                                <li><i class="ion-android-star"></i></li>
+                                <li><i class="ion-android-star"></i></li>
+                                <li><i class="ion-android-star"></i></li>
+                                <li><i class="ion-android-star"></i></li>
+                                <li><i class="ion-android-star"></i></li>
+                                <span>(5 stars)</span>
+                                {% elif product.stars == 4 %}
+                                <li><i class="ion-android-star"></i></li>
+                                <li><i class="ion-android-star"></i></li>
+                                <li><i class="ion-android-star"></i></li>
+                                <li><i class="ion-android-star"></i></li>
+                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                <span>(4 stars)</span>
+                                {% elif product.stars == 3 %}
+                                <li><i class="ion-android-star"></i></li>
+                                <li><i class="ion-android-star"></i></li>
+                                <li><i class="ion-android-star"></i></li>
+                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                <span>(3 stars)</span>
+                                {% elif product.stars == 2 %}
+                                <li><i class="ion-android-star"></i></li>
+                                <li><i class="ion-android-star"></i></li>
+                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                <span>(2 stars)</span>
+                                {% elif product.stars == 1 %}
+                                <li><i class="ion-android-star"></i></li>
+                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                <li class="silver-color"><i class="ion-android-star"></i></li>
+                                <span>(1 star)</span>
+                            {% endif %}
+                                </ul>
+                            </div>
                                 <div class="sp-essential_stuff">
                                     <ul>
                                         <li>Brand: <a href="javascript:void(0)">{{ product.brand }}</a></li>
                                         <li>Status: <a href="javascript:void(0)">{{ product.status }}</a></li>
                                         {% if product.offer_price > 0 %}
-                                        <li>Price: <a href="javascript:void(0)"><span  style="text-decoration: line-through;">Rs {{ product.price }}</span></a></li>
-                                        <li>Offer Price: <a style="font-weight: bold; font-size: x-large;" href="javascript:void(0)">Rs {{ product.offer_price}}</a></li>
+                                        <li>Price: <a href="javascript:void(0)"><span  style="text-decoration: line-through;">Rs {{ product.price|intcomma }}</span></a></li>
+                                        <li>Offer Price: <a style="font-weight: bold; font-size: x-large;" href="javascript:void(0)">₹ {{ product.offer_price|intcomma }}</a></li>
                                         {% else %}
-                                        <li>Price: <a href="javascript:void(0)"><span  style="text-decoration: line-through;">Rs {{ product.price }}</span></a></li>
+                                        <li>Price: <a href="javascript:void(0)"><span  style="text-decoration: line-through;">₹ {{ product.price}}</span></a></li>
                                         {% endif %}
                                     </ul>
                                 </div>
@@ -172,7 +204,7 @@
                                 <ul class="nav product-menu">
                                     <li><a class="active" data-toggle="tab" href="#description"><span>Description</span></a>
                                     </li>
-                                    <li><a data-toggle="tab" href="#reviews"><span>Reviews (1)</span></a></li>
+                                    <li><a data-toggle="tab" href="#reviews"><span>Reviews ({{ rating_count }})</span></a></li>
                                 </ul>
                             </div>
 
@@ -199,40 +231,84 @@
 
                                 <div id="reviews" class="tab-pane" role="tabpanel">
                                     <div class="tab-pane active" id="tab-review">
-                                        <form class="form-horizontal" id="form-review" action="{% url 'user_side:user_product_view' product.id %}">
+                                        <form class="form-horizontal" id="form-review" action="{% url 'user_side:user_product_view' product.id %}" method="post">
+                                            <!-- CSRF token is crucial for security -->
+                                            {% csrf_token %}
+                                            
                                             <div id="review">
+                                                <!-- Example review section, remove this in production -->
                                                 <table class="table table-striped table-bordered">
+                                                    {% for rev in rating%}
                                                     <tbody>
                                                         <tr>
-                                                            <td style="width: 50%;"><strong>Customer</strong></td>
-                                                            <td class="text-right">15/09/20</td>
+                                                            <td style="width: 50%;"><strong>{{ rev.user }}</strong></td>
+                                                            
                                                         </tr>
                                                         <tr>
                                                             <td colspan="2">
-                                                                <p>Good product! Thank you very much</p>
+                                                                
+                                                                <!-- Rating Box Start Here-->
                                                                 <div class="rating-box">
                                                                     <ul>
-                                                                        <li><i class="ion-android-star"></i></li>
-                                                                        <li><i class="ion-android-star"></i></li>
-                                                                        <li><i class="ion-android-star"></i></li>
-                                                                        <li><i class="ion-android-star"></i></li>
-                                                                        <li><i class="ion-android-star"></i></li>
+                                                                        {% if rev.stars == 5 %}
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <span>(5 stars)</span>
+                                                                            {% elif rev.stars == 4 %}
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                            <span>(4 stars)</span>
+                                                                            {% elif rev.stars == 3 %}
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                            <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                            <span>(3 stars)</span>
+                                                                            {% elif rev.stars == 2 %}
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                            <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                            <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                            <span>(2 stars)</span>
+                                                                            {% elif rev.stars == 1 %}
+                                                                            <li><i class="ion-android-star"></i></li>
+                                                                            <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                            <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                            <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                            <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                            <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                            <span>(1 star)</span>
+                                                                        {% endif %}
                                                                     </ul>
                                                                 </div>
+                                                                <!-- Rating Box End Here-->
+                                                                 <br>
+                                                                <p>{{rev.review}}</p>
                                                             </td>
                                                         </tr>
                                                     </tbody>
+                                                    {% endfor %}
                                                 </table>
                                             </div>
-                                            {% if user.is_authenticated %}
-                                            {% csrf_token %}
+                                        
+                                            <!-- Form content starts here -->
                                             <h2>Write a review</h2>
                                             <div class="form-group required">
                                                 <div class="col-sm-12 p-0">
-                                                    <input  type ="hidden" name="prodTitle" value="{{ product.id }}" class="prod_id">
-
+                                                    <!-- Hidden input for product ID -->
+                                                    <input type="hidden" name="prodid" value="{{ product.id }}" class="prod_id">
+                                                    
+                                                    <!-- Readonly input for customer's email -->
                                                     <label>Your Email <span class="required">*</span></label>
-                                                    <input class="review-input" value="{{email}}" type="email" name="con_email" id="con_email" readonly >
+                                                    <input class="review-input" value="{{email}}" type="email" name="con_email" id="con_email" readonly>
                                                 </div>
                                             </div>
                                             <div class="form-group last-child required">
@@ -240,29 +316,30 @@
                                                     <div class="your-opinion">
                                                         <label>Your Rating</label>
                                                         <span>
-                                                    <select class="star-rating" name="star-rating">
-                                                        <option value="1">1</option>
-                                                        <option value="2">2</option>
-                                                        <option value="3">3</option>
-                                                        <option value="4">4</option>
-                                                        <option value="5">5</option>
-                                                    </select>
-                                                </span>
+                                                            <!-- Star rating selection -->
+                                                            <select class="star-rating" name="star-rating">
+                                                                <option value="1">1</option>
+                                                                <option value="2">2</option>
+                                                                <option value="3">3</option>
+                                                                <option value="4">4</option>
+                                                                <option value="5">5</option>
+                                                            </select>
+                                                        </span>
                                                     </div>
                                                 </div>
+                                            </div>
                                             <div class="form-group required second-child">
                                                 <div class="col-sm-12 p-0">
                                                     <label class="control-label">Share your opinion</label>
+                                                    <!-- Text area for review message -->
                                                     <textarea class="review-textarea" name="con_message" id="con_message"></textarea>
-           
                                                 </div>
                                             </div>
                                             
-                                                <div class="uren-btn-ps_right">
-                                                    <button type="submit" class="uren-btn-2">Continue</button>
-                                                </div>
+                                            <!-- Submit button -->
+                                            <div class="uren-btn-ps_right">
+                                                <button type="submit" class="uren-btn-2">Continue</button>
                                             </div>
-                                            {%endif%}
                                         </form>
                                     </div>
                                 </div>

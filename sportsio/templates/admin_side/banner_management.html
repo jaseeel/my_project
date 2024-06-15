@@ -4,9 +4,12 @@
 <!--  Product image size-->
 <style>
     .product-image {
-        width: 1in; /* Set the width to 8 inches */
+        width: 2in; /* Set the width to 8 inches */
         height: 1in; /* Set the height to 10 inches */
     }
+    .btn {
+        margin:2px;
+  }
 </style>
       <!--  Header End -->
       <div class="card-body">
@@ -36,14 +39,14 @@
                                             <td>{{x.price}}</td>
                                             <td>{{x.offer_details}}</td>
                                             <td style="align-items: center;">
-                                                <div class="d-flex justify-content-center ">
-                                                <a href="{% url 'update_banner' x.id%}" class="btn btn-info">update</a>
+                                                <div class="d-flex justify-content-center padding:5px; ">
+                                                <a href="{% url 'update_banner' x.id%}" class="btn btn-secondary btn-sm">update</a>
                                                 {% if x.is_active %}
-                                                <a href="{% url 'block_banner' x.id %}" class="btn btn-warning" role="button">Block</a>
+                                                <a href="{% url 'block_banner' x.id %}"  onclick="return confirm('Are you sure you want to Block this Banner ?')" class="btn btn-secondary btn-sm" role="button">Block</a>
                                                 {% else %}
-                                                <a href="{% url 'unblock_banner' x.id %}" class="btn btn-success" role="button">unblock</a>
+                                                <a href="{% url 'unblock_banner' x.id %}"  onclick="return confirm('Are you sure you want to Unblock this Banner ?')"  class="btn btn-secondary btn-sm" role="button">unblock</a>
                                                 {% endif %}
-                                                <a href="{% url 'delete_banner' x.id %}" class="btn  btn-danger">Delete</a>
+                                                <a href="{% url 'delete_banner' x.id %}"  onclick="return confirm('Are you sure you want to Delete this Banner ?')" class="btn  btn-secondary btn-sm">Delete</a>
                                                 </div>
                                             </td>
                                         </tr>

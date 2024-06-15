@@ -45,7 +45,7 @@ sportsio/category/migrations__pycache__/
 
 sportsio/banner/migrations__pycache__/
 
-sportsio/inventory/migrations__pycache__/
+sportsio/inventory/__pycache__/
 
 sportsio/products/migrations__pycache__/
 
@@ -60,5 +60,7 @@ sportsio/user_side/migrations__pycache__/
 
 *.pyc
 
-
-
+sportsio/products/migrations
+sportsio/inventory/__pycache__
+sportsio/products/__pycache__
+sportsio/admin_side/__pycache__

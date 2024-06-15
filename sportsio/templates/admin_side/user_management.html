@@ -1,6 +1,11 @@
 
  {% extends 'admin_side/base.html' %}  
     {% block content %}    
+    <style>
+      .btn {
+        margin:2px;
+  }
+    </style>
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center">
                 <h5 class="card-title fw-semibold mb-4">User Management</h5>
@@ -33,11 +38,10 @@
                     <div class="d-flex align-items-center">
                     {% if data.is_active %}
                     
-                    <a class="btn btn-sm btn-danger" href="{% url 'block_status' user_id=data.id %}" >Block</a>
+                    <a class="btn btn-sm btn-danger"  onclick="return confirm('Are you sure you want to Block this User ?')" href="{% url 'block_status' user_id=data.id %}" >Block</a>
                   {% else %}
-                  <a class="btn btn-sm btn-success" href="{% url 'unblock_status' user_id=data.id %}">Unblock</a>
-                   {% endif %}
-                   <a class="btn btn-sm btn-danger" href="{% url 'delete_user' user_id=data.id %}">Delete</a>
+                  <a class="btn btn-sm btn-success"  onclick="return confirm('Are you sure you want to Unblock this User ?')" href="{% url 'unblock_status' user_id=data.id %}">Unblock</a>
+                   {% endif%}
                     </div>
                 </tr>
                 {% endfor %}

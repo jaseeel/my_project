@@ -1,5 +1,6 @@
 {% extends 'user_side/base.html'%}
 {% block content %}
+{% load humanize %}
 <style>
     .img-sm {
         width: 150px; /* Adjust the width as needed */
@@ -90,7 +91,7 @@
                                             </td>
                                             
                                             <td class="uren-product-name"><a href="javascript:void(0)">{{ items.product }}</a></td>
-                                            <td class="uren-product-price"><span>&#x20B9;</span><span class="amount li-product-price"> {{ items.product.price }}</span></td>
+                                            <td class="uren-product-price"><span>&#x20B9;</span><span class="amount li-product-price"> {{ items.product.price|intcomma }}</span></td>
                                             <td class="quantity tr">
                                                 {% if items.product_id.stock_count <= 0 %}
                                                 <span class="h6" style="color:red; ">OUT OF STOCK</span>
@@ -125,10 +126,10 @@
                                     <div class="cart-page-total">
                                         <h2>Cart totals</h2>
                                         <ul>
-                                            <li>Subtotal  <span class="sub_total"> {{ sub_total }}</span> <span>&#x20B9; </span></li> 
-                                            <li>You Saved<span class="saved_price" style="color:red;"> {{ saved_price }} </span> <span>- &#x20B9; </span></li>  
+                                            <li>Subtotal  <span class="sub_total"> {{ sub_total|intcomma }}</span> <span>&#x20B9; </span></li> 
+                                            <li>You Saved<span class="saved_price" style="color:red;"> {{ saved_price|intcomma }} </span> <span>- &#x20B9; </span></li>  
                                                                  <li>Total  
-                                                 <span class="total-price" > {{ total_price }} </span> <span>&#x20B9; </span>
+                                                 <span class="total-price" > {{ total_price|intcomma }} </span> <span>&#x20B9; </span>
                                                 
                                             </li>
 

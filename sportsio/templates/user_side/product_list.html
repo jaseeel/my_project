@@ -1,6 +1,6 @@
 {% extends "user_side/base.html"%}
 {% block content %}
-{% load static %}
+{% load humanize%}
 <style>
     .product-grid-container {
         display: flex;
@@ -73,23 +73,54 @@
                                         </div>
                                         <div class="product-content">
                                             <div class="product-desc_info">
-                                                <div class="rating-box">
-                                                    <ul>
-                                                        <li><i class="ion-android-star"></i></li>
-                                                        <li><i class="ion-android-star"></i></li>
-                                                        <li><i class="ion-android-star"></i></li>
-                                                        <li class="silver-color"><i class="ion-android-star"></i></li>
-                                                        <li class="silver-color"><i class="ion-android-star"></i></li>
-                                                    </ul>
-                                                </div>
+                                                                             <!-- Rating Box Start Here-->
+                                                                             <div class="rating-box">
+                                                                              <ul>
+                                                                                  {% if prod.stars == 5 %}
+                                                                                      <li><i class="ion-android-star"></i></li>
+                                                                                      <li><i class="ion-android-star"></i></li>
+                                                                                      <li><i class="ion-android-star"></i></li>
+                                                                                      <li><i class="ion-android-star"></i></li>
+                                                                                      <li><i class="ion-android-star"></i></li>
+                                                                                      <span>(5 stars)</span>
+                                                                                      {% elif prod.stars == 4 %}
+                                                                                      <li><i class="ion-android-star"></i></li>
+                                                                                      <li><i class="ion-android-star"></i></li>
+                                                                                      <li><i class="ion-android-star"></i></li>
+                                                                                      <li><i class="ion-android-star"></i></li>
+                                                                                      <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                                      <span>(4 stars)</span>
+                                                                                      {% elif prod.stars == 3 %}
+                                                                                      <li><i class="ion-android-star"></i></li>
+                                                                                      <li><i class="ion-android-star"></i></li>
+                                                                                      <li><i class="ion-android-star"></i></li>
+                                                                                      <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                                      <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                                     <span>(3 stars)</span>
+                                                                                     {% elif prod.stars == 2 %}
+                                                                                     <li><i class="ion-android-star"></i></li>
+                                                                                     <li><i class="ion-android-star"></i></li>
+                                                                                     <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                                     <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                                     <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                                     <span>(2 stars)</span>
+                                                                                     {% elif prod.stars == 1 %}
+                                                                                     <li><i class="ion-android-star"></i></li>
+                                                                                     <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                                     <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                                     <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                                     <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                                     <li class="silver-color"><i class="ion-android-star"></i></li>
+                                                                                     <span>(1 star)</span>
+                                                                                 {% endif %}
+                                                                              </ul>
+                                                                          </div>
+                                                                                                            <!-- Rating Box End Here-->
                                                 <h6><a class="product-name" href="single-product.html">{{ prod.title| truncatewords:3 }}</a></h6>
                                                 <div class="price-box">
-                                                    {% if prod.offer_price > 0 %}
-                                                    <span class="old-price">Rs{{ prod.price }}</span>
-                                                    <span class="new-price">Rs{{ prod.offer_price }}</span>
-                                                    {% else %}
-                                                    <span class="new-price">Rs{{ prod.price }}</span>
-                                                    {% endif %}
+                                                    <span style="text-decoration: line-through;"  class="old-price">  ₹ {{ prod.price|intcomma }}</span>
+                                                    
+                                                    <span class="new-price"> ₹ {{ prod.offer_price|intcomma }}</span>
                                                 </div>
                                             </div>
                                         </div>

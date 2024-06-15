@@ -7,6 +7,10 @@
         width: 1.5in; /* Set the width to 8 inches */
         height: 1in; /* Set the height to 10 inches */
     }
+    .buttonser {
+        width:130px;
+    }
+
 </style>
         
     <div class="card-body">
@@ -48,13 +52,13 @@
                                   <td style="vertical-align: middle;">{{ x.category_offer }}</td>
                                   <td style="vertical-align: middle;">{% if x.is_active %}Active{% else %}Not active{% endif %}</td>
                                   <td style="vertical-align: middle;">
-                                      <div class="justify-content-center align-items-center">
-                                          <a href="{% url 'delete_category' x.id %}" class="btn btn-danger" role="button">Delete</a>
-                                          <a href="{% url 'edit_category' x.id %}" class="btn btn-info" role="button">Edit</a>
+                                      <div class="justify-content-center align-items-center buttonser">
+                                          
+                                          <a href="{% url 'edit_category' x.id %}" class="btn btn-sm btn-info" role="button">Edit</a>
                                           {%if x.is_active %}
-                                          <a href="{% url 'block_category' x.id %}" class="btn btn-secondary" role="button">block</a>
+                                          <a href="{% url 'block_category' x.id %}"  onclick="return confirm('Are you sure you want to Block this Category ?')" class="btn btn-sm btn-info" role="button">block</a>
                                           {%else%}
-                                          <a href="{% url 'unblock_category' x.id %}" class="btn btn-secondary" role="button">unblock</a>
+                                          <a href="{% url 'unblock_category' x.id %}"  onclick="return confirm('Are you sure you want to Unblock this Category ?')" class="btn btn-sm btn-info" role="button">unblock</a>
                                           {%endif%}
                                       </div>
                                   </td>

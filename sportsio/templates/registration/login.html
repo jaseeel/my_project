@@ -1,8 +1,6 @@
-{%load static%}
 
-<!DOCTYPE html>
-<html>
-<head>
+
+{% load static%}
 	<title>Login Form</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -15,16 +13,16 @@
 </head>
 </head>
 <body>
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-lg-6 col-md-6 d-none d-md-block image-container"></div>
 
-			<div class="col-lg-6 col-md-6 form-container">
-				<div class="col-lg-8 col-md-12 col-sm-9 col-xs-12 form-box text-center">
-					<div class="logo mb-3">
-						<img src="{% static 'assets/register/image/logo.png' %}" width="150px">
+		
+	
+
+			<div class="col-lg-14 col-md-14 form-container">
+				<div class="col-lg-4 col-md-12 col-sm-9 col-xs-12 form-box text-center">
+					<div class="logo mb-2">
+						<img src="{% static 'assets/admin_side/images/logos/dark-logo.png' %}" width="150px">
 					</div>
-					<div class="heading mb-4">
+					<div class="heading mb-3">
 						<h4>Login into your account</h4>
 					</div>
 					<form method='POST'>
@@ -45,7 +43,7 @@
 								</div>
 							</div>
 							<div class="col-6 text-right">
-								<a href="{% url 'forget' %}" class="forget-link">Forget Password</a>
+								<a href="{% url 'forget' %}" class="forget-link">Forgot Password ?</a>
 							</div>
 						</div>
 						<div class="text-left mb-3">
@@ -54,11 +52,10 @@
 						<div class="text-center mb-2">
 							<div class="mb-3" style="color: #777">or login with</div>
 
-							<a href="" class="btn btn-social btn-facebook">facebook</a>
 
 							<a href="" class="btn btn-social btn-google">google</a>
 
-							<a href="" class="btn btn-social btn-twitter">twitter</a>
+
 						</div>
 						<div style="color: #777">Don't have an account
 							<a href="{% url 'register' %}" class="register-link">Register here</a>
