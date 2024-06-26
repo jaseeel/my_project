@@ -1,4 +1,5 @@
 {% extends 'user_side/base.html'%}
+{%block title%}Checkout | Sportsio{%endblock%}
 {% block content %}
 {% load humanize%}
 
@@ -124,6 +125,8 @@
                                 <option value="{{ address.id }}">{{ address.house_name }}, {{ address.street }}, {{ address.city }}, {{ address.state }} - {{ address.zipcode }}</option>
                             {% endfor %}
                         </select>
+                        <p id="error-message" style="color: red; display: none;">Please choose one address</p>
+
                         </div>
                         <div class="different-address">
                             <div class="ship-different-title">
@@ -292,6 +295,15 @@
         var razorpayButton = document.getElementById("razorpaybtn");
 
         // Check if no addresses are available
+        var select = document.getElementById('saved-address-select');
+        var errorMessage = document.getElementById('error-message');
+        
+        if (select.value === "") {
+            errorMessage.style.display = 'block';
+            event.preventDefault(); // Prevent the button's default action
+        } else {
+            errorMessage.style.display = 'none';
+        }
         if (savedAddressSelect.options.length === 0) {
             confirmOrdersButton.disabled = true;
         }

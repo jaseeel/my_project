@@ -100,6 +100,7 @@ def update_product(request, id):
             'categories': categories,
             'status_choices': status_choices,
             'product': product,
+            
         }
         if request.method == 'POST':
             title = request.POST.get('title')
@@ -119,6 +120,12 @@ def update_product(request, id):
                     offer_price = int(offer_price)
                 except ValueError:
                     offer_price = price
+            # Retrieve category and brand objects
+            category = Category.objects.get(id=cat_id)
+            
+            if category.category_offer:
+                cat_offer=int(price)*(category.category_offer/100)
+                offer_price=int(price) - cat_offer
             # Update product fields
             product.title = title
             product.category = Category.objects.get(id=cat_id)
@@ -134,12 +141,15 @@ def update_product(request, id):
             product.offer_price=offer_price
 
 
-            # Handle existing additional images
-            existing_images = product.additional_images.all()
 
-            # Handle uploaded additional images
+            # Handle existing and new additional images
+            existing_images = product.additional_images.all()
             new_images = request.FILES.getlist('images')
 
+            # Delete existing images if any were uploaded
+            if new_images:
+                for img in existing_images:
+                    img.delete()
             # Save product
             product.save()
 

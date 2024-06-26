@@ -14,11 +14,12 @@
                 <div class="row align-items-center mb-2 d-flex">
                     <div class="col-8">
                         <h2 class="d-flex align-items-center mb-0">
-                            {{ total_orders }}
+                            {{ total_order }}
                         </h2>
                     </div>
-                    <div class="col-4 text-right">
-                        <span class="text-success">+{{ total_orders_last_week }}<i class="fa fa-arrow-up"></i></span>
+                    <div class="col-6 text-right">
+                        <span>Delivered</span>
+                        <span class="text-success">+{{ total_orders_delivered }}<i class="fa fa-arrow-up"></i></span>
                     </div>
                 </div>
                 <div class="progress mt-1 " data-height="8" style="height: 8px;">
@@ -64,7 +65,7 @@
                         </h2>
                     </div>
                     <div class="col-4 text-right">
-                        <span>10% <i class="fa fa-arrow-up"></i></span>
+                        <span>5% <i class="fa fa-arrow-up"></i></span>
                     </div>
                 </div>
                 <div class="progress mt-1 " data-height="8" style="height: 8px;">
@@ -98,11 +99,11 @@
             </div>
         </div>
     </div>
-    <div class="row">
+   <!-- <div class="row">
       <div class="content">
         <h3> Filter the sales report </h3>
     
-        <!-- Add this code within the form tag or wherever you want to place the date inputs and button -->
+        // Add this code within the form tag or wherever you want to place the date inputs and button
     <div class="row mb-3">
         <label class="col-sm-2 col-form-label" for="from-date">From:</label>
         <div class="col-sm-3">
@@ -115,7 +116,7 @@
             <input type="date" class="form-control" id="to-date" name="to_date">
         </div>
     </div>
-    <button id="filter-sales-btn" class="btn btn-primary ml-2">Filter Sales</button>
+    <button id="filter-sales-btn" class="btn btn-primary ml-2">Filter Sales</button> -->
     
     <!-- Add this script at the end of your HTML template -->
     <script>
@@ -451,7 +452,7 @@
       };
       new ApexCharts(document.querySelector("#monthly-earning"), earning).render();
   });
-  </script>
+  </script> 
   <script>
     function validateDate() {
         var fromDate = new Date(document.getElementById('from-date').value);
@@ -475,7 +476,7 @@
 
 
 
-  <script>
+  <!----> <script>
     $(function () {
         // =====================================
         // Profit
@@ -673,7 +674,7 @@
 
         new ApexCharts(document.querySelector("#earning"), earningOptions).render();
     });
-    </script>
+    </script> 
 
   <script>
     // const lab = JSON.parse(`{{ labels|safe }}`);
@@ -686,7 +687,7 @@
     labels: JSON.parse(`{{ category_labels|safe }}`),
     datasets: [{
         label: 'Number of Products',
-        data: JSON.parse(`{{ category_data|safe }}`),
+        data: JSON.parse(`{{ category_data|safe }}`),                }//dlete
         borderWidth: 1
     }]
     },
@@ -716,7 +717,7 @@
           scales: {
               y: {
                   beginAtZero: true
-              }
+              }                                                   }//delete this
           }
       }
   });
@@ -726,7 +727,7 @@
   timeIntervalDropdown.addEventListener('change', function() {
       const selectedValue = timeIntervalDropdown.value;
       // Reload the page with the selected time interval as a query parameter
-      window.location.href = `?time_interval=${selectedValue}`;
+      window.location.href = `?time_interval=${selectedValue}`;                                     }//delete this
   });
   
    </script>
@@ -770,7 +771,7 @@
     }
     }
     });
-    </script>
+    </script>>
 {% endblock %}
     <div style="margin-bottom:15px;">
     <label for="format">Choose Format:</label>

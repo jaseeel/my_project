@@ -93,9 +93,9 @@
 
                           <label for="image">Image:</label><br>
                           <div id="imageContainer">
-                              <img src="{{product.image.url}}" style="max-width: 200px; height: auto;" alt="">
+                              <img src="{{ product.image.url }}" style="max-width: 200px; height: auto;" alt="">
                           </div>
-                          <input type="file" id="image" name="image" accept="image/*" value="{{product.image.url}}" onchange="showImage()"><br><br>
+                          <input type="file" id="image" name="image" accept="image/*" value="{{ product.image.url }}"  onchange="showImage()"><br><br>
                   
                           <label for="weight">Weight:</label><br>
                           <input type="number" id="weight" name="weight" step="0.01" value="{{product.weight}}"><br><br>
@@ -145,22 +145,19 @@
 
 <script>
   function showImage() {
-      var imageInput = document.getElementById('image');
-      var imageContainer = document.getElementById('imageContainer');
+    var input = document.getElementById("image");
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var img = document.createElement("img");
+        img.src = e.target.result;
+        img.style.maxWidth = "200px";
+        img.style.height = "auto";
+        document.querySelector("#imageContainer").innerHTML = ""; // Clear existing image
+        document.querySelector("#imageContainer").appendChild(img); // Append the new image
+    };
+    reader.readAsDataURL(input.files[0]);
+}
 
-      // Check if a file has been selected
-      if (imageInput.files && imageInput.files[0]) {
-          var reader = new FileReader();
-          reader.onload = function(e) {
-              // Set the source of the image element to the selected file
-              imageContainer.innerHTML = '<img src="' + e.target.result + '" style="max-width: 200px; height: auto;" alt="">';
-          };
-          reader.readAsDataURL(imageInput.files[0]);
-      } else {
-          // If no file selected, hide the image container
-          imageContainer.innerHTML = '';
-      }
-  }
 
   function validateForm() {
     var stockCount = document.getElementById('stock_count').value;

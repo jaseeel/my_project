@@ -40,11 +40,13 @@
         <br>
           <hr>
           <div class="col-xl-10">
-            
-            <p> {{ order.product.title }} </p>
-            
+            {% for i in order_items %}
+            <p> {{ i.product }}</p><span>Rs {{i.product.offer_price}}</span> 
+            {%endfor%}
           </div>
+          <hr>
           <div class="col-xl-2">
+            <p class="float-end">Coupon Discount:-{{order.discount_price}}
             <p class="float-end">Amount: {{ order.total_price }}/-
                 
             </p>
@@ -73,10 +75,7 @@
         </div>
         <div class="row text-black">
   
-          <div class="col-xl-12">
-            <p class="float-end fw-bold">Delivery: 50/-
-            </p>
-          </div>
+          
           <hr style="border: 2px solid black;">
         </div>
 

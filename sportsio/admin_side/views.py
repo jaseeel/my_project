@@ -17,7 +17,7 @@ from reportlab.lib.pagesizes import A4, inch
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from django.views.decorators.http import require_http_methods
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from category.models import Brand, category
@@ -102,8 +102,9 @@ def dashboard(request):
         new_users_last_week = CustomUser.objects.filter(
             date_joined__gte=one_week_ago
         ).count()
-
-        total_orders = OrderItem.objects.count()
+        total_order = OrderItem.objects.count()
+        
+        total_orders_delivered=Order.objects.filter(status="Delivered").count()
 
         total_offer_price_amount = Order.objects.aggregate(
             total_offer_price_amount=Sum("total_price")
@@ -200,10 +201,10 @@ def dashboard(request):
             "top_products": top_products,
             "labels": json.dumps(labels),
             "data": json.dumps(data),
+            "total_amount":total_amount,
             "total_customers": total_customers,
             "new_users_last_week": new_users_last_week,
-            "total_orders": total_orders,
-            "total_amount": total_amount,
+            "total_order": total_order,
             "total_products": total_products,
             "category_labels": json.dumps(category_labels),
             "category_data": json.dumps(category_data),
@@ -212,6 +213,7 @@ def dashboard(request):
             "top_categories": top_categories,
             "top_brands": top_brands,
             "total_coupon_price":total_coupon_price,
+            "total_orders_delivered":total_orders_delivered,
         }
 
         if request.method == "GET":

@@ -716,9 +716,10 @@ def returnorder(request,id):
     
 def download_invoice(request, order_id):
     order = Order.objects.get(id=order_id)
+    order_items=OrderItem.objects.filter(order=order)
     
     template_path = "user_side/pdf.html"
-    context = {"order": order}
+    context = {"order": order,"order_items":order_items}
     response = HttpResponse(content_type="application/pdf")
     response["Content-Disposition"] = 'attachment; filename="report.pdf"'
     template = get_template(template_path)
