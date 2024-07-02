@@ -396,22 +396,37 @@
     
 
     
-{% if messages %}
+
 <script>
     document.addEventListener("DOMContentLoaded", function(event) {
-        toastr.options = { "closeButton": false, "debug": false, "newestOnTop": true,
-            "progressBar": true, "positionClass": "toast-top-right", "preventDuplicates": true,
-            "onclick": null, "showDuration": "300", "hideDuration": "1000", "timeOut": "5000",
-            "extendedTimeOut": "1000", "showEasing": "swing", "hideEasing": "linear",
-            "showMethod": "fadeIn", "hideMethod": "fadeOut" };
+        toastr.options = {
+            "closeButton": false, // No close button
+            "debug": false, // Disable debug mode
+            "newestOnTop": true, // Display newest messages on top
+            "progressBar": true, // Show progress bar
+            "positionClass": "toast-bottom-right", // Position the toast at the bottom right corner
+            "preventDuplicates": true, // Prevent displaying the same message twice
+            "onclick": null, // No action on click
+            "showDuration": "300", // Duration to show the toast before fading in
+            "hideDuration": "1000", // Duration to hide the toast after fading out
+            "timeOut": "5000", // Time before the toast automatically hides
+            "extendedTimeOut": "1000", // Additional delay before hiding the toast
+            "showEasing": "swing", // Easing effect for showing the toast
+            "hideEasing": "linear", // Easing effect for hiding the toast
+            "showMethod": "fadeIn", // Method to show the toast
+            "hideMethod": "fadeOut" // Method to hide the toast
+        };
+    
+        // Assuming 'messages' is an array of objects with 'level_tag' and 'msg' properties
         {% autoescape on %}
             {% for msg in messages %}
                 toastr.{{ msg.level_tag }}("{{ msg }}");
             {% endfor %}
         {% endautoescape %}
     });
-</script>
-{% endif %}               
+    </script>
+    
+               
 
  
 

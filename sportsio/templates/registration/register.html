@@ -133,8 +133,7 @@
 </body>
 </html>
 
-
-{% comment %} {% if messages %}
+{% if messages %}
     <script src="https://cdn.jsdelivr.net/npm/alertifyjs/build/alertify.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/alertify.min.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/themes/default.min.css"/>
@@ -145,4 +144,4 @@
             });
         {% endfor %}
     </script>
-{% endif %} {% endcomment %}
+{% endif %} 

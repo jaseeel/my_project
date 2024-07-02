@@ -99,7 +99,7 @@
             </div>
         </div>
     </div>
-   <!-- <div class="row">
+    <div class="row">
       <div class="content">
         <h3> Filter the sales report </h3>
     
@@ -116,7 +116,7 @@
             <input type="date" class="form-control" id="to-date" name="to_date">
         </div>
     </div>
-    <button id="filter-sales-btn" class="btn btn-primary ml-2">Filter Sales</button> -->
+    <button id="filter-sales-btn" class="btn btn-primary ml-2">Filter Sales</button>
     
     <!-- Add this script at the end of your HTML template -->
     <script>
@@ -687,7 +687,7 @@
     labels: JSON.parse(`{{ category_labels|safe }}`),
     datasets: [{
         label: 'Number of Products',
-        data: JSON.parse(`{{ category_data|safe }}`),                }//dlete
+        data: JSON.parse(`{{ category_data|safe }}`),               
         borderWidth: 1
     }]
     },
@@ -717,7 +717,7 @@
           scales: {
               y: {
                   beginAtZero: true
-              }                                                   }//delete this
+              }                                                  
           }
       }
   });
@@ -727,7 +727,7 @@
   timeIntervalDropdown.addEventListener('change', function() {
       const selectedValue = timeIntervalDropdown.value;
       // Reload the page with the selected time interval as a query parameter
-      window.location.href = `?time_interval=${selectedValue}`;                                     }//delete this
+      window.location.href = `?time_interval=${selectedValue}`;                                  
   });
   
    </script>

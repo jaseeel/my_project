@@ -5,77 +5,146 @@
 
  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
  <style>
-    .container {
-        margin-top: 20px;
-    }
-
-    .checkout-area {
-        background-color: #f9f9f9;
-        padding: 30px;
-        border-radius: 10px;
-    }
-
-    .coupon-accordion {
+    .billing-title {
         margin-bottom: 20px;
+        color: #333;
+        font-weight: bold;
+        font-size: 24px;
     }
+    
+    .magical-delivery-portal {
 
-    .coupon-accordion h3 {
-        margin-top: 0;
+        border-radius: 15px;
+        padding: 30px;
+        color: black;
+        box-shadow: 0 0 20px rgba(0, 78, 146, 0.3);
     }
-
-    .your-order {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    
+    .portal-activation {
+        margin-bottom: 30px;
     }
+    
+   .cosmic-select-wrapper {
+    position: relative;
+    width: 100%;
+}
 
-    .payment {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.cosmic-select {
+    width: 100%;
+    
+    padding: 5px 10px; /* Increased padding */
+    font-size: 16px;
+    border: 2px solid #A9A9A9;
+    border-radius: 25px;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+.center-items {
+    display: flex;
+    margin-left:40px;
+    margin-bottom:20px;
+}
+
+.cosmic-select:hover, .cosmic-select:focus {
+    border-color: #FFD700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    outline: none;
+}
+
+.cosmic-select-wrapper::after {
+    content: '\25BC';
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+/* Styling for dropdown options */
+.cosmic-select option {
+    padding: 15px; /* Increased padding */
+    font-size: 16px;
+
+    background-color: #fff;
+    color: #333;
+}
+
+/* Hover effect for options */
+.cosmic-select option:hover {
+    background-color: #f0f0f0;
+}
+
+/* Styling for Webkit browsers (Chrome, Safari) */
+.cosmic-select::-webkit-scrollbar {
+    width: 10px;
+}
+
+.cosmic-select::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.cosmic-select::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.cosmic-select::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}+
+    
+    .cosmic-error {
+        color: #e53e3e;
+        font-size: 14px;
+        margin-top: 5px;
+        display: none;
     }
+    
+    .dimensional-rift {
+        margin-top: 30px;
+    }
+    
+    .realm-question {
+        font-size: 20px;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
 
-    .btn-pay-razorpay {
-        background-color: #f76900;
+    .btn-stardust {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(45deg, #808080, #A9A9A9);
         color: #fff;
         border: none;
-        border-radius: 5px;
         padding: 10px 20px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-decoration: none;
+        font-size: 16px;
     }
-
-    .btn-pay-razorpay:hover {
-        background-color: #f55500;
+    .btn-stardust:hover,
+    .btn-stardust:hover a {
+        color: white !important;
     }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        border-color: #6c757d;
+    .btn-stardust:hover {
+        background: #FFD700;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(255, 215, 0, 0.4);
     }
-
-    .btn-secondary:hover {
-        background-color: #5a6268;
-        border-color: #5a6268;
-    }
-    .btn razorpay {
-        background-color: #13abc4; 
-      margin : 300px 200px auto;
-      font-family: "Trebuchet MS"
-    }
-
-        /* Existing styles */
-        
-       .center-items {
-            display: flex;
-            margin-left:40px;
-            margin-bottom:20px;
-        }
-
     
+    .portal-wand {
+        margin-right: 8px;
+    }
 </style>
+
 <!-- Begin Uren's Breadcrumb Area -->
 <div class="breadcrumb-area">
     
@@ -102,48 +171,51 @@
                     <input id="coupon_code" class="input-text" name="coupon_code" value="" placeholder="Coupon code" type="text">
                     <input class="button" name="apply_coupon" value="Apply coupon" type="submit">
                 </div>
-                {% if coupon_message %}
-                <div style="margin-top:50px;"><span style="color:green;font-weight:bold;padding-top:50px;" id="couponResponse"> {{ coupon_message }} </span></div>
-               {% endif %}
+
                 
             </form>
+            {% if coupon_message %}
+            <div style="margin-top:40px; position:absolute;"><span style="color:green;font-weight:bold; padding-left:0px;" id="couponResponse"> {{ coupon_message }} </span></div>
+           {% endif %}
         </div>
     </div>
+
     <div class="container-fluid">
         <div class="row">
             <!-- Billing Details Section -->
             <div class="col-lg-6 col-12 d-flex flex-column justify-content-between">
-                <form action="{% url 'user_profile:confirm_orders'%}" method="post">
+                <form action="{% url 'user_profile:confirm_orders'%}" method="post" class="form-razor">
                     {% csrf_token %}
-                    <h2>BILLING DETAILS</h2>
-                    <div class="checkbox-form">
-                        <input type='text' value="{{order_id}}" name="order_id" hidden/>
-                        <input type='text' value="{{payments}}" name="payments" hidden/>
-                        <span style=" font-size:20px;">Choose Your Address</span>
-                        <select class="nice-select wide" name="saved_address" id="saved-address-select">
-                            {% for address in addresses %}
-                                <option value="{{ address.id }}">{{ address.house_name }}, {{ address.street }}, {{ address.city }}, {{ address.state }} - {{ address.zipcode }}</option>
-                            {% endfor %}
-                        </select>
-                        <p id="error-message" style="color: red; display: none;">Please choose one address</p>
-
-                        </div>
-                        <div class="different-address">
-                            <div class="ship-different-title">
-                                <h3>
-                                    <label>Ship to a different address?</label>
-                                     <!-- <input id="ship-box" type="checkbox">  -->
-                                     <i class='fas fa-angle-down p-1' id="ship-box"></i>
-                                    </h3>
+                    <h2 class="billing-title">BILLING DETAILS</h2>
+                    <div class="magical-delivery-portal">
+                        <input type='hidden' value="{{order_id}}" name="order_id"/>
+                        <input type='hidden' value="{{payments}}" name="payments"/>
+                        
+                        <div class="portal-activation">
+                            <label for="saved-address-select" class="cosmic-label">Choose Your Address</label>
+                            <div class="cosmic-select-wrapper">
+                                <select class="cosmic-select" name="saved_address" id="saved-address-select">
+                                    {% for address in addresses %}
+                                        <option value="{{ address.id }}">{{ address.house_name }}, {{ address.street }}, {{ address.city }}, {{ address.state }} - {{ address.zipcode }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
-                            <div id="ship-box-info" class="row">
-                                <div class="col-md-12">
-                                    <button class="btn btn-warning"><a style="color:white;" href="{% url 'user_profile:add_address'%}?redirect=checkout">Add Address</a></button>
-                                </div>
-                                </div>
+                            <p id="error-message" class="cosmic-error">Please choose one address</p>
+                        </div>
+            
+                        <div class="dimensional-rift">
+                            <h3 class="realm-question">Summon your package to a different realm?</h3>
+                            <div class="cosmic-selector">
+                                <a href="{% url 'user_profile:add_address'%}?redirect=checkout" class="btn btn-stardust">
+                                    <i class='fas fa-magic portal-wand'></i> Chart New Coordinates
+                                </a>
+                            </div>
+                        </div>
+           
+                    
                             <div class="order-notes">
-                                <div class="checkout-form-list checkout-form-list-2">
-                                    <label>Order Notes</label>
+                                <div class="checkout-form-list checkout-form-list-2" style="padding-top:10px;">
+                                    <h4><label>Order Notes</label></h4>
                                     <textarea name="order_notes" id="checkout-mess" cols="30" rows="10" placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
                                 </div>
                             </div>
@@ -151,10 +223,10 @@
                         </div>
                     </div>
 
-            <div class="col-lg-6 col-12 d-flex flex-column justify-content-between">
+            <div class="col-lg-6 col-12 d-flex flex-column justify-content-between magical-delivery-portal ">
                 <div class="your-order">
                     <h3>Your order</h3>
-                    <div class="your-order-table table-responsive">
+                    <div class="your-order-table table-responsive magical-delivery-portal">
                         <table class="table">
                             <thead>
                                 <tr>
@@ -199,7 +271,7 @@
                             </tfoot>
                         </table>
                     </div>
-                    <div class="payment-method">
+                    <div class="payment-method magical-delivery-portal">
                         <div class="payment-accordion">
                             <div id="accordion">
                                 <div class="card">
@@ -209,20 +281,21 @@
                                                 <h3>Payment</h3>
                                                 <div class="form-group">
                                                     <label for="payment-method">Select Payment Method:</label>
-                                                    <select id="payment-method" class="form-control" name="payment_method">
+                                                    <select id="payment-method" class="form-control form-razor" name="payment_method">
                                                         Total: {{ total }} <!-- Debugging output to check the value of total -->
                                                         {% for key, value in payment_modes.items %}
 
                                                                 <option value="{{ key }}">{{ value }}</option>
                                                            
                                                         {% endfor %}
+                                                        <option value="razorpay">Pay with Razorpay</option>
                                                     </select>
                                                 </div>
                                                 <span class="fw-bold" >Wallet Balance : &#x20B9;</span><span class="fw-light"> {{ wallet_balance|intcomma }}</span>
                                     </div>
                             <div class="order-button-payment">
-                                <input id="confirm-orders-button"  value="Place order" type="submit">
-                                <button id="razorpaybtn" type="button" class="btn btn-outline-dark btn-lg razorpay" style="margin:10px 0px; padding: 3px 165px;"><i class="fas fa-money-bill"></i> Pay with Razorpay</button>
+                                <input id="confirm-orders-button" class="form-razor" value="Place order" type="submit">
+<!--                                   <button id="razorpaybtn" type="button" class="btn btn-outline-dark btn-lg razorpay" style="margin:10px 0px; padding: 3px 165px;"><i class="fas fa-money-bill"></i> Pay with Razorpay</button> -->
                             </div>
                     </form>
                     
@@ -255,38 +328,48 @@
 
 <script>
     $(document).ready(function() {
-        $('#razorpaybtn').click(function (e){
-            e.preventDefault();
-            var totalAmount = {{ sub_total }}; // Get total amount from Django context
+        $('.form-razor').on('submit', function(e) { // Listen for form submission
+            e.preventDefault(); // Prevent the form from submitting normally
             
-            if (totalAmount > 0) {
-                var options = {
-                    "key": "rzp_test_G7fjGttWAWG2Bd", // Replace with your Razorpay Key ID
-                    "amount": totalAmount * 100, // Amount is in currency subunits. Convert to paisa
-                    "currency": "INR",
-                    "name": "QickMart", // Your business name
-                    "description": "Test Transaction",
-                    "image": "", // URL of your business logo
-                    "callback_url": "{% url 'user_profile:razorpay_callback' %}",
-                    "prefill": {
-                        "name": "", // Your customer's name
-                        "email": "gaurav.kumar@example.com",
-                        "contact": "9000090000" // Your customer's phone number
-                    },
-                    "theme": {
-                        "color": "#3399cc" // Customize the Razorpay Checkout theme color
-                    }
-                };
-                var rzp1 = new Razorpay(options);
-
-                // Open Razorpay Checkout when the button is clicked
-                rzp1.open();
+            var selectedPaymentMethod = $('#payment-method').val(); // Get the selected payment method
+            
+            if (selectedPaymentMethod === 'razorpay') { // Check if the selected payment method is Razorpay
+                var totalAmount = {{ sub_total }}; // Get total amount from Django context
+                
+                if (totalAmount > 0) {
+                    var options = {
+                        "key": "rzp_test_G7fjGttWAWG2Bd", // Replace with your Razorpay Key ID
+                        "amount": totalAmount * 100, // Amount is in currency subunits. Convert to paisa
+                        "currency": "INR",
+                        "name": "QickMart", // Your business name
+                        "description": "Test Transaction",
+                        "image": "", // URL of your business logo
+                        "callback_url": "{% url 'user_profile:razorpay_callback' %}",
+                        "prefill": {
+                            "name": "", // Your customer's name
+                            "email": "gaurav.kumar@example.com",
+                            "contact": "9000090000" // Your customer's phone number
+                        },
+                        "theme": {
+                            "color": "#3399cc" // Customize the Razorpay Checkout theme color
+                        }
+                    };
+                    
+                    var rzp1 = new Razorpay(options);
+                    
+                    // Open Razorpay Checkout when the form is submitted and the selected payment method is Razorpay
+                    rzp1.open();
+                } else {
+                    alert('Cart is empty!');
+                }
             } else {
-                alert('Cart is empty!');
+                // If the selected payment method is not Razorpay, proceed with normal form submission
+                this.submit();
             }
         });
     });
-</script>
+    </script>
+    
 <!-- Disable Confirm order button -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -310,48 +393,52 @@
     });
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Get elements
-        var subTotalElement = document.querySelector('.amount');
-        var walletBalanceElement = document.querySelector('.fw-light');
-        var placeOrderButton = document.getElementById('confirm-orders-button');
-    
-        // Update the comparison whenever the payment method changes
-        document.getElementById('payment-method').addEventListener('change', function() {
-            var selectedPaymentMethod = this.value;
-    
-            // Check if the selected payment method is 'wallet'
-            if (selectedPaymentMethod === 'walletbalance') {
-                // Compare sub_total and wallet_balance
-                var subTotal = parseFloat(subTotalElement.textContent.replace(/[^0-9.-]+/g, "")); // Remove currency symbol and convert to float
-                var walletBalance = parseFloat(walletBalanceElement.textContent.replace(/[^0-9.-]+/g, "")); // Remove currency symbol and convert to float
-    
-                // Check if sub_total is greater than wallet_balance
-                if (subTotal > walletBalance) {
-                    // Display insufficiency message
-                    var messageElement = document.createElement('p');
-                    messageElement.textContent = "Insufficient funds in wallet";
-                    messageElement.style.color = "red"; // Optional: Change color to red
-                    walletBalanceElement.parentNode.insertBefore(messageElement, walletBalanceElement.nextSibling);
-    
-                    // Disable the Place order button
-                    placeOrderButton.disabled = true;
-                } else {
-                    // Enable the Place order button if everything is okay
-                    placeOrderButton.disabled = false;
-                    // Optionally remove the insufficiency message
-                    var messageElements = document.querySelectorAll('.insufficiency-message');
-                    messageElements.forEach(function(element) {
-                        element.remove();
-                    });
-                }
-            }
+document.addEventListener('DOMContentLoaded', function() {
+    // Get elements
+    var subTotalElement = document.querySelector('.amount');
+    var walletBalanceElement = document.querySelector('.fw-light');
+    var placeOrderButton = document.getElementById('confirm-orders-button');
+
+    // Update the comparison whenever the payment method changes
+    document.getElementById('payment-method').addEventListener('change', function() {
+        var selectedPaymentMethod = this.value;
+
+        // Remove any existing insufficiency messages
+        var messageElements = document.querySelectorAll('.insufficiency-message');
+        messageElements.forEach(function(element) {
+            element.remove();
         });
-    
-        // Initial check in case the page loads with the payment method already selected
-        document.getElementById('payment-method').dispatchEvent(new Event('change'));
+
+        // Enable the Place order button by default
+        placeOrderButton.disabled = false;
+
+        if (selectedPaymentMethod === 'walletbalance') {
+            // Compare sub_total and wallet_balance
+            var subTotal = parseFloat(subTotalElement.textContent.replace(/[^0-9.-]+/g, "")); // Remove currency symbol and convert to float
+            var walletBalance = parseFloat(walletBalanceElement.textContent.replace(/[^0-9.-]+/g, "")); // Remove currency symbol and convert to float
+
+            // Check if sub_total is greater than wallet_balance
+            if (subTotal > walletBalance) {
+                // Display insufficiency message
+                var messageElement = document.createElement('p');
+                messageElement.className = 'insufficiency-message';
+                messageElement.textContent = "Insufficient funds in wallet";
+                messageElement.style.color = "red"; // Optional: Change color to red
+                walletBalanceElement.parentNode.insertBefore(messageElement, walletBalanceElement.nextSibling);
+
+                // Disable the Place order button
+                placeOrderButton.disabled = true;
+            }
+        } else if (selectedPaymentMethod === 'cod') {
+            // Enable the Place order button for COD
+            placeOrderButton.disabled = false;
+        }
     });
-    </script>
+
+    // Initial check in case the page loads with the payment method already selected
+    document.getElementById('payment-method').dispatchEvent(new Event('change'));
+});
+</script>
 
     
 {% endblock %}

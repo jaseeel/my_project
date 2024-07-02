@@ -333,6 +333,8 @@ def order_checkout(request):
     # Retrieve cart items from the Cart model for the current user
     cart = Cart.objects.filter(user=user)
     Coupon_discount=0
+    if "Coupon_discount" in request.session:
+        del request.session['Coupon_discount']
     # Calculate the total price for each cart item and print quantity of each product
     total_amount = sum(item.product.offer_price * item.product_quantity for item in cart)
     sub_total=total_amount
@@ -359,6 +361,7 @@ def order_checkout(request):
                 # Apply Coupon Discount to the price
 
                 total_amount -= Coupon_discount
+                request.session['Coupon_discount']=str(Coupon_discount)
                 
                 print(Coupon_discount)
                 messages.success(request, "Coupon Applied Successfully")
@@ -366,6 +369,7 @@ def order_checkout(request):
         except Coupon.DoesNotExist:
             messages.error(request, "Invalid coupon code. Please enter a valid coupon code.")
 
+    
     if 'delivery' in request.session:
         del request.session['delivery']
     delivery=0
@@ -656,13 +660,16 @@ def razorpay_callback(request):
     if request.method == "POST":
         data = request.POST
         cart_items = Cart.objects.filter(user=request.user)
-        total_price = sum(cart_item.product.offer_price for cart_item in cart_items)
+        
+        discount_price=0
+        if 'Coupon_discount' in request.session:
+            discount_price=float(request.session['Coupon_discount'])
+
+        total_price = sum(cart_item.product.offer_price for cart_item in cart_items) - discount_price
+
         if 'delivery' in request.session:
             delivery=request.session['delivery']
-            total_price+=delivery
-        print(delivery)
-            
-            
+            total_price+=delivery   
         
         
         try:
@@ -670,6 +677,7 @@ def razorpay_callback(request):
                 order = Order.objects.create(
                     user=request.user,
                     total_price=total_price,
+                    discount_price=discount_price,
                     payment_method="Razorpay",
                     paid=True,  # Assume payment is successful initially
                     razorpay_order_id=data.get("razorpay_payment_id"),

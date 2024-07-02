@@ -4,11 +4,13 @@ from django.db.models import Q,Avg, F
 from category.models import category,Brand
 from banner.models import Banner
 from category.views import views
+from django.db.models import Count
 from products.models import Products, ProductImage,product_review
 from django.utils import timezone
 from datetime import timedelta
 from userprofile.models import Cart
 from admin_side.views import *
+from django.core.paginator import Paginator
 
 
 
@@ -112,16 +114,36 @@ def user_product_view(request, id):
 
 def product_list(request):
     product=Products.objects.filter(is_active=True)
-    for rev in product:
-        average_stars=product_review.objects.filter(Title_id=rev.id).aggregate(Avg('stars'))
-        if average_stars['stars__avg']:
-            rev.stars=int(average_stars["stars__avg"])
-            rev.save()
-    
-    context={
-        'product':product,
-    }
-    return render(request,"user_side/product_list.html",context)
+    sort_by = request.GET.get('sort_by')
+    if sort_by:
+        if sort_by == 'price-':
+            product = product.order_by('offer_price')
+        elif sort_by == 'price+':
+            product = product.order_by('-offer_price')
+        elif sort_by == 'a-z':
+            product = product.order_by('title')
+        elif sort_by == 'z-a':
+            product = product.order_by('-title')
+        elif sort_by == 'rating+':
+            product=Products.objects.annotate(avg_stars=Avg(F('reviews__stars'), output_field=models.FloatField())).order_by('-avg_stars')
+            
+        elif sort_by == 'rating-':
+            product = Products.objects.annotate(avg_stars=Avg(F('reviews__stars'), output_field=models.FloatField())).order_by('avg_stars')
+        
+        for rev in product:
+            average_stars=product_review.objects.filter(Title_id=rev.id).aggregate(Avg('stars'))
+            if average_stars['stars__avg']:
+                rev.stars=int(average_stars["stars__avg"])
+                rev.save()
+    # Paginator
+    items_per_page = 9
+    paginator = Paginator(product, items_per_page)
+    page_number = request.GET.get('page')
+    print(page_number)
+    page_obj = paginator.get_page(page_number)
+   
+
+    return render(request, 'user_side/product_list.html', {'product': page_obj,'sort_by':sort_by})
 
 #___________________Search________________
 
@@ -151,40 +173,30 @@ def product_search(request):
 
     return redirect('home')
 
-#________________SORT_________________
 
-def sort(request):
-    product = Products.objects.filter(is_active=True).order_by('-id')  # Retrieve all products initially
+#________ Shop by Category________
+
+def shop_by_cat(request):
+    category_list = category.objects.filter(is_active=True).annotate(product_count=Count('category_name'))
+    cat_id=request.GET.get('cat_id')
+    print("hiii",cat_id)
+    if cat_id:
+        cat = category.objects.get(id=cat_id)
+        product_list=Products.objects.filter(is_active=True,category=cat)
+        print("products",product_list)
+    else:
+        product_list=Products.objects.filter(is_active=True)
+    items_per_page = 9
+    paginator = Paginator(product_list, items_per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context={
+        "category_list":category_list,
+        "product_list":page_obj
+    }
 
     
-    # Sorting logic
-    sort_by = request.GET.get('sort_by')
-    if sort_by:
-        if sort_by == 'price-':
-            product = product.order_by('offer_price')
-        elif sort_by == 'price+':
-            product = product.order_by('-offer_price')
-        elif sort_by == 'a-z':
-            product = product.order_by('title')
-        elif sort_by == 'z-a':
-            product = product.order_by('-title')
-        elif sort_by == 'rating+':
-            product=Products.objects.annotate(avg_stars=Avg(F('reviews__stars'), output_field=models.FloatField())).order_by('-avg_stars')
-            
-        elif sort_by == 'rating-':
-            product = Products.objects.annotate(avg_stars=Avg(F('reviews__stars'), output_field=models.FloatField())).order_by('avg_stars')
-        
-        for rev in product:
-            average_stars=product_review.objects.filter(Title_id=rev.id).aggregate(Avg('stars'))
-            if average_stars['stars__avg']:
-                rev.stars=int(average_stars["stars__avg"])
-                rev.save()
-
-   
-
-    return render(request, 'user_side/product_list.html', {'product': product})
-
-
+    return render(request,"user_side/shop_category.html",context)
         
         
         
