@@ -32,5 +32,6 @@ urlpatterns = [
     path("return_order/<int:id>",views.returnorder,name="return_order"),
     path("download_invoice/<int:order_id>",views.download_invoice,name="download_invoice",),
     path("wallet_payment/<int:order_id>/", views.wallet_payment, name="wallet_payment"),
-    
+
 ]
+    

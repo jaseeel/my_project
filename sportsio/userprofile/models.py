@@ -36,6 +36,7 @@ class payment(models.Model):
     PAYMENT_CHOICES = [
         ("Cash on delivery", "Cash on delivery"),
         ("walletbalance", "Wallet Balance"),
+        ("razorpay","Pay with Razorpay")
     ]
     user = models.ForeignKey(
         CustomUser, related_name="customer", on_delete=models.CASCADE

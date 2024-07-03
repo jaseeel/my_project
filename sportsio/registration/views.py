@@ -63,6 +63,9 @@ def register(request):
             messages.error(request, "Email already exists")
             return render(request, 'registration/register.html')
         
+        elif CustomUser.objects.filter(username=username).exists():
+            messages.error(request,"Username already exists")
+            return render(request, "registration/register.html")
         elif CustomUser.objects.filter(phone=phone).exists():
             messages.error(request, "Phone number already exists")
             return render(request, 'registration/register.html')

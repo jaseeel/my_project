@@ -195,7 +195,7 @@
 
 <!-- #################################################### New Arrival Products Start Here ###################################-->
  <!-- Begin Uren's Product Area -->
- <div class="uren-product_area new_arrival">
+ <div class="uren-product_area ">
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
@@ -218,7 +218,7 @@
                     {% for product in recent_products %}
                     
 
-                    <div class="product-slide_item">
+                    <div class="product-slide_item new_arrival">
                         <div class="inner-slide">
                             <div class="single-product">
                                 <div class="product-img">
@@ -228,6 +228,14 @@
                                     <div class="sticker">
                                         <span class="sticker">New</span>
                                     </div>
+                                    {% if product.stock_count <= 0 %}
+ 
+                                    <div class="product-content">
+                                        <span style=" color: red; font-size: 15px; font-weight:Bold;"> Out of Stock</span>
+                                    </div>
+                     
+                                    {% else %}
+
                                     <div class="add-actions">
                                         <ul>
                                             {% csrf_token %}
@@ -289,7 +297,9 @@
                                             <span class="new-price">₹ {{ product.offer_price|intcomma}}</span>
                                         </div>
                                     </div>
+                                    {%endif %}
                                 </div>
+                               
                             </div>
                         </div>
                     </div>
@@ -324,6 +334,7 @@
             var product_id = $(this).closest(productClass).find('.prod_id').val();
             var product_qty = 1;
             var token = $('input[name=csrfmiddlewaretoken]').val();
+           
         
             $.ajax({
                 type: 'POST',
@@ -365,6 +376,7 @@
             
             var product_id = $(this).closest(productClass).find('.prod_id').val();
             var token = $('input[name=csrfmiddlewaretoken]').val();
+            
         
             $.ajax({
                 type: 'POST',
@@ -400,21 +412,21 @@
 <script>
     document.addEventListener("DOMContentLoaded", function(event) {
         toastr.options = {
-            "closeButton": false, // No close button
-            "debug": false, // Disable debug mode
-            "newestOnTop": true, // Display newest messages on top
-            "progressBar": true, // Show progress bar
-            "positionClass": "toast-bottom-right", // Position the toast at the bottom right corner
-            "preventDuplicates": true, // Prevent displaying the same message twice
-            "onclick": null, // No action on click
-            "showDuration": "300", // Duration to show the toast before fading in
-            "hideDuration": "1000", // Duration to hide the toast after fading out
-            "timeOut": "5000", // Time before the toast automatically hides
-            "extendedTimeOut": "1000", // Additional delay before hiding the toast
-            "showEasing": "swing", // Easing effect for showing the toast
-            "hideEasing": "linear", // Easing effect for hiding the toast
-            "showMethod": "fadeIn", // Method to show the toast
-            "hideMethod": "fadeOut" // Method to hide the toast
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": true,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
         };
     
         // Assuming 'messages' is an array of objects with 'level_tag' and 'msg' properties

@@ -168,6 +168,10 @@
             <div class="cart-items">
                 {% for item in cart %}
                 <div class="cart-item">
+                    <div style="margin-left:150px;">  <a href="{% url 'user_profile:remove_cart' item.id %}" onclick="removeItem(event, '{{ items.id }}')">
+                        <i class="fa fa-trash" title="Remove"></i>
+                    </a>
+                    </div>
                     <img src="{{ item.product.image.url }}" alt="{{ item.product }}">
                     <div class="cart-item-details">
                         <h5>{{ item.product|truncatechars:20 }}</h5>

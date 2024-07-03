@@ -383,7 +383,7 @@
                                 <div class="inner-slide">
                                     <div class="single-product related">
                                         <div class="product-img">
-                                            <a href="single-product.html">
+                                            <a href="{% url "user_side:user_product_view" pro.id%}">
                                                 <img class="primary-img" src="{{ pro.image.url }}" alt="Uren's Product Image">
                                             </a>
                                             <div class="add-actions">
@@ -409,7 +409,7 @@
                                                         <li class="silver-color"><i class="ion-android-star"></i></li>
                                                     </ul>
                                                 </div>
-                                                <h6><a class="product-name" href="single-product.html">Veniam officiis voluptates</a></h6>
+                                                <h6><a class="product-name" href="{% url "user_side:user_product_view" pro.id %} ">Veniam officiis voluptates</a></h6>
                                                 <div class="price-box">
                                                     <span class="new-price">$122.00</span>
                                                 </div>
@@ -429,45 +429,68 @@
 
         <!--######################## ADD TO CART ################-->
         <script>
-            $('.add_to_cart').click(function (e){
-                e.preventDefault();
-                
-                var product_id = $(this).closest('.product-view').find('.prod_id').val();
-                var product_qty = $(this).closest('.product-view').find('.prod_qty').val(); ;
-                console.log(product_qty)
-                var token= $('input[name=csrfmiddlewaretoken]').val();
-            
-                $.ajax({
-                    type: 'POST',
-                    url: "{% url 'user_profile:add_to_cart'%}",
-                    data:{
-                        'product_id':product_id,
-                        'product_qty':product_qty,
-                        csrfmiddlewaretoken : token
+            $(document).ready(function() {
+                function addToCart(productContainerSelector, productQtySelector = null) {
+                    $(productContainerSelector).on('click', '.add_to_cart', function(e) {
+                        e.preventDefault();
                         
-                    },
-                    success: function(response) {
-                        console.log(response);
-                        if (response.status === "Product Added Successfully" || response.status.includes("Cart Updated Successfully")) {
-                            toastr.success(response.status);
-                        } 
-                        else {
+                        var $container = $(this).closest(productContainerSelector);
+                        var product_id = $container.find('.prod_id').val();
+                        var product_qty = productQtySelector? $container.find(productQtySelector).val() : 1; // Default to 1 if productQtySelector is not provided
+                        
+                        var token = $('input[name=csrfmiddlewaretoken]').val();
         
-                            toastr.warning(response.status);
-                           
-                        }
+                        $.ajax({
+                            type: 'POST',
+                            url: "{% url 'user_profile:add_to_cart' %}",
+                            data: {
+                                'product_id': product_id,
+                                'product_qty': product_qty,
+                                csrfmiddlewaretoken: token
+                            },
+                            success: function(response) {
+                                console.log(response);
+                                if (response.status === "Product Added Successfully" || response.status.includes("Cart Updated Successfully")) {
+                                    toastr.success(response.status);
+                                } else {
+                                    toastr.warning(response.status);
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error("Error:", error);
+                                toastr.error("An error occurred. Please try again.");
+                            }
+                        });
+                    });
+                }
         
-                    }
-                })
-            
-            
-            })
-          </script>
-
+                // Usage for the main product view
+                addToCart('.sp-content', '.prod_qty');
+        
+                // Usage for the related products
+                addToCart('.related-products');
+            });
+        </script>
+        
           
    <!-- Wishlist Scripts-->
 <script>
     $(document).ready(function() {
+        toastr.options = {  "closeButton": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": true,
+        "positionClass": "toast-bottom-right",
+        "preventDuplicates": true,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut" };
         // Function to handle adding to wishlist
         function addToWishlist(e, productClass) {
             e.preventDefault();

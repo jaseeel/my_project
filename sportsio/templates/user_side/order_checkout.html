@@ -288,7 +288,7 @@
                                                                 <option value="{{ key }}">{{ value }}</option>
                                                            
                                                         {% endfor %}
-                                                        <option value="razorpay">Pay with Razorpay</option>
+                                        
                                                     </select>
                                                 </div>
                                                 <span class="fw-bold" >Wallet Balance : &#x20B9;</span><span class="fw-light"> {{ wallet_balance|intcomma }}</span>
@@ -392,53 +392,63 @@
         }
     });
 </script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Get elements
-    var subTotalElement = document.querySelector('.amount');
-    var walletBalanceElement = document.querySelector('.fw-light');
-    var placeOrderButton = document.getElementById('confirm-orders-button');
 
-    // Update the comparison whenever the payment method changes
-    document.getElementById('payment-method').addEventListener('change', function() {
-        var selectedPaymentMethod = this.value;
-
-        // Remove any existing insufficiency messages
-        var messageElements = document.querySelectorAll('.insufficiency-message');
-        messageElements.forEach(function(element) {
-            element.remove();
-        });
-
-        // Enable the Place order button by default
-        placeOrderButton.disabled = false;
-
-        if (selectedPaymentMethod === 'walletbalance') {
-            // Compare sub_total and wallet_balance
-            var subTotal = parseFloat(subTotalElement.textContent.replace(/[^0-9.-]+/g, "")); // Remove currency symbol and convert to float
-            var walletBalance = parseFloat(walletBalanceElement.textContent.replace(/[^0-9.-]+/g, "")); // Remove currency symbol and convert to float
-
-            // Check if sub_total is greater than wallet_balance
-            if (subTotal > walletBalance) {
-                // Display insufficiency message
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get elements
+            var subTotalElement = document.querySelector('.amount');
+            var walletBalanceElement = document.querySelector('.fw-light');
+            var placeOrderButton = document.getElementById('confirm-orders-button');
+        
+            // Update the comparison whenever the payment method changes
+            document.getElementById('payment-method').addEventListener('change', function() {
+                var selectedPaymentMethod = this.value;
+        
+                // Remove any existing insufficiency messages
+                var messageElements = document.querySelectorAll('.insufficiency-message');
+                messageElements.forEach(function(element) {
+                    element.remove();
+                });
+        
+                // Enable the Place order button by default
+                placeOrderButton.disabled = false;
+        
+                // Get the sub-total amount
+                var subTotal = parseFloat(subTotalElement.textContent.replace(/[^0-9.-]+/g, "")); // Remove currency symbol and convert to float
+        
+                if (selectedPaymentMethod === 'walletbalance') {
+                    var walletBalance = parseFloat(walletBalanceElement.textContent.replace(/[^0-9.-]+/g, "")); // Remove currency symbol and convert to float
+        
+                    // Check if sub_total is greater than wallet_balance
+                    if (subTotal > walletBalance) {
+                        // Display insufficiency message
+                        displayMessage("Insufficient funds in wallet", "red");
+                        placeOrderButton.disabled = true;
+                    }
+                } else if (selectedPaymentMethod === 'Cash on delivery') {
+                    // Check if sub_total is greater than 10000 for COD
+                    if (subTotal > 10000) {
+                        // Display COD limit message
+                        displayMessage("COD not available for orders above ₹10,000", "red");
+                        placeOrderButton.disabled = true;
+                    }
+                }
+            });
+        
+            // Function to display messages
+            function displayMessage(message, color) {
                 var messageElement = document.createElement('p');
                 messageElement.className = 'insufficiency-message';
-                messageElement.textContent = "Insufficient funds in wallet";
-                messageElement.style.color = "red"; // Optional: Change color to red
-                walletBalanceElement.parentNode.insertBefore(messageElement, walletBalanceElement.nextSibling);
-
-                // Disable the Place order button
-                placeOrderButton.disabled = true;
+                messageElement.textContent = message;
+                messageElement.style.color = color;
+                placeOrderButton.parentNode.insertBefore(messageElement, placeOrderButton);
             }
-        } else if (selectedPaymentMethod === 'cod') {
-            // Enable the Place order button for COD
-            placeOrderButton.disabled = false;
-        }
-    });
+        
+            // Initial check in case the page loads with the payment method already selected
+            document.getElementById('payment-method').dispatchEvent(new Event('change'));
+        });
+        </script>
 
-    // Initial check in case the page loads with the payment method already selected
-    document.getElementById('payment-method').dispatchEvent(new Event('change'));
-});
-</script>
 
     
 {% endblock %}

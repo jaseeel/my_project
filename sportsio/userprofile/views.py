@@ -473,43 +473,30 @@ def confirm_orders(request):
     
 #_______Wallet Payment________
 @login_required
+@login_required
 def wallet_payment(request, order_id):
-    if not request.user.is_authenticated:
-        messages.error(request, "You need to log in to access wallet payment.")
-        return redirect("login")
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    order_items = order.orderitem_set.all()
-    user_profile = request.user
-
+    user_profile = request.user # Assuming you have a user profile model
 
     wallet_balance = user_profile.wallet_balance
     total_price = order.total_price
 
-
-
     if wallet_balance >= total_price > 0:
-        print("payment done")
         with transaction.atomic():
             user_profile.wallet_balance -= total_price
             user_profile.save()
             order.paid = True
             order.save()
             Transaction.objects.create(
-                 user=order.user,
-                 transaction_type='P',
-                 amount=total_price
-             )
-            Cart.objects.filter(user=request.user).delete()
-            messages.success(request, "Payment successful. Order placed.")
+                user=order.user,
+                transaction_type='P',
+                amount=total_price
+            )
+            messages.success(request, "Payment successful")
             return redirect("user_profile:order_confirmation", order_id=order.id)
-
-    context = {
-        "order": order,
-        "order_items": order_items,
-        "wallet_balance": user_profile.wallet_balance,
-    }
-    return HttpResponse("wallet paid")
-    # return render(request, "user_auth/wallet_payment.html", context)
+    else:
+        messages.error(request, "Insufficient wallet balance.")
+        return redirect("user_profile:order_view", order_id=order.id)
 
 def order_confirmation(request, order_id):
     if not request.user.is_authenticated:
@@ -655,63 +642,52 @@ def delete_wishlist(request,id):
 # ------------------------razorpay----------------------
 
 @csrf_exempt
-
 def razorpay_callback(request):
+    if request.GET.get("order"):
+        try:
+            order_id=request.GET.get("order")
+            order=Order.objects.get(id=order_id)
+            order.paid=True
+            order.save()
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            client.utility.verify_payment_signature(data)
+            
+            with transaction.atomic():
+                order.paid = True
+                order.status = "Paid"
+                order.save()
+                messages.success(request, "Payment successful. Order placed.")
+                return redirect("user_profile:success")
+        except Exception as e:
+            messages.error(request, f"Payment failed: {str(e)}")
+            return redirect ("home")
     if request.method == "POST":
         data = request.POST
-        cart_items = Cart.objects.filter(user=request.user)
-        
-        discount_price=0
-        if 'Coupon_discount' in request.session:
-            discount_price=float(request.session['Coupon_discount'])
-
-        total_price = sum(cart_item.product.offer_price for cart_item in cart_items) - discount_price
-
-        if 'delivery' in request.session:
-            delivery=request.session['delivery']
-            total_price+=delivery   
-        
-        
         try:
+            order = Order.objects.get(razorpay_order_id=data.get("razorpay_order_id"))
+            
+            # Verify the payment signature
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            client.utility.verify_payment_signature(data)
+            
             with transaction.atomic():
-                order = Order.objects.create(
-                    user=request.user,
-                    total_price=total_price,
-                    discount_price=discount_price,
-                    payment_method="Razorpay",
-                    paid=True,  # Assume payment is successful initially
-                    razorpay_order_id=data.get("razorpay_payment_id"),
-                )
-                for cart_item in cart_items:
-                    OrderItem.objects.create(
-                        order=order,
-                        product=cart_item.product,
-                        quantity=cart_item.product_quantity,
-                        price=cart_item.product.price,
-                    )
+                order.paid = True
+                order.status = "Paid"
+                order.save()
                 
-                for item in cart_items:
+                # Update product stock
+                for item in order.orderitem_set.all():
                     product = item.product
-                    quantity = item.product_quantity
-                    product.stock_count -= quantity
+                    product.stock_count -= item.quantity
                     product.save()
                 
-                cart_items.delete()
-                
-                # Redirect to success page after bn successful payment
-                return render(request,
-                "user_side/success.html",)
+                messages.success(request, "Payment successful. Order placed.")
+                return redirect("user_profile:order_confirmation", order_id=order.id)
         except Exception as e:
-            # If an exception occurs, rollback changes and return error response
-            if order:
-                order.paid = False
-                order.status = "Payment pending"
-                order.save()
-            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+            messages.error(request, f"Payment failed: {str(e)}")
+            return redirect("user_profile:order_view", order_id=order.id)
     else:
         return JsonResponse({"status": "error", "message": "Only POST method is allowed"}, status=405)
-
-
 
 def returnorder(request,id):
     order = get_object_or_404(Order, id=id)

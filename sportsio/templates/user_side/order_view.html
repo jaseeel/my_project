@@ -171,9 +171,11 @@
                             
                         </div>
                     </article>
+                    {%if order.status == "Delivered"%}
                     <h1>Download Invoice</h1>
                     
                     <p>Click the button below to download your invoice:</p>
+                   
                     <form action="{% url 'user_profile:download_invoice' order.id %}" method="get">
                         {% csrf_token %}
                         <button type="submit" style="background-color: #4CAF50; /* Green */
@@ -188,8 +190,27 @@
                                        cursor: pointer;
                                        border-radius: 4px;">Download Invoice</button>
                     </form>
+                    {% elif order.paid == False %}
+                    
+<!-- Radio Buttons -->
+<div class="payment-options">
+    <h3>Select Payment Method</h3>
+    <div class="option">
+        <input type="radio" id="wallet" name="paymentMethod" value="wallet">
+        <label for="wallet">Wallet</label>
+    </div>
+    <div class="option">
+        <input type="radio" id="razorpay" name="paymentMethod" value="razorpay">
+        <label for="razorpay">Razorpay</label>
+    </div>
+</div>
+
+<!-- PAY Button -->
+<button id="payButton" class="btn btn-sm" style="width:160px;background-color: #4CAF50; border: none; color: white;">PAY</button>
+
+                    {% endif%}
               
-                    <div class="track">
+                    <div style="margin-top:120px;" class="track">
                         {%if order.status == "Cancelled"%}
                         <div class="step active">
                             <span class="icon"> <i class="fa fa-ban"></i> </span>
@@ -206,8 +227,8 @@
                         {%endif%}
                     </div>
                     <hr>
-                    
-        <div class="row">
+        
+        <div style="margin-top:120px;" class="row">
             <div class="col-12">
                 <div class="table-content table-responsive">
                     <table class="table" style="justify-content:center;">
@@ -230,7 +251,7 @@
                                 </td>
                                                                             <td class="uren-product">
                                     <a href="{% url "user_side:user_product_view" items.product.id%}">
-                                        <img class="img-sm img-thumbnail" src="{{ items.product.image.url }}" alt="Uren's Cart Thumbnail">
+                                        <img style="border:transparent;" class="img-sm img-thumbnail" src="{{ items.product.image.url }}" alt="Uren's Cart Thumbnail">
                                     </a>
                                 </td>
                                 
@@ -255,6 +276,7 @@
                         <span style="font-weight:bold">Payment :</span><span> Paid</span>
                         <br>
                         {% else %}
+                        <br>
                         <span style="font-weight:bold">Payment :</span><span> Unpaid </span>
                     <br>
                     {% endif %}
@@ -278,6 +300,46 @@
             </div>
         </div>
     
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.getElementById('payButton').addEventListener('click', function() {
+    var paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    
+    if (paymentMethod === 'wallet') {
+        window.location.href = "{% url 'user_profile:wallet_payment' order.id %}";
+    } else if (paymentMethod === 'razorpay') {
+        fetch("{% url 'user_profile:repayment' order.id %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: 'paymentMethod=razorpay'
+        })
+        .then(response => response.json())
+        .then(data => {
+            var options = {
+                "key": data.key,
+                "amount": data.amount,
+                "currency": data.currency,
+                "name": "Your Company Name",
+                "description": "Order Payment",
+                "order_id": data.id,
+                "handler": function (response){
+                    document.location.href = "{% url 'user_profile:razorpay_callback' %}?order=order.id";
+                },
+            };
+            var rzp = new Razorpay(options);
+            rzp.open();
+        });
+    }
+});
+</script>
+
+
+
+
+
 
 
 {% endblock %}

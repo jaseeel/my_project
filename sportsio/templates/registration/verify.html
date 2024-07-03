@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,48 +21,34 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: yellow;
+            background: #fccc00;
         }
         .logo-space {
             width: 150px;
             height: 150px;
-            background: #ddd;
             margin-bottom: 20px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: #666;
-        }
-        :where(.container, form, .input-field, header) {
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
         }
         .container {
             background: #fff;
-            padding: 30px 65px;
+            padding: 30px;
             border-radius: 12px;
-            row-gap: 20px;
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-        }
-        .container header {
-            height: 65px;
-            width: 65px;
-            background: #4070f4;
-            color: #fff;
-            font-size: 2.5rem;
-            border-radius: 50%;
+            text-align: center;
         }
         .container h4 {
             font-size: 1.25rem;
             color: #333;
             font-weight: 500;
+            margin-bottom: 20px;
         }
-        form .input-field {
-            flex-direction: row;
-            column-gap: 10px;
+        .input-field {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
         }
         .input-field input {
             height: 45px;
@@ -73,37 +60,37 @@
             border: 1px solid #ddd;
         }
         .input-field input:focus {
-            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+            border-color: #4070f4;
         }
         .input-field input::-webkit-inner-spin-button,
         .input-field input::-webkit-outer-spin-button {
             display: none;
         }
-        #submitBtn {
-            background-color: #4CAF50;
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .btn {
+            background-color: #4070f4;
             border: none;
             color: white;
-            padding: 15px 32px;
+            padding: 10px 20px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
             font-size: 16px;
-            margin: 4px 2px;
             cursor: pointer;
-            border-radius: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
         }
-        
-        #submitBtn:hover {
-            background-color: #45a049;
+        .btn:hover {
+            background-color: #3060e0;
         }
     </style>
 </head>
 <body>
-    <div class="logo-space">Logo Here</div>
+    <div class="logo-space"><img src="{% static 'assets/admin_side/images/logos/dark-logo.png' %}" width="150px"></div>
     <div class="container">
-        <header>
-            <i class="bx bxs-check-shield"></i>
-        </header>
         <h4>Enter OTP Code</h4>
         <form action="{% url 'otp' %}" method='POST'>
             {% csrf_token %}
@@ -115,8 +102,10 @@
                 <input type="number" name="otp5" maxlength="1" />
                 <input type="number" name="otp6" maxlength="1" />
             </div>
-            <input type="submit" value="Submit" id="submitBtn">
-            <input type="button" value="Cancel" id="submitBtn" onclick="window.location.href='{% url 'cancel' %}'">
+            <div class="button-container">
+                <input type="button" value="Cancel" class="btn" onclick="window.location.href='{% url 'cancel' %}'">
+                <input type="submit" value="Submit" class="btn">
+            </div>
         </form>
     </div>
 
