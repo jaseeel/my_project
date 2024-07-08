@@ -3,6 +3,7 @@ from .models import *
 from admin_side import views 
 from category.models import category as Category
 from banner.models import Banner
+from django.db.models import Q
 from products.models import Products
 
 # Create your views here.
@@ -10,9 +11,18 @@ from products.models import Products
 
 def category_list(request):
     if 'email' in request.session:
+        search_query = request.GET.get('search', '')
         cat=category.objects.all()
+        if search_query:
+            cat = cat.filter(
+                Q(name__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(category_offer_description__icontains=search_query) 
+                
+            )
         context={
             'cat':cat,
+            'search_query': search_query,
             }
         return render(request, 'admin_side/category.html', context)
     return render(request,'admin_side/admin_login.html')
@@ -62,7 +72,8 @@ def edit_category(request,id):
             cat.name=name
             cat.description=description
             cat.category_offer=category_offer
-            cat.image=image
+            if image:
+                cat.image=image
             cat.category_offer_description=category_offer_description  
             cat.save() 
           

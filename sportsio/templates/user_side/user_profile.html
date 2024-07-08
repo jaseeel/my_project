@@ -1,24 +1,245 @@
 {% extends 'user_side/base.html' %}
 
 {% block content %}
-
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <style>
+    .address-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+  
+    .address-container h4 {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+  
+    .address-intro {
+      font-size: 14px;
+      text-align: center;
+      color: #666;
+      margin-bottom: 20px;
+    }
+  
+    .address-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+  
     .address-box {
-    border: 1px solid #ccc; /* Border style */
-    padding: 10px; /* Add padding for spacing */
-    margin-bottom: 10px; /* Add margin for spacing */
-}
-.address-box btn{
-    color: white;
-}
+      background-color: #ffffff;
+      border-radius: 4px;
+      padding: 12px;
+      position: relative;
+      border: 1px solid #e0e0e0;
+    }
+  
+    .address-content {
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+  
+    .address-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+  
+    .btn {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+      color: white;
+    }
+  
+    .btn-edit, .btn-ad {
+      background-color: #808080;
+      color:white !important;
+    }
+  
+    .btn-edit:hover, .btn-ad:hover {
+      background-color: #ffd700;
+      color:white !important;
+    }
+  
+    .btn-delete {
+      background-color: #808080;
+    }
+  
+    .btn-delete:hover {
+      background-color: #dc3545;
+      color:white;
+    }
+  
+    .btn-ad {
+      align-self: flex-start;
+      margin-top: 15px;
+      color:white;
+    }
 
-.address-box label {
-    display: inline-block; /* Make label inline */
-    vertical-align: middle; /* Align label vertically */
-    margin-left: 10px; /* Add spacing between radio button and address */
-}
 
-</style>
+
+
+    */order tab start here*/
+
+
+
+    .order-history {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+  
+    .order-history h4 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+  
+    .order-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+    }
+  
+    .order-table th {
+      text-align: left;
+      padding: 10px;
+      background-color: #f8f9fa;
+      color: #495057;
+      font-weight: 600;
+    }
+  
+    .order-table td {
+      padding: 15px 10px;
+      background-color: #ffffff;
+      transition: background-color 0.3s ease;
+    }
+  
+    .order-table tr {
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+  
+    .order-table tr:hover td {
+      background-color: #f1f3f5;
+    }
+  
+    .order-id {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  
+    .order-status {
+      font-weight: 600;
+    }
+    
+    .order-status.delivered { color: #28a745; }
+    .order-status.processing { color: #ffc107; }
+    .order-status.cancelled { color: #dc3545; }
+    .order-status.refunded { color: #17a2b8; }
+  
+    .uren-order-view {
+      padding: 8px 14px;
+      margin: 2px;
+      transition: all 0.3s ease;
+      border-radius:5px;
+      background-color: #808080;
+      color: white !important;
+      cursor: pointer;
+    }
+    
+    .uren-order-view:hover  {
+      background-color: #ffc400;
+      color: white !important;
+    }
+    .uren-order-cancel {
+      padding: 8px 12px;
+      margin: 2px;
+      transition: all 0.3s ease;
+      border-radius:5px;
+      background-color: #808080;
+      color: white !important;
+      cursor: pointer;
+    }
+    .uren-order-return {
+      padding: 8px 12px;
+      margin: 2px;
+      transition: all 0.3s ease;
+      border-radius:5px;
+      background-color: black;
+      color: white !important;
+      cursor: pointer;
+    }
+    
+    .uren-order-cancel:hover,.uren-order-return:hover {
+      background-color: red;
+      color: white !important;
+    }
+
+  
+    .uren-btn_dark {
+      padding: 6px 12px;
+      font-size: 14px;
+      margin: 2px;
+      transition: all 0.3s ease;
+      border: none;
+      background-color: #343a40;
+      color: white;
+    }
+  
+    @media (max-width: 768px) {
+      .order-table, .order-table tbody, .order-table tr, .order-table td {
+        display: block;
+      }
+  
+      .order-table tr {
+        margin-bottom: 20px;
+      }
+  
+      .order-table td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+      }
+  
+      .order-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+      }
+  
+      .order-table th {
+        display: none;
+      }
+    }
+
+  </style>
+  
+
+
+    <!-- Include Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
   <!-- Begin Uren's Breadcrumb Area -->
   <div class="breadcrumb-area">
@@ -39,36 +260,36 @@
 <main class="page-content">
     <!-- Begin Uren's Account Page Area -->
     <div class="account-page-area">
+
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-3">
                     <ul class="nav myaccount-tab-trigger" id="account-page-tab" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" id="account-dashboard-tab" data-toggle="tab" href="#account-dashboard" role="tab" aria-controls="account-dashboard" aria-selected="true">Dashboard</a>
+                            <a class="nav-link {% if active_tab == 'dashboard' %}active{% endif %}" id="account-dashboard-tab" data-toggle="tab" href="#account-dashboard" role="tab" aria-controls="account-dashboard" aria-selected="true">Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="account-orders-tab" data-toggle="tab" href="#account-orders" role="tab" aria-controls="account-orders" aria-selected="false">Orders</a>
+                            <a class="nav-link {% if active_tab == 'orders' %}active{% endif %}" id="account-orders-tab" data-toggle="tab" href="#account-orders" role="tab" aria-controls="account-orders" aria-selected="false">Orders</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="account-address-tab" data-toggle="tab" href="#account-address" role="tab" aria-controls="account-address" aria-selected="false">Addresses</a>
+                            <a class="nav-link {% if active_tab == 'address' %}active{% endif %}" id="account-address-tab" data-toggle="tab" href="#account-address" role="tab" aria-controls="account-address" aria-selected="false">Addresses</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="account-details-tab" data-toggle="tab" href="#account-details" role="tab" aria-controls="account-details" aria-selected="false">Account Details</a>
+                            <a class="nav-link {% if active_tab == 'details' %}active{% endif %}" id="account-details-tab" data-toggle="tab" href="#account-details" role="tab" aria-controls="account-details" aria-selected="false">Account Details</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="account-detail-tab" data-toggle="tab" href="#account-detail" role="tab" aria-controls="account-detail" aria-selected="false">Reset Password</a>
+                            <a class="nav-link {% if active_tab == 'detail' %}active{% endif %}" id="account-detail-tab" data-toggle="tab" href="#account-detail" role="tab" aria-controls="account-detail" aria-selected="false">Reset Password</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="account-detailed-tab"  data-toggle="tab" href="#account-detailed" role="tab" aria-controls="account-detail" aria-selected="false">My Wallet</a>
+                            <a class="nav-link {% if active_tab == 'detailed' %}active{% endif %}" id="account-detailed-tab" data-toggle="tab" href="#account-detailed" role="tab" aria-controls="account-detail" aria-selected="false">My Wallet</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="account-logout-tab" href="{% url "logout_view"%}" onclick="return confirm('Are you sure you want to Logout ?')" role="tab" aria-selected="false">Logout</a>
-                        </li>
+                            <a href="javascript:void(0);" onclick="confirmAction('{% url 'logout_view' %}', 'Are you sure you want to Logout?')" class="nav-link" id="account-logout-tab" role="tab" aria-selected="false">Logout</a>                        </li>
                     </ul>
                 </div>
                 <div class="col-lg-9">
                     <div class="tab-content myaccount-tab-content" id="account-page-tab-content">
-                        <div class="tab-pane fade show active" id="account-dashboard" role="tabpanel" aria-labelledby="account-dashboard-tab">
+                        <div class="tab-pane fade {% if active_tab == 'dashboard' %}show active{% endif %}" id="account-dashboard" role="tabpanel" aria-labelledby="account-dashboard-tab">
                             <div class="myaccount-dashboard">
                                 <p>Hello <b>{{ user.username }}</b> (not {{ user.username }}? <a href="{% url 'logout_view'%}">Sign
                                         out</a>)</p>
@@ -76,205 +297,212 @@
                                     billing addresses and <a href="javascript:void(0)">edit your password and account details</a>.</p>
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="account-orders" role="tabpanel" aria-labelledby="account-orders-tab">
-                            <div class="myaccount-orders">
-                                <h4 class="small-title">MY ORDERS</h4>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover">
-                                        <tbody>
-                                            <tr>
-                                                <th>ORDER</th>
-                                                <th>DELIVERY DATE</th>
-                                                <th>STATUS</th>
-                                                <th>TOTAL</th>
-                                                <th></th>
-                                                <th></th>
-                                            </tr>
-                                            {% for item in orders %}
-                                            <tr>
-                                                <td><a class="account-order-id" href="javascript:void(0)">{{ item.id }}</a></td>
-                                                <td>{{ item.estimated_delivery_time }}</td>
-                                                <td>{{ item.status }}</td>
-                                                <td>Rs. {{ item.total_price}}</td>
-                                                <td><a href="{% url 'user_profile:order_view' item.id %}" class="uren-btn  uren-btn_sm" ><span>View</span></a>
-                                                </td>
-                                                <td >
-                                                    {% if item.paid and item.status == "Delivered" %}
-                                                        <a href="{% url 'user_profile:return_order' item.id %}" onclick="return confirm('Are you sure you want to Cancel this Order ?')" class="uren-btn uren-btn_dark uren-btn_sm"><span>Return</span>
-                                                        </a>
-                                                    {% elif item.status == "Refunded"%}
-                                                    <span>Refund Done</done>
-                                                        {%elif item.status == "Cancelled"%}
-                                                        <span>Order Cancelled</done>
-                                                    {% elif item.status != "Cancelled" or item.status == "Out of delivery" or item.status == "Return" %}
-                                                    <a href="{% url 'user_profile:cancel_order' item.id %}" onclick="return confirm('Are you sure you want to Cancel this Order ?')" class="uren-btn  uren-btn_sm"><span>Cancel</span>
-                                                    </a>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                            {% endfor %}
 
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="account-address" role="tabpanel" aria-labelledby="account-address-tab">
-                            <div class="myaccount-address">
-                                <p>The following addresses will be used on the checkout page by default.</p>
-                                <div class="row">
-                                    <div class="col">
-                                        <h4 class="small-title">SHIPPING ADDRESS</h4>
-                                        {% for addy in address %}
-                                        <div class="address-box">
-                                            <label for="address{{ addy.id }}">{{ addy.address }},{{ addy.house_name }},{{ addy.street }},{{ addy.city }},{{ addy.zipcode }},{{ addy.state }}</label>
-                                            <button class="btn btn-warning btn-sm"><a style="color:white;" href="{% url "user_profile:edit_address" addy.id %}">Edit</a> </button>
-                                            <button class="btn btn-danger btn-sm"><a style="color:white;" onclick="return confirm('Are you sure you want to Delete this Address ?')" href="{% url 'user_profile:delete_address' addy.id %}">Delete</a> </button>
+            <!-- ...........Orders tab start here............ -->
 
-                                        </div>
-                                    {% endfor %}                                    
-                                        <button class="btn btn-warning btn-sm"><a style="color:white;" href={% url "user_profile:add_address" %}>Add</a> </button>
-
-                                    </div>
-                                    
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <!-- Update Profile Start Here   -->
-
-                        <div class="tab-pane fade" id="account-details" role="tabpanel" aria-labelledby="account-details-tab">
-                            <div class="myaccount-details">
-                                <form action="{% url 'user_profile:update_profile'%}" method="POST" class="uren-form" enctype="multipart/form-data">
-                                    {% csrf_token %}
-                                    <div class="uren-form-inner">
-                                        <div class="single-input single-input-half">
-                                            <label for="account-details-firstname">Username*</label>
-                                            <input type="text" value="{{ user.username }}" name="username" >
-                                        </div>
-                                        <div class="single-input single-input-half">
-                                            <label for="account-details-lastname">First Name*</label>
-                                            <input type="text" name="first_name" value="{{ user.first_name }}" >
-                                        </div>
-                                        <div class="single-input single-input-half">
-                                            <label for="account-details-lastname">Last Name*</label>
-                                            <input type="text" name="last_name" value="{{ user.last_name }}" >
-                                        </div>
-                                        <div class="single-input single-input-half">
-                                            <label for="account-details-lastname">Phone</label>
-                                            <input type="number" name="phone" value="{{ user.phone }}" >
-                                        </div>
-                                        <div class="single-input">
-                                            <label for="account-details-lastname">Email*</label>
-                                            <input type="email" name="email" value="{{ user.email }}" >
-                                        </div>
-
-                                        <div class="single-input">
-                                            <label for="account-details-oldpass">Current Password</label>
-                                            <input type="password" name="currentpassword" >
-                                        </div>     
-                                        <div class="single-input">
-                                            <button id="submitButton" class="uren-btn uren-btn_dark" type="submit"><span>SAVE
-                                            CHANGES</span>
-                                            <span id="loader"></span></button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <!-- Update Profile End Here-->
-
-                        <!-- My wallet Starts here -->
-                        <div class="tab-pane fade" id="account-detailed" role="tabpanel" aria-labelledby="account-detailed-tab">
-                            <div class="myaccount-details" style="padding: 3%; padding-left:0;">
-                                <h2>Wallet Balance</h2>
-                                <div>
-                                <span>Balance<span>
-                                    <h1>₹ {{ wallet_balance }}</h1>
-                                    {% if wallet_history %}
-                                </div>
-                            </div>
-                            
-                                <table class="table table-striped">
-                                    <thead>
+                        <div class="tab-pane fade {% if active_tab == 'orders' %}show active{% endif %}" id="account-orders" role="tabpanel" aria-labelledby="account-orders-tab">
+                       
+                            <div class="order-history">
+                                <h4>MY ORDERS</h4>
+                                <table class="order-table">
+                                  <thead>
+                                    <tr>
+                                      <th>ORDER</th>
+                                      <th>DELIVERY DATE</th>
+                                      <th>STATUS</th>
+                                      <th>TOTAL</th>
+                                      <th></th>
+                                      <th></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {% for item in orders %}
                                       <tr>
-                                        <th scope="col">Transaction ID</th>
-                                        <th scope="col">Transaction Type</th>
-                                        <th scope="col">Amount</th>
-                                        <th scope="col">Time</th>
+                                        <td data-label="ORDER"><a class="order-id" href="javascript:void(0)">{{ item.id }}</a></td>
+                                        <td data-label="DELIVERY DATE">{{ item.estimated_delivery_time }}</td>
+                                        <td data-label="STATUS"><span class="order-status {{ item.status|lower }}">{{ item.status }}</span></td>
+                                        <td data-label="TOTAL">Rs. {{ item.total_price }}</td>
+                                        <td data-label="VIEW">
+                                          <a href="{% url 'user_profile:order_view' item.id %}" class="uren-order-view">
+                                            View
+                                          </a>
+                                        </td>
+                                        <td data-label="ACTION">
+                                          {% if item.paid and item.status == "Delivered" %}
+                                          <a href="javascript:void(0);" onclick="confirmAction('{% url 'user_profile:return_order' item.id %}', 'Are you sure you want to Return this Order?')" class="uren-order-return">
+                                            Return
+                                          </a>
+                                          {% elif item.status == 'Shipped'%}
+                                          <span>Shipped Order</span>
+                                          {% elif item.status == "Refunded" %}
+                                            <span>Refund Done</span>
+                                          {% elif item.status == "Cancelled" %}
+                                            <span>Order Cancelled</span>
+                                          {% elif item.status != "Cancelled" or item.status == "Out of delivery" or item.status == "Return" %}
+                                          <a href="javascript:void(0);" onclick="confirmAction('{% url 'user_profile:cancel_order' item.id %}', 'Are you sure you want to Cancel this Order?')" class="uren-order-cancel">
+                                            Cancel
+                                          </a>
+                                          {% endif %}
+                                        </td>
                                       </tr>
-                                    </thead>
-                                    <tbody>
-                                        
-                                        {% for tran in wallet_history%}
-                                      <tr>
-                                        <th scope="row">{{ tran.id }}</th>
-                                        {% if tran.transaction_type == 'R'%}
-                                        <td>Refund</td>
-                                        <td style="color:green; font-weight:bold;">+ ₹ {{ tran.amount}}</td>
-                                        {%else%}
-                                        <td>Payment</td>
-                                        <td style="color:red; font-weight:bold;">- ₹ {{ tran.amount}}</td>
-                                        {%endif%}
-                                        <td>{{ tran.timestamp }}</td>
-                                      </tr>
-                                      {% endfor %}
-                                      {% else %}
-                                      <span style ="text-align:center;">NO TRANSACTIONS DONE YET</span>
-                                    </div>
-                                </div>
-                                      
-                                        {%endif%}
+                                    {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
 
-                                    </tbody>
-                                  </table>
+    <!-- ...................Address Tab start here................ -->
+
+                <div class="tab-pane fade {% if active_tab == 'address' %}show active{% endif %}" id="account-address" role="tabpanel" aria-labelledby="account-address-tab">
+                    <div class="address-container">
+                      <h4>SHIPPING ADDRESSES</h4>
+                      <p class="address-intro">The following addresses will be used on the checkout page by default.</p>
+                    
+                      <div class="address-list">
+                        {% for addy in address %}
+                          <div class="address-box">
+                            <div class="address-content">
+                              {{ addy.address }}, {{ addy.house_name }}, {{ addy.street }}, {{ addy.city }}, {{ addy.zipcode }}, {{ addy.state }}
+                            </div>
+                            <div class="address-actions">
+                              <a href="{% url 'user_profile:edit_address' addy.id %}" class="btn btn-edit">Edit</a>
+                              <a href="javascript:void(0);" onclick="confirmAction('{% url 'user_profile:delete_address' addy.id %}', 'Are you sure you want to Delete this Address?')" class="btn btn-delete">Delete</a>
+                            </div>
+                          </div>
+                        {% endfor %}
+                      </div>
+
+                      <a href="{% url 'user_profile:add_address' %}" class="btn btn-ad">Add New Address</a>
+                    </div>
+                  </div>
+      
 
 
+ <!-- Update Profile Start Here   -->
 
-
-
-
-
-
-                            
+        <div class="tab-pane fade {% if active_tab == 'details' %}show active{% endif %}" id="account-details" role="tabpanel" aria-labelledby="account-details-tab">
+            <div class="myaccount-details">
+                <form id="profileUpdateForm" action="{% url 'user_profile:update_profile'%}" method="POST" class="uren-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="uren-form-inner">
+                        <div class="single-input single-input-half">
+                            <label for="account-details-firstname">Username (Cannot be changed)</label>
+                            <input type="text" value="{{ user.username }}" name="username" disabled>
                         </div>
+                        <div class="single-input single-input-half">
+                            <label for="first_name">First Name*</label>
+                            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                            <span id="first_name_error" class="error"></span>
+                        </div>
+                        <div class="single-input single-input-half">
+                            <label for="last_name">Last Name*</label>
+                            <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                            <span id="last_name_error" class="error"></span>
+                        </div>
+                        <div class="single-input single-input-half">
+                            <label for="phone">Phone</label>
+                            <input type="number" id="phone" name="phone" value="{{ user.phone }}">
+                            <span id="phone_error" class="error"></span>
+                        </div>
+                        <div class="single-input">
+                            <label for="email">Email*</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                            <span id="email_error" class="error"></span>
+                        </div>
+                        <div class="single-input">
+                            <label for="account-details-oldpass">Current Password</label>
+                            <input type="password" name="currentpassword">
+                        </div>
+                        <div class="single-input">
+                            <button id="submitButton" class="submit-button" type="submit">
+                                SAVE CHANGES
+                                <span id="loader"></span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+           
+        </div>
+                        </div>
+                        <!-- Update Profile End Here--> 
+
+   <!-- My wallet Starts here --> 
+
+                    <div class="tab-pane fade {% if active_tab == 'detailed' %}show active{% endif %}" id="account-detailed" role="tabpanel" aria-labelledby="account-detailed-tab">   
+                          
+                            <div class="wallet-header">
+                              <h2 class="wallet-title">Wallet Balance</h2>
+                              <div class="wallet-balance">
+                                <span class="balance-label">Balance</span>
+                                <div class="balance-amount">₹ {{ wallet_balance }}</div>
+                              </div>
+                            </div>
+                          
+                            {% if wallet_history %}
+                              <div id="transaction-list" class="transaction-list">
+                                <!-- Transactions will be populated here by JavaScript -->
+                              </div>
+                              <div class="pagination">
+                                <button id="prevPage" onclick="changePage(-1)" disabled>Previous</button>
+                                <button id="nextPage" onclick="changePage(1)">Next</button>
+                              </div>
+                            {% else %}
+                              <div class="no-transactions">
+                                No transactions done yet
+                              </div>
+                            {% endif %}
+                          </div>
+                        
+<!-- Modal-->
+ <!-- Generic Confirmation Modal -->
+            <div id="confirmationModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+                <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px;">
+                
+                  <p id="modalMessage"></p>
+                  <button id="confirmBtn" style="margin-right: 10px;">Confirm</button>
+                  <button id="cancelBtn">Cancel</button>
+                </div>
+              </div>
+
+   
                         <!-- My Wallet Ends Here-->
 
-                        <!-- Reset Password Start Here-->
+    <!-- Reset Password Start Here-->
 
-                        <div class="tab-pane fade" id="account-detail" role="tabpanel" aria-labelledby="account-detail-tab">
-                            <div class="myaccount-detail">
-                                <form action="{% url 'user_profile:reset_password'%}" method="POST" class="uren-form" enctype="multipart/form-data">
-                                    {% csrf_token %}
-                                    <div class="uren-form-inner">
-                                        <div class="single-input ">
-                                        <label for="account-details-oldpass">Current Password</label>
-                                        <input type="password" name="currentpassword" >
-                                    </div>     
-                                    
-                                        <div class="single-input ">
-                                            <label for="account-details-firstname">New Password</label>
-                                            <input type="password" name="pass1" >
-                                        </div>
-                                        <div class="single-input">
-                                            <label for="account-details-lastname">Confirm Password</label>
-                                            <input type="password" name="pass2">
-                                        </div>
-                                        <div class="single-input">
-                                            <button id="submitButton" class="uren-btn uren-btn_dark" type="submit"><span>SAVE
-                                            CHANGES</span>
-                                            <span id="loader"></span></button>
-                                        </div>
-                                    </div>
+                        <div class="tab-pane fade {% if active_tab == 'detail' %}show active{% endif %}" id="account-detail" role="tabpanel" aria-labelledby="account-detail-tab">
+                            <div class="password-reset-container">
+                                <h2 class="password-reset-title">Reset Password</h2>
+                                <form action="{% url 'user_profile:reset_password' %}" method="POST" enctype="multipart/form-data" id="passwordResetForm">
+                                  {% csrf_token %}
+                                  <div class="form-group">
+                                    <label for="current-password">Current Password</label>
+                                    <input type="password" id="current-password" name="currentpassword" required>
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="new-password">New Password</label>
+                                    <input type="password" id="new-password" name="pass1" required>
+                                    <div class="error-message" id="password-criteria">Password must be at least 8 characters long and contain at least one capital letter, one small letter, one number</div>
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="confirm-password">Confirm Password</label>
+                                    <input type="password" id="confirm-password" name="pass2" required>
+                                    <div class="error-message" id="password-mismatch">Passwords do not match</div>
+                                  </div>
+                                  <button type="submit" class="submit-button">
+                                    <span>Save Changes</span>
+                                    <span class="loader" id="loader"></span>
+                                  </button>
                                 </form>
+                              </div>
                             </div>
+                        </div>
+                        </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+    
+    
     <!-- Uren's Account Page Area End Here -->
     {% if messages %}
 <script>
@@ -292,11 +520,269 @@
     });
 </script>
 </main>
-
 {% endif %}
 
 
+
+
+
+
+
+<!-- Tab selection Script-->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const activeTab = "{{ active_tab }}";
     
+        if (activeTab) {
+            const activeLink = document.querySelector(`a[id="account-${activeTab}-tab"]`);
+            if (activeLink) {
+                document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+                activeLink.classList.add('active');
     
+                document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('show', 'active'));
+                const activePane = document.querySelector(`#account-${activeTab}`);
+                if (activePane) {
+                    activePane.classList.add('show', 'active');
+                }
+            }
+        }
+    });
+    </script>
+
+    
+<!-- Wallet Pagination Script-->
+<script>
+    const transactions = [
+      {% for tran in wallet_history %}
+        {
+          id: {{ tran.id }},
+          type: '{{ tran.transaction_type }}',
+          amount: {{ tran.amount }},
+          timestamp: '{{ tran.timestamp }}'
+        },
+      {% endfor %}
+    ];
+    
+    const itemsPerPage = 5;
+    let currentPage = 1;
+    
+    function displayTransactions() {
+      const transactionList = document.getElementById('transaction-list');
+      transactionList.innerHTML = '';
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const pageTransactions = transactions.slice(start, end);
+    
+      pageTransactions.forEach(tran => {
+        const transactionItem = document.createElement('div');
+        transactionItem.className = 'transaction-item';
+        transactionItem.innerHTML = `
+          <div>
+            <div class="transaction-type">${tran.type === 'R' ? 'Refund' : 'Payment'}</div>
+            <div class="transaction-details">ID: ${tran.id} | ${tran.timestamp}</div>
+          </div>
+          <div class="transaction-amount ${tran.type === 'R' ? 'positive' : 'negative'}">
+            ${tran.type === 'R' ? '+' : '-'} ₹ ${tran.amount}
+          </div>
+          </div>
+        `;
+        transactionList.appendChild(transactionItem);
+      });
+    
+      updatePaginationButtons();
+    }
+    
+    function changePage(direction) {
+      currentPage += direction;
+      displayTransactions();
+    }
+    
+    function updatePaginationButtons() {
+      const prevButton = document.getElementById('prevPage');
+      const nextButton = document.getElementById('nextPage');
+      prevButton.disabled = currentPage === 1;
+      nextButton.disabled = currentPage >= Math.ceil(transactions.length / itemsPerPage);
+    }
+    
+    // Initial display
+    displayTransactions();
+    </script>
+
+
+  <!-- Reset pass Script-->
+  <script>
+    document.getElementById('passwordResetForm').addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevent form from submitting immediately
+  
+      var newPassword = document.getElementById('new-password').value;
+      var confirmPassword = document.getElementById('confirm-password').value;
+      var passwordMismatchError = document.getElementById('password-mismatch');
+      var passwordCriteriaError = document.getElementById('password-criteria');
+      var confirmPasswordGroup = document.getElementById('confirm-password').parentNode;
+  
+      // Password criteria function
+      function validatePassword(password) {
+        var minLength = 8;
+        var hasUpperCase = /[A-Z]/.test(password);
+        var hasLowerCase = /[a-z]/.test(password);
+  
+        return password.length >= minLength && hasUpperCase && hasLowerCase;
+      }
+  
+      // Check if new password meets criteria
+      if (!validatePassword(newPassword)) {
+        passwordCriteriaError.style.display = 'block';
+        return; // Stop form submission
+      } else {
+        passwordCriteriaError.style.display = 'none';
+      }
+  
+      // Check if passwords match
+      if (newPassword !== confirmPassword) {
+        confirmPasswordGroup.classList.add('error');
+        passwordMismatchError.style.display = 'block';
+        return; // Stop form submission
+      } else {
+        confirmPasswordGroup.classList.remove('error');
+        passwordMismatchError.style.display = 'none';
+      }
+  
+      // If passwords match and criteria are met, proceed with form submission
+      var submitButton = document.querySelector('.submit-button');
+      var loader = document.getElementById('loader');
+      
+      submitButton.disabled = true;
+      submitButton.querySelector('span').style.opacity = '0.5';
+      loader.style.display = 'inline-block';
+  
+      // Submit the form
+      this.submit();
+    });
+  
+    // Real-time validation as user types
+    document.getElementById('confirm-password').addEventListener('input', function() {
+      var newPassword = document.getElementById('new-password').value;
+      var confirmPassword = this.value;
+      var passwordMismatchError = document.getElementById('password-mismatch');
+      var confirmPasswordGroup = this.parentNode;
+  
+      if (newPassword !== confirmPassword) {
+        confirmPasswordGroup.classList.add('error');
+        passwordMismatchError.style.display = 'block';
+      } else {
+        confirmPasswordGroup.classList.remove('error');
+        passwordMismatchError.style.display = 'none';
+      }
+    });
+  
+    document.getElementById('new-password').addEventListener('input', function() {
+      var newPassword = this.value;
+      var passwordCriteriaError = document.getElementById('password-criteria');
+  
+      function validatePassword(password) {
+        var minLength = 8;
+        var hasUpperCase = /[A-Z]/.test(password);
+        var hasLowerCase = /[a-z]/.test(password);
+  
+        return password.length >= minLength && hasUpperCase && hasLowerCase;
+      }
+  
+      if (!validatePassword(newPassword)) {
+        passwordCriteriaError.style.display = 'block';
+      } else {
+        passwordCriteriaError.style.display = 'none';
+      }
+    });
+  </script>
+
+
+  <!-- Profile updation script-->
+
+  <script>
+    document.getElementById('profileUpdateForm').addEventListener('submit', function(e) {
+        let isValid = true;
+        const nameRegex = /^[a-zA-Z]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phoneRegex = /^\d{10}$/;
+    
+        function validateField(id, regex, errorMessage) {
+            const field = document.getElementById(id);
+            const errorElement = document.getElementById(id + '_error');
+            if (!regex.test(field.value)) {
+                errorElement.textContent = errorMessage;
+                isValid = false;
+            } else {
+                errorElement.textContent = '';
+            }
+        }
+    
+        validateField('first_name', nameRegex, 'First name should contain only letters');
+        validateField('last_name', nameRegex, 'Last name should contain only letters');
+        validateField('email', emailRegex, 'Please enter a valid email address');
+    
+        const phone = document.getElementById('phone');
+        if (phone.value && !phoneRegex.test(phone.value)) {
+            document.getElementById('phone_error').textContent = 'Phone number should be 10 digits';
+            isValid = false;
+        } else {
+            document.getElementById('phone_error').textContent = '';
+        }
+    
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+    </script>
+
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let actionUrl = '';
+        
+            window.confirmAction = function(url, message) {
+                actionUrl = url;
+                const modalMessage = document.getElementById('modalMessage');
+                const confirmationModal = document.getElementById('confirmationModal');
+                if (modalMessage && confirmationModal) {
+                    modalMessage.textContent = message;
+                    confirmationModal.style.display = 'block';
+                } else {
+                    console.error('Modal elements not found');
+                }
+            }
+        
+            const confirmBtn = document.getElementById('confirmBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const confirmationModal = document.getElementById('confirmationModal');
+        
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', function() {
+                    if (actionUrl) {
+                        window.location.href = actionUrl;
+                    }
+                    if (confirmationModal) {
+                        confirmationModal.style.display = 'none';
+                    }
+                });
+            }
+        
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    if (confirmationModal) {
+                        confirmationModal.style.display = 'none';
+                    }
+                });
+            }
+        
+            // Close the modal if user clicks outside of it
+            window.onclick = function(event) {
+                if (event.target == confirmationModal) {
+                    confirmationModal.style.display = 'none';
+                }
+            }
+        });
+        </script>
     
 {% endblock %}

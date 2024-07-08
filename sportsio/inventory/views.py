@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render,HttpResponse,redirect
 from products.models import Products
 from userprofile.models import Order
 from .models import  *
+from django.db.models import Q
 from django.utils import timezone
 from datetime import datetime 
 # Create your views here.
@@ -72,9 +73,15 @@ def order_management(request):
 
         else:
             # If it's a GET request, fetch orders and render the template
+            search_query = request.GET.get('search', '')
             orders = Order.objects.all().order_by('-created_at')
+            if search_query:
+                orders = orders.filter(
+                    Q(id__icontains=search_query)
+
+                )
             return render(
-                request, "admin_side/order_management.html", {"orders": orders}
+                request, "admin_side/order_management.html", {"orders": orders,'search_query': search_query,}
             )
     return render(request, "admin_side/admin_login.html")
 

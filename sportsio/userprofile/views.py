@@ -1,5 +1,6 @@
+import os
 from django.shortcuts import render, get_object_or_404
-
+import razorpay 
 from inventory.models import Coupon,Transaction
 from .models import *
 from admin_side.models import CustomUser
@@ -28,8 +29,11 @@ from django.utils.timezone import now as timezone_now
 
 #_____________Account Page ________________
 
-def user_profile(request):
+def user_profile(request,*args, **kwargs):
     user=request.user
+    tab = request.GET.get('tab', 'dashboard')  # Default to 'dashboard' if no tab parameter is provided
+
+    
     if user.is_authenticated:
         addresses=address.objects.filter(username=user)
         reset_user=CustomUser.objects.filter(username=user)
@@ -50,6 +54,7 @@ def user_profile(request):
              'cart_count':cart_count,
              "wallet_balance":wallet_balance,
              "wallet_history":wallet_history,
+             'active_tab': tab,
          }
         return render(request,"user_side/user_profile.html",context)
     else:
@@ -59,35 +64,39 @@ def user_profile(request):
 
 #__________________Add Address_______________
 
+
 def add_address(request):
     user = request.user
+    if user.is_authenticated:
+        if request.method == "POST":
+            addresses=request.POST.get("address")
+            house_name = request.POST.get("house_name")
+            street = request.POST.get("street")
+            city = request.POST.get("city")
+            state = request.POST.get("state")
+            zip_code = request.POST.get("zip")
 
-    if request.method == "POST":
-        addresses=request.POST.get("address")
-        house_name = request.POST.get("house_name")
-        street = request.POST.get("street")
-        city = request.POST.get("city")
-        state = request.POST.get("state")
-        zip_code = request.POST.get("zip")
+            # Create a new Address object associated with the current user
+            address.objects.create(
+                username=user,
+                address=addresses,
+                house_name=house_name,
+                street=street,
+                city=city,
+                state=state,
+                zipcode=zip_code,
+            )
 
-        # Create a new Address object associated with the current user
-        address.objects.create(
-            username=user,
-            address=addresses,
-            house_name=house_name,
-            street=street,
-            city=city,
-            state=state,
-            zipcode=zip_code,
-        )
+            # Update the addresses queryset to include the new address
+            if request.GET.get('redirect')=="checkout":
+                return redirect("user_profile:order_checkout")
+            else:
+                # Redirecting to same url tab
+                return redirect(reverse('user_profile:user_profile') + '?tab=address')
 
-        # Update the addresses queryset to include the new address
-        if request.GET.get('redirect')=="checkout":
-            return redirect("user_profile:order_checkout")
-        else:
-            return redirect("user_profile:user_profile")
-    return render(request, "user_side/add_address.html")
-
+        return render(request, "user_side/add_address.html")
+    else:
+        return redirect('login')
 
 #_______________ Edit Address____________
 
@@ -105,6 +114,8 @@ def edit_address(request, id):
         addy.zip_code = request.POST.get("zip")
     
         addy.save()
+        # Redirecting to same url tab
+        return redirect(reverse('user_profile:user_profile') + '?tab=address')
         return redirect('user_profile:user_profile')
     return render(request,"user_side/edit_address.html",context)
 
@@ -113,6 +124,8 @@ def edit_address(request, id):
 def delete_address(request,id):
     addy = get_object_or_404(address, id=id)
     addy.delete()
+    # Redirecting to same url tab
+    return redirect(reverse('user_profile:user_profile') + '?tab=address')
     return redirect('user_profile:user_profile')
     
 
@@ -265,13 +278,11 @@ def update_profile(request):
     if check_password(password, user.password):
         if user.is_authenticated:
             if request.method == "POST":
-                username = request.POST.get('username')
                 first_name = request.POST.get('first_name')
                 last_name = request.POST.get('last_name')
                 email = request.POST.get('email')
                 phone = request.POST.get('phone')
                 #Updating Profile
-                change_user.username=username
                 change_user.first_name=first_name
                 change_user.last_name=last_name
                 change_user.email=email
@@ -286,7 +297,9 @@ def update_profile(request):
                 messages.error(request,"Please Login to continue")
     else:
         messages.error(request, "Incorrect Password")
-        return redirect('user_profile:user_profile')
+        return redirect(reverse('user_profile:user_profile') + '?tab=details')
+        
+        
     
     
 #___________________Reset Password______________
@@ -309,7 +322,8 @@ def reset_password(request):
             return redirect('home')
         else:
             messages.error(request,"Incorrect Current Password")
-            return redirect('user_profile:user_profile')
+            return redirect(reverse('user_profile:user_profile') + '?tab=detail')
+
     else:
         messages.error(request,"Please login to continue")
         return redirect('home')
@@ -532,10 +546,12 @@ def cancel_order(request, order_id):
             product.stock_count += order_item.quantity
             product.save()
 
-        return redirect("user_profile:user_profile")
+        return redirect(reverse('user_profile:user_profile') + '?tab=orders')
+
     else:
         # Handle error or redirect to appropriate page
-        return redirect("some_error_page")
+        messages.error(request, "Cancel Order Failed")
+        return redirect(reverse('user_profile:user_profile') + '?tab=orders')
     
 #______________Order View_________
 
@@ -649,7 +665,7 @@ def razorpay_callback(request):
             order=Order.objects.get(id=order_id)
             order.paid=True
             order.save()
-            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            client = razorpay.Client(auth=("rzp_test_VArbI2Nu4Yi1Iw", "APv2T6He0woUCJD5ycW7ucUg"))
             client.utility.verify_payment_signature(data)
             
             with transaction.atomic():
@@ -667,7 +683,7 @@ def razorpay_callback(request):
             order = Order.objects.get(razorpay_order_id=data.get("razorpay_order_id"))
             
             # Verify the payment signature
-            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            client = razorpay.Client(auth=("rzp_test_VArbI2Nu4Yi1Iw", "APv2T6He0woUCJD5ycW7ucUg"))
             client.utility.verify_payment_signature(data)
             
             with transaction.atomic():

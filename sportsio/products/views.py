@@ -5,25 +5,37 @@ from category.models import category as Category
 from category.models import Brand as Brand
 from admin_side import views
 from django.utils import timezone
-import base64
+from django.db.models import Q
 from datetime import timedelta
 from django.core.files.base import ContentFile
 from django.core.files.images import ImageFile
 
 
 # Create your views here.
+#_______PRODUCT__MANAGEMENT__VIEW____
+
 def product_view(request):
-    products=Products.objects.all()
+    if 'email' in request.session:
+        search_query = request.GET.get('search', '')
+        products = Products.objects.all()
+        #Search query
+        if search_query:
+            products = products.filter(
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(category__name__icontains=search_query) |
+                Q(brand__brand_name__icontains=search_query)
+            )
 
-    
+        context = {
+            'products': products,
+            'search_query': search_query,
+        }
+        return render(request, 'admin_side/product_management.html', context)
 
-    context={
-        'products': products,
-        
-        
-    }
-    return render(request, 'admin_side/product_management.html',context)
 
+
+#_______ ADD_PRODUCT_______
 def add_product(request):
     if 'email' in request.session:
         status_choices = Products.Status_choices  # Use the model's choices
@@ -100,7 +112,6 @@ def update_product(request, id):
             'categories': categories,
             'status_choices': status_choices,
             'product': product,
-            
         }
         if request.method == 'POST':
             title = request.POST.get('title')
@@ -109,7 +120,7 @@ def update_product(request, id):
             status = request.POST.get('status')
             price = request.POST.get('price')
             brand_id = request.POST.get('brand')
-            image = request.FILES.get('image')
+            image = request.FILES.get('image')  # Get the uploaded image
             product_details = request.POST.get('product_details')
             stock_count = request.POST.get('stock_count')
             weight = request.POST.get('weight')
@@ -132,7 +143,9 @@ def update_product(request, id):
             product.description = description
             product.price = price
             product.brand = Brand.objects.get(id=brand_id)
-            product.image = image
+            # Only assign the new image if one is provided
+            if image:
+                product.image = image
             product.stock_count = stock_count  
             product.status = status
             product.weight = weight
@@ -140,13 +153,11 @@ def update_product(request, id):
             product.product_details=product_details
             product.offer_price=offer_price
 
-
-
             # Handle existing and new additional images
             existing_images = product.additional_images.all()
             new_images = request.FILES.getlist('images')
 
-            # Delete existing images if any were uploaded
+            # Only delete existing images if new images are uploaded
             if new_images:
                 for img in existing_images:
                     img.delete()
@@ -160,7 +171,8 @@ def update_product(request, id):
             return redirect('product_management')
 
         return render(request, 'admin_side/product_update.html', context)
-    return render(request, 'admin_side/admin_login.html')
+    return redirect('admin_login')
+
 
 
 def block_product(request,id):

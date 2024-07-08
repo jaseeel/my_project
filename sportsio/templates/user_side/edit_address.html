@@ -1,55 +1,151 @@
-{% extends 'user_side/base.html'%}
-{%block title%}Manage Address | Sportsio{%endblock%}
-{% block content %}
-<div style="width: 50%; margin: auto;  padding: 80px;">
-  <span>Manage Address</span>
-  <div class="container-sm mx-auto" style="border: 1px solid #000000;">
-    
-    <div style="padding: 10px;">
-      <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
-        {% csrf_token %}
+ {% extends 'user_side/base.html'%}
 
-        <div class="form-row">
-          <!-- Address -->
-          <div class="col-md-6 mb-3">
-            <label for="validationTooltip01">House Name :</label>
-            <input type="description" class="form-control" id="validationTooltip01" name="address" value={{ addy.address }} required>
-            <div class="valid-tooltip"></div>
-          </div>
-          <!-- House_name -->
-          <div class="col-md-6 mb-3">
-            <label for="validationTooltip01">House Name :</label>
-            <input type="text" class="form-control" id="validationTooltip01" name="house_name" value={{ addy.house_name }} required>
-            <div class="valid-tooltip"></div>
-          </div>
-          <!-- Street -->
-          <div class="col-md-6 mb-3">
-            <label for="validationTooltip02">Street :</label>
-            <input type="text" class="form-control" id="validationTooltip02" name="street" value={{ addy.street }} required>
-            <div class="valid-tooltip"></div>
-          </div>
-        </div>
-        <!-- City, State, Zip -->
-        <div class="form-row">
-          <div class="col-md-4 mb-3">
-            <label for="validationTooltip03">City</label>
-            <input type="text" class="form-control" id="validationTooltip03" name="city" value={{ addy.city }} placeholder="City" required>
-            <div class="invalid-tooltip">Please provide a valid city.</div>
-          </div>
-          <div class="col-md-4 mb-3">
-            <label for="validationTooltip04">State</label>
-            <input type="text" class="form-control" id="validationTooltip04" name="state" value={{ addy.state }} placeholder="State" required>
-            <div class="invalid-tooltip">Please provide a valid state.</div>
-          </div>
-          <div class="col-md-4 mb-3">
-            <label for="validationTooltip05">Zip</label>
-            <input type="number" class="form-control" id="validationTooltip05" name="zip" value={{ addy.zipcode }} placeholder="Zip" required>
-            <div class="invalid-tooltip">Please provide a valid zip.</div>
-          </div>
-        </div>
-        <button class="btn btn-sm btn-primary" type="submit">Submit form</button>
-        <button class="btn btn-sm btn-danger" type="reset"><a href={% url 'user_profile:user_profile'%}>Back</a></button>
-      </form>
+{% block content %}
+<style>
+  body {
+    background-color: #fffef2;
+    font-family: Arial, sans-serif;
+  }
+  .container {
+    width: 90%;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  .container h2 {
+    color: #ffd700;
+    text-align: center;
+    margin-bottom: 30px;
+    fony-family:Arial, sans-serif;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+  }
+  input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  input:focus {
+    outline: none;
+    border-color: #ffd700;
+  }
+  .invalid-feedback {
+    color: red;
+    font-size: 0.85em;
+    margin-top: 5px;
+  }
+  .btn {
+    display: inline-block;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    fony-family:Arial, sans-serif;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  }
+  .btn-submit {
+    background-color: #808080;
+    color: white;
+  }
+  .btn-submit:hover {
+    background-color: #ffd700;
+  }
+  .btn-cancel {
+    background-color: #808080;
+    color: white;
+    margin-left: 395px;
+  }
+  .btn-cancel:hover {
+    background-color: #ff0000;
+  }
+  .error-message {
+    color: red; /* Change as needed */
+    margin-top: -20px; /* Adjust based on your layout */
+  }
+  
+  .highlight {
+    border-color: red !important; /* Assuming you're using Bootstrap or similar */
+  }
+  
+</style>
+
+<div class="container">
+  <h2>Manage Address</h2>
+  <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate onsubmit="return validateForm(event);">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <input type="description" id="addressValidation" value={{ addy.address }} name="address" placeholder="House Name" required>
     </div>
+
+    <div class="form-group">
+      <input type="number" id="buildingNoValidation" name="house_name"  value={{ addy.house_name }} placeholder="Building No." required>
+    </div>
+
+    <div class="form-group">
+      <input type="text" id="streetValidation" name="street" placeholder="Street" value={{ addy.street }} required>
+    </div>
+
+    <div class="form-group">
+      <input type="text" id="cityValidation" name="city" placeholder="City"  value={{ addy.city }} required>
+    </div>
+
+    <div class="form-group">
+    
+      <input type="text" id="stateValidation" name="state" placeholder="State" value={{ addy.state }} required>
+    </div>
+
+    <div class="form-group">
+            <input type="number" id="zipValidation" name="zip" placeholder="Zip" value={{ addy.zipcode }} required>
+    </div>
+
+    <button class="btn btn-submit" type="submit">Submit</button>
+    <button type="reset" class="btn btn-cancel">
+      <a style="color:white; text-decoration: none;" href="{% url 'user_profile:user_profile' %}">Cancel</a>
+    </button>
+  </form>
+</div>
+<script>
+  function validateForm(event) {
+    var inputs = document.querySelectorAll('input');
+    var isValid = true;
+
+    for (var i = 0; i < inputs.length; i++) {
+      var input = inputs[i];
+      var errorMessageElement = input.parentNode.querySelector('.error-message');
+
+      if (input.required && input.value.trim() === '') {
+        if (!errorMessageElement) {
+          errorMessageElement = document.createElement('div');
+          errorMessageElement.classList.add('error-message'); // Custom class for styling
+          input.parentNode.insertBefore(errorMessageElement, input.nextSibling); // Insert after the input
+        }
+        errorMessageElement.textContent = 'This field is required.';
+        input.classList.add('highlight'); // Custom class for highlighting the input
+        isValid = false;
+      } else {
+        if (errorMessageElement) {
+          errorMessageElement.remove();
+        }
+        input.classList.remove('highlight');
+      }
+    }
+
+    if (!isValid) {
+      event.preventDefault(); // Prevent form submission
+    }
+    return isValid;
+  }
+</script>
+
     
   {% endblock %}

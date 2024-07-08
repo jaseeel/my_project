@@ -1,79 +1,173 @@
-
 {% extends 'admin_side/base.html' %}  
-
-{% block content %}   
+{% block content %}  
 <style>
-  /* Custom CSS for stock management */
-  .table th,
-  .table td {
-    vertical-align: middle;
+    .product-image {
+        width: 60px;
+        height: 80px;
+        object-fit: contain;
+        border-radius: 3%;
+    }
+    .table {
+        border-collapse: separate;
+        border-spacing: 0 15px;
+    }
+    .table tr {
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    .table tr:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .table td, .table th {
+        border: none;
+        padding: 15px;
+        vertical-align: middle;
+    }
+    .btn-action {
+        margin-bottom: 5px;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+    .btn-action:hover { transform: scale(1.1); }
+    .btn-primary { background-color: #3498db; color: white; }
+    .form-control {
+        border: none;
+        padding: 5px 10px;
+        border-radius: 20px;
+        background-color: #f1f1f1;
+    }
+    #floating-nav {
+      position: fixed;
+      bottom: 0; /* Adjust as needed */
+      left:91px; /* Adjust as needed */
+      width: 100%; /* Adjust as needed */
+      z-index: 9999; /* Ensure it floats above other content */
   }
-
-  .table th {
-    font-weight: bold;
-  }
-
-  .table img {
-    max-width: 50px;
-    max-height: 50px;
-    border-radius: 5px;
-  }
-
-  .btn a {
-    color: white;
-    text-decoration: none;
-  }
-  .product-image {
-    width: 1.5in; /* Set the width to 8 inches */
-    height: 1in; /* Set the height to 10 inches */
-}
 </style>
 
-<div class="card-body">
-    <div class="d-flex justify-content-between align-items-center">
-              <h5 class="card-title fw-semibold mb-4">Stock Management</h5>
-          </div>
-          <div class="table-responsive"> <!-- Add this div to make the table responsive -->
-            <table class="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th>Product Name</th>
-                        <th>Image</th>
-                        <th>Quantity</th>
-                        <th>Edit Stock</th>
-                        <th>Availability</th>
-                        <!-- Add more columns as needed for other stock-related information -->
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for item in stock_items %}
-                      <tr>
-                        <td>{{ item.title }}</td>
-                        <td>
-                          {% if item.image %}
-                          <img src="{{ item.image.url }}" alt="{{ item.title }}" class="product-image">
-                          {% else %}
-                          No Image Available
-                          {% endif %}
-                        </td>
-                        <td>{{ item.stock_count }}</td>
-                        <td>
-                          <form action="{% url 'update_stock' %}" method="POST" class="d-flex">
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="m-0">Stock Management</h2>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Image</th>
+                    <th>Quantity</th>
+                    <th>Edit Stock</th>
+                    <th>Availability</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                {% for item in stock_items %}
+                <tr>
+                    <td>{{ item.title }}</td>
+                    <td>
+                        {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.title }}" class="product-image">
+                        {% else %}
+                        No Image Available
+                        {% endif %}
+                    </td>
+                    <td>{{ item.stock_count }}</td>
+                    <td>
+                        <form action="{% url 'update_stock' %}" method="POST" class="d-flex">
                             {% csrf_token %}
                             <input type="hidden" name="product_id" value="{{ item.id }}">
                             <div class="input-group">
-                              <input type="number" name="quantity" class="form-control" placeholder="Enter quantity" required>
-                              <button type="submit" class="btn btn-primary">Add</button>
+                                <input type="number" name="quantity" class="form-control" placeholder="Enter quantity" required>
+                                <button type="submit" class="btn btn-action btn-primary">Add</button>
                             </div>
-                          </form>
-                        </td>
-                        <td>{% if item.stock_count > 0 %}Available{% else %}Out of Stock{% endif %}</td>
-                        <!-- Add more columns to display other stock-related information -->
-                      </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-        
-  {% endblock %}  
+                        </form>
+                    </td>
+                    <td>{% if item.stock_count > 0 %}Available{% else %}Out of Stock{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <nav aria-label="Page navigation" id="floating-nav" class="mt-4">
+      <ul id="pagination" class="pagination justify-content-center">
+      </ul>
+    </nav>
+  </div>
+
+
+<script>
+  const itemsPerPage = 6;
+  let currentPage = 1;
+  let filteredData = [];
+
+  const userTableBody = document.getElementById('userTableBody');
+  const paginationContainer = document.getElementById('pagination');
+  const searchInput = document.getElementById('searchInput');
+
+  // Get all rows from the table
+  const rows = Array.from(userTableBody.querySelectorAll('tr'));
+
+  function displayTable(page) {
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedData = filteredData.slice(start, end);
+
+    userTableBody.innerHTML = '';
+    paginatedData.forEach(row => userTableBody.appendChild(row));
+  }
+
+  function setupPagination(data) {
+    const pageCount = Math.ceil(data.length / itemsPerPage);
+    paginationContainer.innerHTML = '';
+
+    for (let i = 1; i <= pageCount; i++) {
+      const li = document.createElement('li');
+      li.classList.add('page-item');
+      if (i === currentPage) li.classList.add('active');
+
+      const a = document.createElement('a');
+      a.classList.add('page-link');
+      a.href = '#';
+      a.textContent = i;
+
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentPage = i;
+        displayTable(currentPage);
+        setupPagination(data);
+      });
+
+      li.appendChild(a);
+      paginationContainer.appendChild(li);
+    }
+  }
+
+  function filterTable() {
+    const searchTerm = searchInput.value.toLowerCase();
+    filteredData = rows.filter(row => {
+      return Array.from(row.cells).some(cell => 
+        cell.textContent.toLowerCase().includes(searchTerm)
+      );
+    });
+
+    currentPage = 1;
+    displayTable(currentPage);
+    setupPagination(filteredData);
+  }
+
+  // Initial setup
+  filteredData = rows;
+  displayTable(currentPage);
+  setupPagination(filteredData);
+
+  // Add event listener for search input
+  searchInput.addEventListener('input', filterTable);
+</script>
+{% endblock %}

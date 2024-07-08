@@ -1,60 +1,103 @@
-
 {% extends 'admin_side/base.html' %}
+
 {% block content %}
-<!--  Product image size-->
 <style>
     .product-image {
-        width: 2in; /* Set the width to 8 inches */
-        height: 1in; /* Set the height to 10 inches */
+        width: 150px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 5px;
     }
-    .btn {
-        margin:2px;
-  }
+    .table {
+        border-collapse: separate;
+        border-spacing: 0 15px;
+    }
+    .table tr {
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    .table tr:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .table td, .table th {
+        border: none;
+        padding: 15px;
+        vertical-align: middle;
+    }
+    .btn-action {
+        margin-bottom:5px;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+    .btn-block { background-color: #e74c3c; color: white; }
+    .btn-unblock { background-color: #2ecc71; color: white; }
+    .btn-delete { background-color: #95a5a6; color: white; }
+    .btn-action:hover { transform: scale(1.1); }
+
 </style>
-      <!--  Header End -->
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <h5 class="card-title fw-semibold mb-4">Products Management</h5>
-          <button type="button" class="btn btn-primary">
-              <a href="{% url 'add_banner' %}" style="color: white; text-decoration: none;">Add Banner</a>
-          </button>
-                 </div>
-                 <div class="table-responsive">
-                            <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Image</th>
-                                            <th>Title</th>
-                                            <th>price</th>
-                                            <th>Description</th>
-                                            <th></th>
-                                            
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for x in banner %}
-                                        <tr style="align-items: center;">
-                                            <td><img src="{{ x.image.url }}" alt="" class="product-image img img-thumbnail"></td>
-                                            <td>{{ x.title }}</td>
-                                            <td>{{x.price}}</td>
-                                            <td>{{x.offer_details}}</td>
-                                            <td style="align-items: center;">
-                                                <div class="d-flex justify-content-center padding:5px; ">
-                                                <a href="{% url 'update_banner' x.id%}" class="btn btn-secondary btn-sm">update</a>
-                                                {% if x.is_active %}
-                                                <a href="{% url 'block_banner' x.id %}"  onclick="return confirm('Are you sure you want to Block this Banner ?')" class="btn btn-secondary btn-sm" role="button">Block</a>
-                                                {% else %}
-                                                <a href="{% url 'unblock_banner' x.id %}"  onclick="return confirm('Are you sure you want to Unblock this Banner ?')"  class="btn btn-secondary btn-sm" role="button">unblock</a>
-                                                {% endif %}
-                                                <a href="{% url 'delete_banner' x.id %}"  onclick="return confirm('Are you sure you want to Delete this Banner ?')" class="btn  btn-secondary btn-sm">Delete</a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {%endfor%}
-                                    </tbody>
-                                </table>
-    
-                            </div>
-                        </div>
-        
+
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h5 class="card-title">Banners Management</h5>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'add_banner' %}" class="btn btn-action" style="background-color: #27ae60; color: white;">
+                <i class="fas fa-plus"></i> Add Banner
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Banner</th>
+                    <th>price</th>
+                    <th>Description</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                {% for x in banner %}
+                <tr>
+                    <td>
+                        <img src="{{ x.image.url }}" alt="{{ x.title }}" class="product-image me-3">
+                        {{ x.title|truncatechars:20 }}
+                    </td>
+                    <td>₹{{ x.price}}</td>
+                    <td>{{ x.offer_details|truncatechars:50 }}</td>
+                    <td>
+                        {% if x.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if x.is_active %}
+                            <a href="{% url 'block_banner' x.id %}" onclick="return confirm('Block this Product?')" class="btn btn-action btn-block" title="Block">
+                                <i class="fas fa-ban"></i>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'unblock_banner' x.id %}" onclick="return confirm('Unblock this Product?')" class="btn btn-action btn-unblock" title="Unblock">
+                                <i class="fas fa-check"></i>
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'delete_banner' x.id %}" onclick="return confirm('Delete this Product?')" class="btn btn-action btn-delete" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+   
+
+
 {% endblock %}

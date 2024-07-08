@@ -104,7 +104,7 @@ def user_product_view(request, id):
         'product_images': product_images,
         'product': product,
         'related_products':related_products,
-        'email':email,
+        'email':email if request.user.is_authenticated else ' ',
         'rating':rating,
         'rating_count':rating_count,
 

@@ -1,32 +1,92 @@
 {% extends "admin_side/base.html"%}
 {% block content%}
 <style>
-    .btn-custom {
-        width: 90px; /* Fixed width */
-        height: 30px; /* Fixed height */
-        margin: 10px; /* Optional: Adds space around the buttons */
-        text-align: center!important; 
-        
+    .product-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 50%;
     }
+    .table {
+        border-collapse: separate;
+        border-spacing: 0 15px;
+    }
+    .table tr {
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    .table tr:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .table td, .table th {
+        border: none;
+        padding: 15px;
+        vertical-align: middle;
+    }
+    .btn-action {
+        margin-bottom: 5px;
+        border: none;
+        font-size:12px;
+        padding: 5px 5px;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        margin-left:5px;
+    }
+    .btn-action:hover { transform: scale(1.1); }
+    .btn-primary { background-color: #3498db; color: white; }
     select.form-control {
-        width: 80px; /* Ensures the select fills the td */
-        border: 1px solid #000!important; /* Custom border style */
-        height:30px;
-        text-align:center;
-        font-size:10px;
-        padding:0px;
-        
+        border: none;
+        padding: 5px 10px;
+        border-radius: 20px;
+        background-color: #f1f1f1;
     }
-    
+    #floating-nav {
+        position: fixed;
+        bottom: 0; /* Adjust as needed */
+        left:91px; /* Adjust as needed */
+        width: 100%; /* Adjust as needed */
+        z-index: 9999; /* Ensure it floats above other content */
+    }
+    .search-box .input-group {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .search-box input {
+        border: none;
+        padding: 10px 15px;
+    }
+    .search-box .btn {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+    }
 </style>
-<div class="card">
-    <div class="card-body p-4">
 
-    <h2 class="card-title">Order Management</h2>
-   
-        <table style="text-align:center;border:5px transparent !important;" class="table table-bordered">
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="m-0">Order Management</h2>
+        </div>
+        <div class="col-auto">
+            <form class="search-box" method="get">
+                <div class="input-group">
+                    <input type="number" name="search" class="form-control" placeholder="Search Order Id..." value="{{ search_query }}">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
             <thead>
-                <tr class="table-active">
+                <tr>
                     <th>Order ID</th>
                     <th>Customer</th>
                     <th>Address</th>
@@ -36,27 +96,23 @@
                     <th>Order Notes</th>
                     <th>Status</th>
                     <th>Action</th>
-                
                 </tr>
             </thead>
-            <tbody style="justify-contents:center;">
+            <tbody id="userTableBody">
                 {% for order in orders %}
-                <tr class="{% if order.status == "Cancelled"%} table-danger {%elif order.status == "Delivered"%} table-success {% elif order.status == "Return"%} table-warning  {% elif order.status == "Refunded"%} table-info {% endif %} ">
+                <tr>
                     <td>{{ order.id }}</td>
                     <td>{{ order.user|truncatewords:1 }}</td>
-                    <td style="width:200px;">{{ order.address.street }}, {{ order.address.city }}, {{ order.address.state }}</td>
+                    <td>{{ order.address.street }}, {{ order.address.city }}, {{ order.address.state }}</td>
                     <td>{{ order.estimated_delivery_time }}</td>
                     <td>{{ order.tracking_number }}</td>
-                    <td>
-                        ₹ {{ order.total_price }}
-                    </td>
-                    <td style="width:100px;">{{ order.order_notes }}</td>
-                    
-
+                    <td>₹ {{ order.total_price }}</td>
+                    <td>{{ order.order_notes }}</td>
                     <td>
                         <form action="{% url 'update_status' order.id %}" method="post">
                             {% csrf_token %}
-                            <select class="form-control"  name="new_status" id="newStatusSelect">
+                            
+                            <select class="form-control" name="new_status" id="newStatusSelect">
                                 <option value="Pending" {% if order.status == "Pending" %} selected {% endif %}>Pending</option>
                                 <option value="Processing" {% if order.status == "Processing" %} selected {% endif %}>Processing</option>
                                 <option value="Shipped" {% if order.status == "Shipped" %} selected {% endif %}>Shipped</option>
@@ -68,32 +124,102 @@
                             </select>
                             
                             {% if order.status != "Cancelled" and order.status != "Return" and order.status != "Refunded" %}
-                            <button style="margin-top:5px;" type="submit" class="btn btn-sm btn-primary">Status</button>
-                            {%endif%}
+                            <button type="submit" class="btn btn-action btn-primary">Status</button>
+                            {% endif %}
                         </form>
                     </td>
                     <td>
                         <div class="action">
                             {% if order.status == "Return" or order.status == "Cancelled" and order.paid == True %}
-                            <a href="{% url 'refund_order' order.id %}" class="btn btn-sm btn-primary btn-custom">Refund</a>
+                            <a href="{% url 'refund_order' order.id %}" class="btn btn-action btn-primary">Refund</a>
                             {% elif order.status == "Return" or order.status == "Cancelled" or order.status == "Refunded" %}
                             <span>Return and Refunded</span>
                             {% else %}
-                            <a href="{% url 'update_order_details' order.id %}" class="btn btn-sm btn-primary btn-custom">Update</a>
+                            <a href="{% url 'update_order_details' order.id %}" class="btn btn-action btn-primary">Update</a>
                             {% endif %}
-                            <a style="margin-top:5px;" href="{% url 'admin_order_view' order.id%}" class="btn btn-sm btn-primary btn-custom">View</a>
+                            <a href="{% url 'admin_order_view' order.id%}" class="btn btn-action btn-primary">View</a>
                         </div>
                     </td>
-                    
-                    
-                   
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-</div>
+    <nav aria-label="Page navigation" class="mt-4" id="floating-nav">>
+        <ul id="pagination" class="pagination justify-content-center">
+        </ul>
+      </nav>
+    </div>
 
+
+<script>
+    const itemsPerPage = 10;
+    let currentPage = 1;
+    let filteredData = [];
+  
+    const userTableBody = document.getElementById('userTableBody');
+    const paginationContainer = document.getElementById('pagination');
+    const searchInput = document.getElementById('searchInput');
+  
+    // Get all rows from the table
+    const rows = Array.from(userTableBody.querySelectorAll('tr'));
+  
+    function displayTable(page) {
+      const start = (page - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const paginatedData = filteredData.slice(start, end);
+  
+      userTableBody.innerHTML = '';
+      paginatedData.forEach(row => userTableBody.appendChild(row));
+    }
+  
+    function setupPagination(data) {
+      const pageCount = Math.ceil(data.length / itemsPerPage);
+      paginationContainer.innerHTML = '';
+  
+      for (let i = 1; i <= pageCount; i++) {
+        const li = document.createElement('li');
+        li.classList.add('page-item');
+        if (i === currentPage) li.classList.add('active');
+  
+        const a = document.createElement('a');
+        a.classList.add('page-link');
+        a.href = '#';
+        a.textContent = i;
+  
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          currentPage = i;
+          displayTable(currentPage);
+          setupPagination(data);
+        });
+  
+        li.appendChild(a);
+        paginationContainer.appendChild(li);
+      }
+    }
+  
+    function filterTable() {
+      const searchTerm = searchInput.value.toLowerCase();
+      filteredData = rows.filter(row => {
+        return Array.from(row.cells).some(cell => 
+          cell.textContent.toLowerCase().includes(searchTerm)
+        );
+      });
+  
+      currentPage = 1;
+      displayTable(currentPage);
+      setupPagination(filteredData);
+    }
+  
+    // Initial setup
+    filteredData = rows;
+    displayTable(currentPage);
+    setupPagination(filteredData);
+  
+    // Add event listener for search input
+    searchInput.addEventListener('input', filterTable);
+  </script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {

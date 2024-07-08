@@ -1,106 +1,106 @@
-{% extends "admin_side/base.html"%}
+{% extends "admin_side/base.html" %}
 {% block content %}
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 0;
+    .coupon-form-container {
+        min-height: 100vh;
+        padding: 2rem;
+        background: #f8f9fa;
     }
-
-    h2 {
-        text-align: center;
-        margin-top: 20px;
-        color: #333;
-    }
-
-    .container {
-        width: 80%;
-        max-width: 600px;
+    .coupon-form {
+        max-width: 800px;
         margin: 0 auto;
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-
-    label {
-        font-weight: bold;
+    .coupon-form h2 {
+        text-align: center;
+        color: #007bff;
+        margin-bottom: 1.5rem;
     }
-
-    input[type="text"],
-    input[type="number"],
-    select,
-    input[type="date"] {
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-control {
         width: 100%;
-        padding: 10px;
-        margin-top: 5px;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
+        padding: 0.5rem;
+        border: 1px solid #ced4da;
         border-radius: 4px;
-        box-sizing: border-box;
     }
-
-    input[type="submit"] {
-        background-color: #4CAF50;
+    .btn-submit {
+        margin-top: 5px;
+        width: 100%;
+        padding: 0.75rem;
+        background: #007bff;
         color: white;
-        padding: 14px 20px;
-        margin: 8px 0;
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        width: 100%;
+        transition: background 0.3s ease;
     }
-
-    input[type="submit"]:hover {
-        background-color: #45a049;
+    .btn-submit:hover {
+        background: #0056b3;
     }
-
-    .error {
+    .error-message {
         color: red;
-        font-size: 12px;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
     }
 </style>
-</head>
 
-<body>
-<div class="container">
-    <h2>Edit Coupon</h2>
-    <form id="couponForm" action="{% url 'edit_coupon' coupon.id %}" method="POST" onsubmit="return validateForm()">
-        {% csrf_token %}
-        <label for="code">Coupon Code:</label><br>
-        <input type="text" id="code" name="code" value="{{ coupon.code }}"><br>
-        <span id="codeError" class="error"></span><br>
+<div class="coupon-form-container">
+    <div class="coupon-form">
+        <h2>EDIT COUPON</h2>
+        <form id="couponForm" action="{% url 'edit_coupon' coupon.id %}" method="POST" onsubmit="return validateForm()">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="code" class="form-label">Coupon Code:</label>
+                <input type="text" class="form-control" id="code" name="code" value="{{ coupon.code }}">
+                <div class="error-message" id="codeError"></div>
+            </div>
 
-        <label for="discount_type">Discount Type:</label><br>
-        <select id="discount_type" name="discount_type">
-            <option value="percentage" {% if coupon.discount_type == 'percentage' %} selected {% endif %}>Percentage</option>
-            <option value="fixed" {% if coupon.discount_type == 'fixed' %} selected {% endif %}>Fixed Amount</option>
-        </select><br>
+            <div class="form-group">
+                <label for="discount_type" class="form-label">Discount Type:</label>
+                <select class="form-control" id="discount_type" name="discount_type">
+                    <option value="percentage" {% if coupon.discount_type == 'percentage' %} selected {% endif %}>Percentage</option>
+                    <option value="fixed" {% if coupon.discount_type == 'fixed' %} selected {% endif %}>Fixed Amount</option>
+                </select>
+            </div>
 
-        <label for="discount_value">Discount Value:</label><br>
-        <input type="number" id="discount_value" name="discount_value" value="{{ coupon.discount_value }}"><br>
-        <span id="discountValueError" class="error"></span><br>
+            <div class="form-group">
+                <label for="discount_value" class="form-label">Discount Value:</label>
+                <input type="number" class="form-control" id="discount_value" name="discount_value" value="{{ coupon.discount_value }}">
+                <div class="error-message" id="discountValueError"></div>
+            </div>
 
-        <label for="min_order_value">Min Order Value:</label><br>
-        <input type="number" id="min_order_value" name="min_order_value" value="{{ coupon.min_order_value }}"><br>
-        <span id="minOrderValueError" class="error"></span><br>
+            <div class="form-group">
+                <label for="min_order_value" class="form-label">Min Order Value:</label>
+                <input type="number" class="form-control" id="min_order_value" name="min_order_value" value="{{ coupon.min_order_value }}">
+                <div class="error-message" id="minOrderValueError"></div>
+            </div>
 
-        <label for="expiration_date">Expiration Date:</label><br>
-        <input type="date" id="expiration_date" name="expiration_date" class="form-control" value="{{ coupon.expiration_date|date:'Y-m-d' }}">
-        <span id="expirationDateError" class="error"></span><br>
+            <div class="form-group">
+                <label for="expiration_date" class="form-label">Expiration Date:</label>
+                <input type="date" class="form-control" id="expiration_date" name="expiration_date" value="{{ coupon.expiration_date|date:'Y-m-d' }}">
+                <div class="error-message" id="expirationDateError"></div>
+            </div>
 
-        <label for="max_uses">Max Uses:</label><br>
-        <input type="number" id="max_uses" name="max_uses" value="{{ coupon.max_uses }}"><br>
-        <span id="maxUsesError" class="error"></span><br>
+            <div class="form-group">
+                <label for="max_uses" class="form-label">Max Uses:</label>
+                <input type="number" class="form-control" id="max_uses" name="max_uses" value="{{ coupon.max_uses }}">
+                <div class="error-message" id="maxUsesError"></div>
+            </div>
 
-        <input type="submit" value="Update">
-    </form>
+            <button type="submit" class="btn-submit">Update</button>
+        </form>
+    </div>
 </div>
 
 <script>
     function validateForm() {
         var code = document.getElementById("code").value;
+        var discountType = document.getElementById("discount_type").value;
         var discountValue = document.getElementById("discount_value").value;
         var minOrderValue = document.getElementById("min_order_value").value;
         var expirationDate = document.getElementById("expiration_date").value;
@@ -114,36 +114,63 @@
 
         var isValid = true;
 
+        // Validate Coupon Code
         if (code === "") {
             codeError.innerText = "Coupon code is required";
+            isValid = false;
+        } else if (!/^[A-Z]+$/.test(code)) {
+            codeError.innerText = "Coupon code should contain only capital letters without spaces";
             isValid = false;
         } else {
             codeError.innerText = "";
         }
 
+        // Validate Discount Value
         if (discountValue === "") {
             discountValueError.innerText = "Discount value is required";
+            isValid = false;
+        } else if (discountType === "percentage" && (discountValue <= 0 || discountValue >= 99)) {
+            discountValueError.innerText = "Percentage discount must be between 1 and 98";
+            isValid = false;
+        } else if (discountType === "fixed" && (discountValue <= 0 || discountValue >= 10000)) {
+            discountValueError.innerText = "Fixed discount must be between 1 and 9999";
             isValid = false;
         } else {
             discountValueError.innerText = "";
         }
 
+        // Validate Min Order Value
         if (minOrderValue === "") {
             minOrderValueError.innerText = "Min order value is required";
+            isValid = false;
+        } else if (minOrderValue <= 0) {
+            minOrderValueError.innerText = "Min order value must be greater than 0";
             isValid = false;
         } else {
             minOrderValueError.innerText = "";
         }
 
+        // Validate Expiration Date
+        var currentDate = new Date();
+        var minExpirationDate = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+        var inputExpirationDate = new Date(expirationDate);
+
         if (expirationDate === "") {
             expirationDateError.innerText = "Expiration date is required";
+            isValid = false;
+        } else if (inputExpirationDate <= minExpirationDate) {
+            expirationDateError.innerText = "Expiration date must be at least 7 days from today";
             isValid = false;
         } else {
             expirationDateError.innerText = "";
         }
 
+        // Validate Max Uses
         if (maxUses === "") {
             maxUsesError.innerText = "Max uses is required";
+            isValid = false;
+        } else if (maxUses <= 0) {
+            maxUsesError.innerText = "Max uses must be greater than 0";
             isValid = false;
         } else {
             maxUsesError.innerText = "";
@@ -152,5 +179,4 @@
         return isValid;
     }
 </script>
-</body>
 {% endblock %}

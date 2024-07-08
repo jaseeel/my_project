@@ -1,54 +1,177 @@
+{% extends 'admin_side/base.html' %}
+{% block content %}
+<style>
+  .table {
+    border-collapse: separate;
+    border-spacing: 0 15px;
+}
+.table tr {
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+.table tr:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.table td, .table th {
+    border: none;
+    padding: 15px;
+    vertical-align: middle;
+}
+  .btn-block { background-color: #ff4d4d; border-color: #ff4d4d; }
+  .btn-unblock { background-color: #4CAF50; border-color: #4CAF50; }
+  .user-table { box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
- {% extends 'admin_side/base.html' %}  
-    {% block content %}    
-    <style>
-      .btn {
-        margin:2px;
+    .search-box {
+      max-width: 300px;
+    }
+    .search-box .input-group {
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .search-box input {
+      border-right: none;
+    }
+    .search-box .btn {
+      border-left: none;
+      padding: 0.375rem 0.75rem;
+    }
+    #floating-nav {
+      position: fixed;
+      bottom: 0; /* Adjust as needed */
+      left:91px; /* Adjust as needed */
+      width: 100%; /* Adjust as needed */
+      z-index: 9999; /* Ensure it floats above other content */
   }
-    </style>
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center">
-                <h5 class="card-title fw-semibold mb-4">User Management</h5>
-            </div>
-            <div class="table-responsive"> <!-- Add this div to make the table responsive -->
-              <table class="table table-bordered">
-              <tr>
-                <th scope="col">No</th>
-                <th scope="col">Username</th>
-                <th scope="col">FirstName</th>
-                <th scope="col">LastName</th>
-                <th scope="col">Email</th>
-                <th scope="col">PhoneNumber</th>
-                <th scope="col">Status</th>
-              </tr>
-            </thead>
-            
-              <tbody>
-                {% for data in user %} 
-                <tr>
-                  <!-- <th scope="row"></th> -->
-                  <td>{{ data.id }}</td>
-                  <td>{{ data.username }}</td>
-                  <td>{{ data.first_name }}</td>
-                  <td>{{ data.last_name }}</td>
-                  <td>{{ data.email }}</td>
-                  <td>{{ data.phone }}</td>
-                  
-                  <td>
-                    <div class="d-flex align-items-center">
-                    {% if data.is_active %}
-                    
-                    <a class="btn btn-sm btn-danger"  onclick="return confirm('Are you sure you want to Block this User ?')" href="{% url 'block_status' user_id=data.id %}" >Block</a>
-                  {% else %}
-                  <a class="btn btn-sm btn-success"  onclick="return confirm('Are you sure you want to Unblock this User ?')" href="{% url 'unblock_status' user_id=data.id %}">Unblock</a>
-                   {% endif%}
-                    </div>
-                </tr>
-                {% endfor %}
-            </tbody>
-            
-          </table>
+</style>
+
+  
+
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="card-title">User Management</h5>
+      <form class="search-box d-flex" method="get">
+        <div class="input-group">
+          <input type="text" name="search" class="form-control" placeholder="Search users..." value="{{ search_query }}">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i>
+          </button>
         </div>
-      </div>
-    {% endblock %}
-       
+      </form>
+    </div>
+
+    <div class="table-responsive user-table">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="userTableBody">
+          {% for data in users %}
+          <tr>
+            <td>{{ data.id }}</td>
+            <td>{{ data.username }}</td>
+            <td>{{ data.first_name }} {{ data.last_name }}</td>
+            <td>{{ data.email }}</td>
+            <td>{{ data.phone }}</td>
+            <td>
+              {% if data.is_active %}
+                <a class="btn btn-sm btn-block text-white" onclick="return confirm('Block this user?')" href="{% url 'block_status' user_id=data.id %}">Block</a>
+              {% else %}
+                <a class="btn btn-sm btn-unblock text-white" onclick="return confirm('Unblock this user?')" href="{% url 'unblock_status' user_id=data.id %}">Unblock</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <nav aria-label="Page navigation" class="mt-4" id="floating-nav">
+      <ul id="pagination" class="pagination justify-content-center">
+      </ul>
+    </nav>
+  </div>
+</div>
+
+
+<!--_____________ Pagination Script-->
+
+<script>
+  const itemsPerPage = 10;
+  let currentPage = 1;
+  let filteredData = [];
+
+  const userTableBody = document.getElementById('userTableBody');
+  const paginationContainer = document.getElementById('pagination');
+  const searchInput = document.getElementById('searchInput');
+
+  // Get all rows from the table
+  const rows = Array.from(userTableBody.querySelectorAll('tr'));
+
+  function displayTable(page) {
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedData = filteredData.slice(start, end);
+
+    userTableBody.innerHTML = '';
+    paginatedData.forEach(row => userTableBody.appendChild(row));
+  }
+
+  function setupPagination(data) {
+    const pageCount = Math.ceil(data.length / itemsPerPage);
+    paginationContainer.innerHTML = '';
+
+    for (let i = 1; i <= pageCount; i++) {
+      const li = document.createElement('li');
+      li.classList.add('page-item');
+      if (i === currentPage) li.classList.add('active');
+
+      const a = document.createElement('a');
+      a.classList.add('page-link');
+      a.href = '#';
+      a.textContent = i;
+
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentPage = i;
+        displayTable(currentPage);
+        setupPagination(data);
+      });
+
+      li.appendChild(a);
+      paginationContainer.appendChild(li);
+    }
+  }
+
+  function filterTable() {
+    const searchTerm = searchInput.value.toLowerCase();
+    filteredData = rows.filter(row => {
+      return Array.from(row.cells).some(cell => 
+        cell.textContent.toLowerCase().includes(searchTerm)
+      );
+    });
+
+    currentPage = 1;
+    displayTable(currentPage);
+    setupPagination(filteredData);
+  }
+
+  // Initial setup
+  filteredData = rows;
+  displayTable(currentPage);
+  setupPagination(filteredData);
+
+  // Add event listener for search input
+  searchInput.addEventListener('input', filterTable);
+</script>
+<!-- Bootstrap JS -->
+
+{% endblock %}

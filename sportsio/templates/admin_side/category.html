@@ -1,71 +1,224 @@
+{% extends 'admin_side/base.html' %}
 
-{% extends 'admin_side/base.html' %}  
-{% block content %}    
-
+{% block content %}
 <style>
     .product-image {
-        width: 1.5in; /* Set the width to 8 inches */
-        height: 1in; /* Set the height to 10 inches */
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 50%;
     }
-    .buttonser {
-        width:130px;
+    .table {
+        border-collapse: separate;
+        border-spacing: 0 15px;
     }
-
+    .table tr {
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    .table tr:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .table td, .table th {
+        border: none;
+        padding: 15px;
+        vertical-align: middle;
+    }
+    .btn-action {
+        margin-bottom:15px;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+    .btn-update { background-color: #3498db; color: white; }
+    .btn-block { background-color: #e74c3c; color: white; }
+    .btn-unblock { background-color: #2ecc71; color: white; }
+    .btn-delete { background-color: #95a5a6; color: white; }
+    .btn-action:hover { transform: scale(1.1); }
+    .search-box {
+        max-width: 300px;
+        margin-bottom: 20px;
+    }
+    .search-box .input-group {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .search-box input {
+        border: none;
+        padding: 10px 15px;
+    }
+    .search-box .btn {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+    }
+    #floating-nav {
+        position: fixed;
+        bottom: 0; /* Adjust as needed */
+        left:91px; /* Adjust as needed */
+        width: 100%; /* Adjust as needed */
+        z-index: 9999; /* Ensure it floats above other content */
+    }
 </style>
-        
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-title fw-semibold mb-4">Products Management</h5>
-            <div>
-            <button type="button" class="btn btn-success">
-                <a href="{% url 'add_category' %}" style="color: white; text-decoration: none;">Add Category </a>
-            </button>
-            <button type="button" class="btn btn-warning">
-                <a href="{% url 'add_brand' %}" style="color: white; text-decoration: none;">Add Brand</a>
-            </button>
-            </div>
-        </div>          
-        <div class="table-responsive"> <!-- Add this div to make the table responsive -->
-            <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Image</th>
-                                    <th>Offer Description</th>
-                                    <th>CategoryOffer</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                              {% for x in cat %}
-                              <tr>
-                                  <td style="vertical-align: middle;">{{ x.name }}</td>
-                                  <td style="vertical-align: middle;">{{ x.description|truncatewords:5 }}</td>
-                                  <td style="vertical-align: middle;">
-                                      {% if x.image %}
-                                      <img class="product-image img img-thumbnail" src="{{ x.image.url }}" alt="{{ x.name }}" >
-                                      {% else %}
-                                      No Image Available
-                                      {% endif %}</td>
-                                  <td style="vertical-align: middle;">{{ x.category_offer_description }}</td>
-                                  <td style="vertical-align: middle;">{{ x.category_offer }}</td>
-                                  <td style="vertical-align: middle;">{% if x.is_active %}Active{% else %}Not active{% endif %}</td>
-                                  <td style="vertical-align: middle;">
-                                      <div class="justify-content-center align-items-center buttonser">
-                                          
-                                          <a href="{% url 'edit_category' x.id %}" class="btn btn-sm btn-info" role="button">Edit</a>
-                                          {%if x.is_active %}
-                                          <a href="{% url 'block_category' x.id %}"  onclick="return confirm('Are you sure you want to Block this Category ?')" class="btn btn-sm btn-info" role="button">block</a>
-                                          {%else%}
-                                          <a href="{% url 'unblock_category' x.id %}"  onclick="return confirm('Are you sure you want to Unblock this Category ?')" class="btn btn-sm btn-info" role="button">unblock</a>
-                                          {%endif%}
-                                      </div>
-                                  </td>
-                              </tr>
-                              {% endfor %}
-                            </tbody>
-                    </div>
+
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h5 class="card-title">Category Management</h5>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'add_category' %}" class="btn btn-action" style="background-color: #27ae60; color: white;">
+                <i class="fas fa-plus"></i> Add Category
+            </a>
+            <a href="{% url 'add_brand' %}" class="btn btn-action" style="background-color: #27ae60; color: white;">
+                <i class="fas fa-plus"></i> Add Brand
+            </a>
+        </div>
+        <div class="col-auto">
+            <form class="search-box" method="get">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Search products..." value="{{ search_query }}">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
-{% endblock %}
-   
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Offer Description</th>
+                    <th>CategoryOffer</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                {% for x in cat %}
+                <tr>
+                    <td>
+                        {% if x.image %}
+                        <img src="{{ x.image.url }}" alt="{{ x.name }}" class="product-image me-3">
+                        {% endif%}
+                        {{ x.name|truncatechars:20 }}
+                    </td>
+                    <td>{{ x.description|truncatewords:5 }}</td>
+                    <td>{{ x.category_offer_description }}</td>
+                    <td>{{ x.category_offer }}</td>
+                    <td>
+                        {% if x.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'edit_category' x.id %}" class="btn btn-action btn-update" title="Update">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                        {% if x.is_active %}
+                            <a href="{% url 'block_category' x.id %}" onclick="return confirm('Block this Product?')" class="btn btn-action btn-block" title="Block">
+                                <i class="fas fa-ban"></i>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'unblock_category' x.id %}" onclick="return confirm('Unblock this Product?')" class="btn btn-action btn-unblock" title="Unblock">
+                                <i class="fas fa-check"></i>
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <p class="h4 text-muted">No Category found</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <nav aria-label="Page navigation" class="mt-4" id="floating-nav">
+        <ul id="pagination" class="pagination justify-content-center">
+        </ul>
+      </nav>
+    </div>
+
+
+<script>
+    const itemsPerPage = 5;
+    let currentPage = 1;
+    let filteredData = [];
+  
+    const userTableBody = document.getElementById('userTableBody');
+    const paginationContainer = document.getElementById('pagination');
+    const searchInput = document.getElementById('searchInput');
+  
+    // Get all rows from the table
+    const rows = Array.from(userTableBody.querySelectorAll('tr'));
+  
+    function displayTable(page) {
+      const start = (page - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const paginatedData = filteredData.slice(start, end);
+  
+      userTableBody.innerHTML = '';
+      paginatedData.forEach(row => userTableBody.appendChild(row));
+    }
+  
+    function setupPagination(data) {
+      const pageCount = Math.ceil(data.length / itemsPerPage);
+      paginationContainer.innerHTML = '';
+  
+      for (let i = 1; i <= pageCount; i++) {
+        const li = document.createElement('li');
+        li.classList.add('page-item');
+        if (i === currentPage) li.classList.add('active');
+  
+        const a = document.createElement('a');
+        a.classList.add('page-link');
+        a.href = '#';
+        a.textContent = i;
+  
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          currentPage = i;
+          displayTable(currentPage);
+          setupPagination(data);
+        });
+  
+        li.appendChild(a);
+        paginationContainer.appendChild(li);
+      }
+    }
+  
+    function filterTable() {
+      const searchTerm = searchInput.value.toLowerCase();
+      filteredData = rows.filter(row => {
+        return Array.from(row.cells).some(cell => 
+          cell.textContent.toLowerCase().includes(searchTerm)
+        );
+      });
+  
+      currentPage = 1;
+      displayTable(currentPage);
+      setupPagination(filteredData);
+    }
+  
+    // Initial setup
+    filteredData = rows;
+    displayTable(currentPage);
+    setupPagination(filteredData);
+  
+    // Add event listener for search input
+    searchInput.addEventListener('input', filterTable);
+  </script>
+{% endblock %}v

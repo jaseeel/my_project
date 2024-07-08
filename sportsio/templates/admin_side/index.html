@@ -2,782 +2,302 @@
 
 {% block content %}
 {% load static %}
-<div class="container">
-    <div class="row">
-      <div class="col-xl-3 col-lg-3">
-        <div class="card l-bg-cherry">
-            <div class="card-statistic-3 p-4">
-                <div class="card-icon card-icon-large"><i class="fas fa-shopping-cart"></i></div>
-                <div class="mb-4">
-                    <h5 class="card-title mb-0">New Orders</h5>
-                </div>
-                <div class="row align-items-center mb-2 d-flex">
-                    <div class="col-8">
-                        <h2 class="d-flex align-items-center mb-0">
-                            {{ total_order }}
-                        </h2>
-                    </div>
-                    <div class="col-6 text-right">
-                        <span>Delivered</span>
-                        <span class="text-success">+{{ total_orders_delivered }}<i class="fa fa-arrow-up"></i></span>
-                    </div>
-                </div>
-                <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                    <div class="progress-bar l-bg-cyan" role="progressbar" data-width="25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%;"></div>
-                </div>
-            </div>
+
+<div class="container-fluid">
+  <h2 class="mb-4">Dashboard</h2>
+
+  <!-- Key Metrics -->
+  <div class="row mb-4">
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-primary text-white">
+        <div class="card-body">
+          <h5 class="card-title">New Orders</h5>
+          <h2 class="mb-0">{{ total_order }}</h2>
+          <small>Delivered: +{{ total_orders_delivered }}</small>
         </div>
-    </div>
-    <div class="col-xl-3 col-lg-3">
-        <div class="card l-bg-blue-dark">
-            <div class="card-statistic-3 p-4">
-                <div class="card-icon card-icon-large"><i class="fas fa-users"></i></div>
-                <div class="mb-4">
-                    <h5 class="card-title mb-0">Customers</h5>
-                </div>
-                <div class="row align-items-center mb-2 d-flex">
-                    <div class="col-8">
-                        <h2 class="d-flex align-items-center mb-0">
-                            {{ total_customers }}
-                        </h2>
-                    </div>
-                    <div class="col-4 text-right">
-                        <span>{{ new_users_last_week }}% <i class="fa fa-arrow-up"></i></span>
-                    </div>
-                </div>
-                <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                    <div class="progress-bar l-bg-green" role="progressbar" data-width="25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-lg-3">
-        <div class="card l-bg-green-dark">
-            <div class="card-statistic-3 p-4">
-                <div class="card-icon card-icon-large"><i class="fas fa-ticket-alt"></i></div>
-                <div class="mb-4">
-                    <h5 class="card-title mb-0">Total Products</h5>
-                </div>
-                <div class="row align-items-center mb-2 d-flex">
-                    <div class="col-8">
-                        <h2 class="d-flex align-items-center mb-0">
-                            {{ total_products }}
-                        </h2>
-                    </div>
-                    <div class="col-4 text-right">
-                        <span>5% <i class="fa fa-arrow-up"></i></span>
-                    </div>
-                </div>
-                <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                    <div class="progress-bar l-bg-orange" role="progressbar" data-width="25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-lg-3">
-        <div class="card l-bg-orange-dark">
-            <div class="card-statistic-3 p-4">
-                <div class="card-icon card-icon-large"><i class="fas fa-dollar-sign"></i></div>
-                <div class="mb-0">
-                    <h5 class="card-title mb-0">Total Revenue </h5>
-                </div>
-                <div class="row align-items-center mb-0 d-flex">
-                    <div class="col-8">
-                        <h2 class="d-flex align-items-center mb-0">
-                            ₹ {{ total_amount }}k
-                        </h2>
-                    </div>
-                    <div class="col-12 ">
-                        <span>Coupon Discounts : </span>
-                        
-                        <span style="font-weight:800;">-₹ {{ total_coupon_price }}k</span>
-                    </div>
-                </div>
-                <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                    <div class="progress-bar l-bg-cyan" role="progressbar" data-width="25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-      <div class="content">
-        <h3> Filter the sales report </h3>
-    
-        // Add this code within the form tag or wherever you want to place the date inputs and button
-    <div class="row mb-3">
-        <label class="col-sm-2 col-form-label" for="from-date">From:</label>
-        <div class="col-sm-3">
-            <input type="date" class="form-control" id="from-date" name="from_date">
-        </div>
-    </div>
-    <div class="row mb-3">
-        <label class="col-sm-2 col-form-label" for="to-date">To:</label>
-        <div class="col-sm-3">
-            <input type="date" class="form-control" id="to-date" name="to_date">
-        </div>
-    </div>
-    <button id="filter-sales-btn" class="btn btn-primary ml-2">Filter Sales</button>
-    
-    <!-- Add this script at the end of your HTML template -->
-    <script>
-        // JavaScript to handle the button click event for filtered sales report
-        document.getElementById('filter-sales-btn').addEventListener('click', function() {
-            const fromDateInput = document.getElementById('from-date');
-            const toDateInput = document.getElementById('to-date');
-            
-            // Get the current date
-            const currentDate = new Date().toISOString().split('T')[0];
-    
-            // Get the selected dates from the inputs
-            const fromDate = fromDateInput.value;
-            const toDate = toDateInput.value;
-    
-            // Check if the selected dates are in the future
-            if (fromDate > currentDate || toDate > currentDate) {
-                alert("Please enter a valid date.");
-                return; // Prevent further execution
-            }
-    
-            // Redirect to the same page with query parameters for filtered sales report
-            window.location.href = `?from_date=${fromDate}&to_date=${toDate}`;
-        });
-    </script>
-    
-    
-    <div class="mt-4">
-      <canvas id="myChart" class="chart-canvas" width="200" height="100"></canvas>
-  </div>
-  
-  
-  <style>
-  .chart-container {
-    width: 300px;
-    height: 300px;
-  }
-  </style>
-  
-  <div class="chart-container">
-    <canvas id="donut" width="300" height="300"></canvas>
-  </div>
-  <div class="container-fluid">
-    <!-- Row 1 -->
-    <div class="row">
-      <div class="col-lg-4 d-flex align-items-stretch">
-          <div class="card w-100">
-              <div class="card-body p-4">
-                  <div class="mb-4">
-                      <h5 class="card-title fw-semibold">Top Products</h5>
-                  </div>
-                  <div class="table-responsive">
-                      <table class="table table-striped">
-                          <thead>
-                              <tr>
-                                  <th>Orders Count</th>
-                                  <th>Product Name</th>
-                                  <th>Product Manufacturer</th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                              {% for product in top_products %}
-                              <tr>
-                                  <td>{{ product.total_orders}}</td>
-                                  <td>{{ product.title|truncatewords:5 }}</td>
-                                  <td>{{ product.brand }}</td>
-                              </tr>
-                              {% endfor %}
-                          </tbody>
-                      </table>
-                  </div>
-              </div>
-          </div>
       </div>
-      
-      <div class="col-lg-4 d-flex align-items-stretch">
-        <div class="card w-100">
-            <div class="card-body p-4">
-                <div class="mb-4">
-                    <h5 class="card-title fw-semibold">Top Brands</h5>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Brand Name</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for brand in top_brands %}
-                            <tr>
-                                <td>{{ brand.brand_name }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
     </div>
-    
-    <div class="col-lg-4 d-flex align-items-stretch">
-      <div class="card w-100">
-          <div class="card-body p-4">
-              <div class="mb-4">
-                  <h5 class="card-title fw-semibold">Top Categories</h5>
-              </div>
-              <div class="table-responsive">
-                  <table class="table table-striped">
-                      <thead>
-                          <tr>
-                              <th>Category Name</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          {% for category in top_categories %}
-                          <tr>
-                              <td>{{ category.name }}</td>
-                          </tr>
-                          {% endfor %}
-                      </tbody>
-                  </table>
-              </div>
-          </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-success text-white">
+        <div class="card-body">
+          <h5 class="card-title">Customers</h5>
+          <h2 class="mb-0">{{ total_customers }}</h2>
+          <small>New: +{{ new_users_last_week }}%</small>
+        </div>
       </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-warning text-white">
+        <div class="card-body">
+          <h5 class="card-title">Total Products</h5>
+          <h2 class="mb-0">{{ total_products }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-danger text-white">
+        <div class="card-body">
+          <h5 class="card-title">Total Revenue</h5>
+          <h2 class="mb-0">₹{{ total_amount }}k</h2>
+          <small>Discounts: -₹{{ total_coupon_price }}k</small>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Charts -->
+  <div class="row mb-4">
+    <div class="col-xl-8">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Sales Overview</h5>
+          <div class="mb-3">
+            <label for="time-interval" class="form-label">Filter Sales:</label>
+            <select id="time-interval" class="form-select" onchange="filterSales(this.value)">
+              <option value="all">All Time</option>
+              <option value="monthly">This Month</option>
+              <option value="yearly">This Year</option>
+            </select>
+          </div>
+          <div style="height: 300px;">
+            <canvas id="salesChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Category Distribution</h5>
+          <div style="height: 300px;">
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Top Products and Brands -->
+  <div class="row mb-4">
+    <div class="col-xl-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Top Products</h5>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Brand</th>
+                  <th>Orders</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for product in top_products %}
+                <tr>
+                  <td>{{ product.title|truncatechars:20 }}</td>
+                  <td>{{ product.brand }}</td>
+                  <td>{{ product.total_orders }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Top Brands</h5>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Brand</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for brand in top_brands %}
+                <tr>
+                  <td>{{ brand.brand_name }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  
-      
-  </div>
-    <div class="row">
-      <div class="col-lg-4">
+
+  <!-- Date Filter and Report Generation -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Generate Report</h5>
+      <form action="{% url 'generate_pdf_report' %}" method="POST" onsubmit="return validateForm()">
+        {% csrf_token %}
         <div class="row">
-          <div class="col-lg-12">
-            <!-- Yearly Breakup -->
-            <div class="card overflow-hidden">
-                <div class="card-body p-4">
-                    <h5 class="card-title mb-9 fw-semibold">Yearly Breakup</h5>
-                    <div class="row align-items-center">
-                        <div class="col-8">
-                            <!-- Display yearly revenue -->
-                            {% for revenue in yearly_revenue %}
-                            <h4 class="fw-semibold mb-3">&#8377;{{ revenue.total_revenue }}</h4>
-                            <div class="d-flex alig-items-center mb-3">
-                                <!-- You can add additional elements here if needed -->
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <div class="me-4">
-                                    <span class="round-8 bg-primary rounded-circle me-2 d-inline-block"></span>
-                                    <span class="fs-2">{{ revenue.year|date:"Y" }}</span>
-                                </div>
-                               
-                            </div>
-                            {% endfor %}
-                        </div>
-                        <div class="col-4">
-                            <div class="d-flex justify-content-center">
-                                <div id="breakup"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div class="col-md-3 mb-3">
+            <label for="report-type" class="form-label">Report Type:</label>
+            <select id="report-type" name="report_type" class="form-select" onchange="toggleDateInputs()">
+              <option value="custom">Custom Date Range</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+          <div id="custom-date-range">
+            <div class="col-md-3 mb-3">
+              <label for="from-date" class="form-label">From:</label>
+              <input type="date" class="form-control" id="from-date" name="from_date">
             </div>
+            <div class="col-md-3 mb-3">
+              <label for="to-date" class="form-label">To:</label>
+              <input type="date" class="form-control" id="to-date" name="to_date">
+            </div>
+          </div>
+          <div id="month-select" style="display: none;">
+            <div class="col-md-3 mb-3">
+              <label for="month" class="form-label">Month:</label>
+              <input type="month" class="form-control" id="month" name="month">
+            </div>
+          </div>
+          <div id="year-select" style="display: none;">
+            <div class="col-md-3 mb-3">
+              <label for="year" class="form-label">Year:</label>
+              <select id="year" name="year" class="form-select">
+                {% for year in year_range %}
+                  <option value="{{ year }}">{{ year }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="format" class="form-label">Format:</label>
+            <select id="format" name="format" class="form-select" required>
+              <option value="pdf">PDF</option>
+              <option value="excel">Excel</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">&nbsp;</label>
+            <button class="btn btn-primary w-100" type="submit">Generate Report</button>
+          </div>
         </div>
-        <div class="col-lg-12">
-          <!-- Monthly Earnings -->
-          <div class="card">
-              <div class="card-body">
-                  <div class="row align-items-start">
-                      <div class="col-8">
-                          <h5 class="card-title mb-9 fw-semibold"> Monthly Earnings </h5>
-                          <!-- Display monthly revenue -->
-                          {% for revenue in monthly_revenue %}
-                          <h4 class="fw-semibold mb-3">{{ revenue.month|date:"M"}} : &#8377;{{ revenue.total_revenue }} </h4>
-                          <div class="d-flex align-items-center pb-1">
-                              <!-- You can add additional elements here if needed -->
-                          </div>
-                          {% endfor %}
-                      </div>
-                      <div class="col-4">
-                          <div class="d-flex justify-content-end">
-                              <div class="text-white bg-secondary rounded-circle p-6 d-flex align-items-center justify-content-center">
-                                  <i class="ti ti-currency-dollar fs-6"></i>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-            <div id="earning"></div>
-      </div>
-        </div>
-      </div>
+      </form>
     </div>
-    
   </div>
-  <div class="mt-5">
-    <h2>Order Report</h2>
-  </div>
-  
-  <form action="{% url 'generate_pdf_report' %}" method="POST" onsubmit="return validateDate()">
-    {% csrf_token %}
-    <div class="row mb-3">
-        <label class="col-sm-2 col-form-label" for="from-date">From:</label>
-        <div class="col-sm-3">
-            <input type="date" class="form-control" id="from-date" name="from_date">
-        </div>
-    </div>
-    <div class="row mb-3">
-        <label class="col-sm-2 col-form-label" for="to-date">To:</label>
-        <div class="col-sm-3">
-            <input type="date" class="form-control" id="to-date" name="to_date">
-        </div>
-    </div>
-    <div style="margin-bottom:15px;">
-        <label for="format">Choose Format:</label>
-        <select id="format" name="format" required>
-            <option value="pdf">PDF</option>
-            <option value="excel">Excel</option>
-        </select><br>
-    </div>
-        <button class="btn btn-primary ml-2" type="submit">Generate Report</button>
-  </form>
-  
-  
-  
-  
-  <script src="{% static 'assets/admin_side/libs/jquery/dist/jquery.min.js' %}"></script>
-  <script src="{% static 'assets/admin_side/libs/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
-  <script src="{% static 'assets/admin_side/js/sidebarmenu.js' %}"></script>
-  <script src="{% static 'assets/admin_side/js/app.min.js' %}"></script>
-  <script src="{% static 'assets/admin_side/libs/apexcharts/dist/apexcharts.min.js' %}"></script>
-  <script src="{% static 'assets/admin_side/libs/simplebar/dist/simplebar.js' %}"></script>
-  <script src="{% static 'assets/admin_side/js/dashboard.js' %}"></script>
-  <script>
-  document.addEventListener("DOMContentLoaded", function () {
-      // Populate yearly revenue
-      var yearlyRevenue = {{ yearly_revenue.total_revenue|default:0 }};
-      document.getElementById("yearly-revenue").innerText = "$" + yearlyRevenue.toFixed(2);
-      // Populate monthly revenue
-      var monthlyRevenue = {{ monthly_revenue.total_revenue|default:0 }};
-      if (document.getElementById("monthly-revenue")) {
-          document.getElementById("monthly-revenue").innerText = "$" + monthlyRevenue.toFixed(2);
-      } else {
-          console.error("Element with ID 'monthly-revenue' not found.");
-      }
-      // Render ApexCharts for yearly breakup and monthly earnings
-      var breakup = {
-          color: "#adb5bd",
-          series: [38, 40, 25],
-          labels: ["2022", "2021", "2020"],
-          chart: {
-              width: 180,
-              type: "donut",
-              fontFamily: "Plus Jakarta Sans', sans-serif",
-              foreColor: "#adb0bb",
-          },
-          plotOptions: {
-              pie: {
-                  startAngle: 0,
-                  endAngle: 360,
-                  donut: {
-                      size: '75%',
-                  },
-              },
-          },
-          stroke: {
-              show: false,
-          },
-          dataLabels: {
-              enabled: false,
-          },
-          legend: {
-              show: false,
-          },
-          colors: ["#5D87FF", "#ecf2ff", "#F9F9FD"],
-          responsive: [{
-              breakpoint: 991,
-              options: {
-                  chart: {
-                      width: 150,
-                  },
-              },
-          }, ],
-          tooltip: {
-              theme: "dark",
-              fillSeriesColor: false,
-          },
-      };
-      var chart = new ApexCharts(document.querySelector("#breakup"), breakup);
-      console.log(chart,'chart is showing')
+</div>
 
-      chart.render();
-      var earning = {
-          chart: {
-              id: "sparkline3",
-              type: "area",
-              height: 60,
-              sparkline: {
-                  enabled: true,
-              },
-              group: "sparklines",
-              fontFamily: "Plus Jakarta Sans', sans-serif",
-              foreColor: "#adb0bb",
-          },
-          series: [{
-              name: "Earnings",
-              color: "#49BEFF",
-              data: [25, 66, 20, 40, 12, 58, 20],
-          }, ],
-          stroke: {
-              curve: "smooth",
-              width: 2,
-          },
-          fill: {
-              colors: ["#f3feff"],
-              type: "solid",
-              opacity: 0.05,
-          },
-          markers: {
-              size: 0,
-          },
-          tooltip: {
-              theme: "dark",
-              fixed: {
-                  enabled: true,
-                  position: "right",
-              },
-              x: {
-                  show: false,
-              },
-          },
-      };
-      new ApexCharts(document.querySelector("#monthly-earning"), earning).render();
-  });
-  </script> 
-  <script>
-    function validateDate() {
-        var fromDate = new Date(document.getElementById('from-date').value);
-        var toDate = new Date(document.getElementById('to-date').value);
-        var today = new Date();
-  
-        if (fromDate > today || toDate > today) {
-            alert('Please enter a valid date.');
-            return false;  // Prevent the form from submitting
-        }
-  
-        if (fromDate > toDate) {
-            alert('From date cannot be after To date.');
-            return false;  // Prevent the form from submitting
-        }
-  
-        return true;  // Allow the form to submit
-    }
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  let salesChart;
 
-
-
-  <!----> <script>
-    $(function () {
-        // =====================================
-        // Profit
-        // =====================================
-        var monthlyRevenueData = []; // Placeholder for monthly revenue data
-        var yearlyRevenueData = []; // Placeholder for yearly revenue data
-
-        // Populate monthly and yearly revenue data from backend
-        {% for item in monthly_revenue %}
-            monthlyRevenueData.push({ month: "{{ item.month }}", total_revenue: {{ item.total_revenue }} });
-        {% endfor %}
-
-        {% for item in yearly_revenue %}
-            yearlyRevenueData.push({ year: "{{ item.year }}", total_revenue: {{ item.total_revenue }} });
-        {% endfor %}
-
-        var profitChartOptions = {
-            series: [
-                { name: "Monthly Revenue", data: monthlyRevenueData.map(item => item.total_revenue) },
-                { name: "Expense this month:", data: [280, 250, 325, 215, 250, 310, 280, 250] },
-            ],
-            chart: {
-                type: "bar",
-                height: 345,
-                offsetX: -15,
-                toolbar: { show: true },
-                foreColor: "#adb0bb",
-                fontFamily: 'inherit',
-                sparkline: { enabled: false },
-            },
-            colors: ["#5D87FF", "#49BEFF"],
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    columnWidth: "35%",
-                    borderRadius: [6],
-                    borderRadiusApplication: 'end',
-                    borderRadiusWhenStacked: 'all'
-                },
-            },
-            markers: { size: 0 },
-            dataLabels: {
-                enabled: false,
-            },
-            legend: {
-                show: false,
-            },
-            grid: {
-                borderColor: "rgba(0,0,0,0.1)",
-                strokeDashArray: 3,
-                xaxis: {
-                    lines: {
-                        show: false,
-                    },
-                },
-            },
-            xaxis: {
-                type: "category",
-                categories: monthlyRevenueData.map(item => item.month),
-                labels: {
-                    style: { cssClass: "grey--text lighten-2--text fill-color" },
-                },
-            },
-            yaxis: {
-                show: true,
-                min: 0,
-                max: 400,
-                tickAmount: 4,
-                labels: {
-                    style: {
-                        cssClass: "grey--text lighten-2--text fill-color",
-                    },
-                },
-            },
-            stroke: {
-                show: true,
-                width: 3,
-                lineCap: "butt",
-                colors: ["transparent"],
-            },
-            tooltip: { theme: "light" },
-            responsive: [
-                {
-                    breakpoint: 600,
-                    options: {
-                        plotOptions: {
-                            bar: {
-                                borderRadius: 3,
-                            }
-                        },
-                    }
-                }
-            ]
-        };
-
-        var profitChart = new ApexCharts(document.querySelector("#chart"), profitChartOptions);
-        profitChart.render();
-
-        // =====================================
-        // Breakup
-        // =====================================
-        var breakupOptions = {
-            color: "#adb5bd",
-            series: [38, 40, 25],
-            labels: ["2022", "2021", "2020"],
-            chart: {
-                width: 180,
-                type: "donut",
-                fontFamily: "Plus Jakarta Sans', sans-serif",
-                foreColor: "#adb0bb",
-            },
-            plotOptions: {
-                pie: {
-                    startAngle: 0,
-                    endAngle: 360,
-                    donut: {
-                        size: '75%',
-                    },
-                },
-            },
-            stroke: {
-                show: false,
-            },
-            dataLabels: {
-                enabled: false,
-            },
-            legend: {
-                show: false,
-            },
-            colors: ["#5D87FF", "#ecf2ff", "#F9F9FD"],
-            responsive: [
-                {
-                    breakpoint: 991,
-                    options: {
-                        chart: {
-                            width: 150,
-                        },
-                    },
-                },
-            ],
-            tooltip: {
-                theme: "dark",
-                fillSeriesColor: false,
-            },
-        };
-
-        var breakupChart = new ApexCharts(document.querySelector("#breakup"), breakupOptions);
-        breakupChart.render();
-
-        // =====================================
-        // Earning
-        // =====================================
-        var earningOptions = {
-            chart: {
-                id: "sparkline3",
-                type: "area",
-                height: 60,
-                sparkline: {
-                    enabled: true,
-                },
-                group: "sparklines",
-                fontFamily: "Plus Jakarta Sans', sans-serif",
-                foreColor: "#adb0bb",
-            },
-            series: [
-                {
-                    name: "Earnings",
-                    color: "#49BEFF",
-                    data: [25, 66, 20, 40, 12, 58, 20],
-                },
-            ],
-            stroke: {
-                curve: "smooth",
-                width: 2,
-            },
-            fill: {
-                colors: ["#f3feff"],
-                type: "solid",
-                opacity: 0.05,
-            },
-            markers: {
-                size: 0,
-            },
-            tooltip: {
-                theme: "dark",
-                fixed: {
-                    enabled: true,
-                    position: "right",
-                },
-                x: {
-                    show: false,
-                },
-            },
-        };
-
-        new ApexCharts(document.querySelector("#earning"), earningOptions).render();
-    });
-    </script> 
-
-  <script>
-    // const lab = JSON.parse(`{{ labels|safe }}`);
-    // const da = JSON.parse(`{{ data|safe }}`);
-    
-    const cx = document.getElementById('donut');
-    new Chart(cx, {
-    type: 'doughnut',
-    data: {
-    labels: JSON.parse(`{{ category_labels|safe }}`),
-    datasets: [{
-        label: 'Number of Products',
-        data: JSON.parse(`{{ category_data|safe }}`),               
-        borderWidth: 1
-    }]
-    },
-    options: {
-    // Your additional options...
-    }
-    });
-    
-    </script>
-    
-   <script>
-  const labels = JSON.parse(`{{ labels|safe }}`);
-  const data = JSON.parse(`{{ data|safe }}`);
-  
-  const ctx = document.getElementById('myChart');
-  const myChart = new Chart(ctx, {
+  function initSalesChart(labels, data) {
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
+    salesChart = new Chart(salesCtx, {
       type: 'bar',
       data: {
-          labels: labels,
-          datasets: [{
-              label: 'Order Amounts',
-              data: data,
-              borderWidth: 1
-          }]
+        labels: labels,
+        datasets: [{
+          label: 'Sales',
+          data: data,
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgb(75, 192, 192)',
+          borderWidth: 1
+        }]
       },
       options: {
-          scales: {
-              y: {
-                  beginAtZero: true
-              }                                                  
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
           }
+        }
       }
-  });
-  
-  // Listen for changes in the dropdown and reload the page with the selected time interval
-  const timeIntervalDropdown = document.getElementById('time-interval');
-  timeIntervalDropdown.addEventListener('change', function() {
-      const selectedValue = timeIntervalDropdown.value;
-      // Reload the page with the selected time interval as a query parameter
-      window.location.href = `?time_interval=${selectedValue}`;                                  
-  });
-  
-   </script>
-    
-    <script>
-    function filterSales(interval) {
-    // Make an AJAX request to the Django view
-    fetch(`/dashboard/?time_interval=${interval}`, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+    });
+  }
+
+  function updateSalesChart(labels, data) {
+    salesChart.data.labels = labels;
+    salesChart.data.datasets[0].data = data;
+    salesChart.update();
+  }
+
+  function filterSales(interval) {
+    fetch(`/dashboard/?interval=${interval}`, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
     .then(response => response.json())
     .then(data => {
-        // Update the chart with the new data
-        monthlySalesChart.data.labels = data.labels;
-        monthlySalesChart.data.datasets[0].data = data.data;
-        monthlySalesChart.update();
+      updateSalesChart(data.labels, data.data);
     })
     .catch(error => console.error('Error:', error));
-    }
-    
-    const monthlyLabels = {{ monthly_labels|safe }};
-    const monthlyData = {{ monthly_data|safe }};
-    
-    // Create a bar chart
-    const x = document.getElementById('monthlySalesChart').getContext('2d');
-    const monthlySalesChart = new Chart(x, {
-    type: 'bar',
+  }
+
+  initSalesChart({{ labels|safe }}, {{ data|safe }});
+
+  const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+  new Chart(categoryCtx, {
+    type: 'doughnut',
     data: {
-    labels: monthlyLabels,
-    datasets: [{
-        label: 'Monthly Sales',
-        data: monthlyData,
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1
-    }]
+      labels: {{ category_labels|safe }},
+      datasets: [{
+        data: {{ category_data|safe }},
+        backgroundColor: [
+          'rgb(255, 99, 132)',
+          'rgb(54, 162, 235)',
+          'rgb(255, 205, 86)',
+          'rgb(75, 192, 192)',
+          'rgb(153, 102, 255)'
+        ]
+      }]
     },
     options: {
-    scales: {
-        y: {
-            beginAtZero: true
-        }
+      responsive: true,
+      maintainAspectRatio: false
     }
+  });
+
+  function toggleDateInputs() {
+    const reportType = document.getElementById('report-type').value;
+    const customDateRange = document.getElementById('custom-date-range');
+    const monthSelect = document.getElementById('month-select');
+    const yearSelect = document.getElementById('year-select');
+
+    customDateRange.style.display = reportType === 'custom' ? 'block' : 'none';
+    monthSelect.style.display = reportType === 'monthly' ? 'block' : 'none';
+    yearSelect.style.display = reportType === 'yearly' ? 'block' : 'none';
+  }
+
+  function validateForm() {
+    const reportType = document.getElementById('report-type').value;
+    const fromDate = document.getElementById('from-date').value;
+    const toDate = document.getElementById('to-date').value;
+    const month = document.getElementById('month').value;
+    const year = document.getElementById('year').value;
+
+    if (reportType === 'custom' && (!fromDate || !toDate)) {
+      alert('Please select both From and To dates for custom range.');
+      return false;
     }
-    });
-    </script>>
+
+    if (reportType === 'monthly' && !month) {
+      alert('Please select a month.');
+      return false;
+    }
+
+    if (reportType === 'yearly' && !year) {
+      alert('Please select a year.');
+      return false;
+    }
+
+    return true;
+  }
+
+  toggleDateInputs();
+</script>
 {% endblock %}
-    <div style="margin-bottom:15px;">
-    <label for="format">Choose Format:</label>
-    <select id="format" name="format" required>
-        <option value="pdf">PDF</option>
-        <option value="excel">Excel</option>
-    </select><br>
-</div>
-    <button class="btn btn-primary ml-2" type="submit">Generate Report</button>

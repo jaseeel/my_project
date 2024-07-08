@@ -1,83 +1,223 @@
+{% extends 'admin_side/base.html' %}
 
- {% extends 'admin_side/base.html' %}  
+{% block content %}
+<style>
+    .product-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+    .table {
+        border-collapse: separate;
+        border-spacing: 0 15px;
+    }
+    .table tr {
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    .table tr:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .table td, .table th {
+        border: none;
+        padding: 15px;
+        vertical-align: middle;
+    }
+    .btn-action {
+        margin-bottom:15px;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+    .btn-update { background-color: #3498db; color: white; }
+    .btn-block { background-color: #e74c3c; color: white; }
+    .btn-unblock { background-color: #2ecc71; color: white; }
+    .btn-delete { background-color: #95a5a6; color: white; }
+    .btn-action:hover { transform: scale(1.1); }
+    .search-box {
+        max-width: 300px;
+        margin-bottom: 20px;
+    }
+    .search-box .input-group {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .search-box input {
+        border: none;
+        padding: 10px 15px;
+    }
+    .search-box .btn {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+    }
+    #floating-nav {
+        position: fixed;
+        bottom: 0; /* Adjust as needed */
+        left:91px; /* Adjust as needed */
+        width: 100%; /* Adjust as needed */
+        z-index: 9999; /* Ensure it floats above other content */
+    }
+</style>
 
-    {% block content %}   
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h5 class="card-title">Products Management</h5>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'add_product' %}" class="btn btn-action" style="background-color: #27ae60; color: white;">
+                <i class="fas fa-plus"></i> Add Product
+            </a>
+        </div>
+        <div class="col-auto">
+            <form class="search-box" method="get">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Search products..." value="{{ search_query }}">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    {% comment %} Product Image view size {% endcomment %}
-  <style>
-      .product-image {
-          width: 1.5in; /* Set the width to 8 inches */
-          height: 1.5 in; /* Set the height to 10 inches */
-      }
-      .btn {
-            margin:2px;
-      }
-  </style>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                {% for product in products %}
+                <tr>
+                    <td>
+                        <img src="{{ product.image.url }}" alt="{{ product.title }}" class="product-image me-3">
+                        {{ product.title|truncatechars:20 }}
+                    </td>
+                    <td>{{ product.category }}</td>
+                    <td>₹{{ product.price }}</td>
+                    <td>{{ product.stock_count }}</td>
+                    <td>
+                        {% if product.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'edit' product.id %}" class="btn btn-action btn-update" title="Update">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                        {% if product.is_active %}
+                            <a href="{% url 'block_product' product.id %}" onclick="return confirm('Block this Product?')" class="btn btn-action btn-block" title="Block">
+                                <i class="fas fa-ban"></i>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'unblock_product' product.id %}" onclick="return confirm('Unblock this Product?')" class="btn btn-action btn-unblock" title="Unblock">
+                                <i class="fas fa-check"></i>
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'delete_product' product.id %}" onclick="return confirm('Delete this Product?')" class="btn btn-action btn-delete" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <p class="h4 text-muted">No products found</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <nav aria-label="Page navigation" class="mt-4" id="floating-nav">
+        <ul id="pagination" class="pagination justify-content-center">
+        </ul>
+      </nav>
+    </div>
 
 
-    
- 
-  <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5 class="card-title fw-semibold mb-4">Products Management</h5>
-        <button type="button" class="btn btn-success">
-            <a href="{% url 'add_product' %}" style="color: white; text-decoration: none;">Add Product</a>
-        </button>
-  </div>
-        <div class="table-responsive"> <!-- Add this div to make the table responsive -->
-            <table class="table table-bordered">
-                <thead>
-                  <tr style="align-items: center;">
-                        <th>Image</th>
-                        <th>Title</th>
-                        <th>Category</th>
-                        <th>Description</th>
-                        <th>Price</th>
-                        <th>Brand</th>
-                        <th>Status</th>
-                        <th>Stock Count</th>
-                        <th>Active</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product in products %}
-                    <tr style="align-items: center;">
-                        <td style="vertical-align: middle;"><img src="{{ product.image.url }}" alt="{{ product.title }}" class="product-image "></td>
-                        <td style="vertical-align: middle;">{{ product.title|truncatewords:5}}</td>
-                        <td style="vertical-align: middle;">{{ product.category }}</td>
-                        <td style="vertical-align: middle;">{{ product.description|truncatewords:2 }}</td>
-                        <td style="vertical-align: middle;">{{ product.price }}</td>
-                        <td style="vertical-align: middle;">{{ product.brand }}</td>
-                        <td style="vertical-align: middle;">{{ product.status }}</td>
-                        <td style="vertical-align: middle;">{{ product.stock_count }}</td>
-                        <td style="vertical-align: middle;">{{ product.is_active }}</td>
-                        <td style="vertical-align: middle;">{{ product.offer_price }}</td>
-                        <td style="vertical-align: middle;">
-                          <div class="d-flex justify-content-between align-items-center buttonser">
-                              <a href="{% url 'edit' product.id %}" class="btn btn-secondary btn-sm" role="button">Update</a>
-                              {% if product.is_active %}
-                                  <a href="{% url 'block_product' product.id %}"  onclick="return confirm('Are you sure you want to Block this Product ?')" class="btn btn-secondary btn-sm" role="button">Block</a>
-                              {% else %}
-                                  <a href="{% url 'unblock_product' product.id %}"  onclick="return confirm('Are you sure you want to Unblock this Product ?')" class="btn btn-secondary btn-sm" role="button">Unblock</a>
-                              {% endif %}
-                              <a href="{% url 'delete_product' product.id %}"  onclick="return confirm('Are you sure you want to Delete this Product ?')" class="btn btn-secondary btn-sm" role="button">Delete</a>
-                          </div>
-                      </td>
-                      
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div> <!-- Close the table-responsive div -->
-       
-    </div> <!-- Close the card-body div -->
-
-
-                
-     
-
-
+<script>
+    const itemsPerPage = 6;
+    let currentPage = 1;
+    let filteredData = [];
   
-    {% endblock %}
-       
+    const userTableBody = document.getElementById('userTableBody');
+    const paginationContainer = document.getElementById('pagination');
+    const searchInput = document.getElementById('searchInput');
+  
+    // Get all rows from the table
+    const rows = Array.from(userTableBody.querySelectorAll('tr'));
+  
+    function displayTable(page) {
+      const start = (page - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const paginatedData = filteredData.slice(start, end);
+  
+      userTableBody.innerHTML = '';
+      paginatedData.forEach(row => userTableBody.appendChild(row));
+    }
+  
+    function setupPagination(data) {
+      const pageCount = Math.ceil(data.length / itemsPerPage);
+      paginationContainer.innerHTML = '';
+  
+      for (let i = 1; i <= pageCount; i++) {
+        const li = document.createElement('li');
+        li.classList.add('page-item');
+        if (i === currentPage) li.classList.add('active');
+  
+        const a = document.createElement('a');
+        a.classList.add('page-link');
+        a.href = '#';
+        a.textContent = i;
+  
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          currentPage = i;
+          displayTable(currentPage);
+          setupPagination(data);
+        });
+  
+        li.appendChild(a);
+        paginationContainer.appendChild(li);
+      }
+    }
+  
+    function filterTable() {
+      const searchTerm = searchInput.value.toLowerCase();
+      filteredData = rows.filter(row => {
+        return Array.from(row.cells).some(cell => 
+          cell.textContent.toLowerCase().includes(searchTerm)
+        );
+      });
+  
+      currentPage = 1;
+      displayTable(currentPage);
+      setupPagination(filteredData);
+    }
+  
+    // Initial setup
+    filteredData = rows;
+    displayTable(currentPage);
+    setupPagination(filteredData);
+  
+    // Add event listener for search input
+    searchInput.addEventListener('input', filterTable);
+  </script>
+{% endblock %}

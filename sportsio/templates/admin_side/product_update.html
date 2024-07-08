@@ -1,174 +1,249 @@
-{% extends 'admin_side/base.html' %}  
+{% extends 'admin_side/base.html' %}
 
-    {% block content %}   
-      <!--  Header End -->
-      <div class="container-fluid">
-        <div class="container-fluid">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title fw-semibold mb-4">Add Products</h5>
-              <div class="card mb-0">
-                <div class="card-body p-4">
-                    <div class="container">
-                        <style>
-                            form {
-                                max-width: 600px;
-                                margin: 0 auto;
-                                padding: 20px;
-                                border: 1px solid #ccc;
-                                border-radius: 5px;
-                                background-color: #f9f9f9;
-                            }
-                        
-                            label {
-                                font-weight: bold;
-                            }
-                        
-                            input[type="text"],
-                            input[type="number"],
-                            select,
-                            textarea {
-                                width: 100%;
-                                padding: 8px;
-                                margin: 5px 0;
-                                border: 1px solid #ccc;
-                                border-radius: 4px;
-                                box-sizing: border-box;
-                            }
-                        
-                            input[type="checkbox"] {
-                                margin-top: 10px;
-                            }
-                        
-                            button[type="submit"] {
-                                background-color: #4CAF50;
-                                color: white;
-                                padding: 12px 20px;
-                                border: none;
-                                border-radius: 4px;
-                                cursor: pointer;
-                                width: 100%;
-                            }
-                        
-                            button[type="submit"]:hover {
-                                background-color: #45a049;
-                            }
-                        </style>
-                        <!-- Form with Bootstrap Alerts -->
-                        <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
-                          {% csrf_token %}
-                          <!-- Product Fields -->
-                          <label for="title">Title:</label><br>
-                          <input type="text" id="title" name="title" required value="{{product.title}}"><br><br>
-                  
-                          <label for="category">Category:</label><br>
-                          <select id="category" name="category" required>
-                              {% for category in categories %}
-                              <option value="{{ category.id }}">{{ category.name }}</option>
-                              {% endfor %}
-                          </select><br><br>
-                          <label for="description">Description:</label><br>
-                          <textarea id="description" name="description" rows="4" cols="50">{{product.description}}</textarea><br><br>
-
-                  
-                          <label for="price">Price:</label><br>
-                          <input type="number" id="price" name="price" value="{{product.price}}"><br><br>
-                  
-                          <label for="brand">Brand:</label><br>
-                          <select id="brand" name="brand" required>
-                              {% for choice in brand %}
-                              <option value="{{ choice.id }}">{{ choice.brand_name }}</option>
-                              {% endfor %}
-                          </select><br><br>
-                  
-                          <label for="status">Status:</label><br>
-                          <select id="status" name="status" required>
-                              {% for choice in status_choices %}
-                              <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-                              {% endfor %}
-                          </select><br><br>
-                  
-                          <label for="stock_count">Stock Count:</label><br>
-                          <input type="number" id="stock_count" name="stock_count" value="{{product.stock_count}}"><br><br>
-
-                          <label for="image">Image:</label><br>
-                          <div id="imageContainer">
-                              <img src="{{ product.image.url }}" style="max-width: 200px; height: auto;" alt="">
-                          </div>
-                          <input type="file" id="image" name="image" accept="image/*" value="{{ product.image.url }}"  onchange="showImage()"><br><br>
-                  
-                          <label for="weight">Weight:</label><br>
-                          <input type="number" id="weight" name="weight" step="0.01" value="{{product.weight}}"><br><br>
-                  
-
-                  
-                          <label for="available">Available:</label>
-                          <input type="checkbox" id="available" name="available" value="{{product.available}}"><br><br>
-                  
-                          <label for="featured">Featured:</label>
-                          <input type="checkbox" id="featured" name="featured" {% if product.featured %} checked {% endif %}><br><br>
-
-                          
-                         
-                          <label for="offer_price">Offer Price:</label>
-                          <input type="number" id="offer_price" value="{{ product.offer_price }}" name="offer_price"><br><br>
-            
-                  
-                          <!-- Product Image Fields -->
-                          <div class="form-group">
-                            <label>Add multiple images</label>
-                            <div>
-                                <input class="form-control" type="file"
-                                       placeholder="Select images"
-                                       name="images"
-                                       accept=".jpg, .jpeg, .gif, .png, .webp"
-                                       multiple >
-                                <small class="form-text text-muted">Max. file size: 10 MB. Allowed images: jpg, gif, png.</small>
-                            </div>
-                        </div>
-                          <!-- Other Product Image Fields -->
-                          <!-- Add fields for the product (if any), like the product selection dropdown -->
-                  
-                          <button style="margin-bottom:20px" type="submit">Submit</button>
-                          <button type="button" onclick="window.history.back()">Cancel</button>
-                      </form>
-                  
-                      <!-- End Form -->
-                  </div>
-              </div>
-            </div>
-          </div>
-        </div>
+{% block content %}
+<style>
+    .product-form-container {
+        min-height: 100vh;
+        padding: 2rem;
+        background: #f8f9fa;
+    }
+    .product-form {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .product-form h2 {
+        text-align: center;
+        color: #007bff;
+        margin-bottom: 1.5rem;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+    }
+    .btn-submit {
+        margin-top:5px;
+        width: 100%;
+        padding: 0.75rem;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    .btn-submit:hover {
+        background: #0056b3;
+    }
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .checkbox-group label {
+        margin-left: 0.5rem;
+    }
+    .error-message {
+        color: red;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+    }
+</style>
+<div class="product-form-container">
+  <form id="productForm" class="product-form" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+      {% csrf_token %}
+      <h2>EDIT PRODUCT</h2>
+      
+      <div class="form-group">
+          <input type="text" class="form-control" id="title" name="title" value="{{product.title}}" placeholder="Title">
+          <div id="titleError" class="error-message"></div>
       </div>
-    </div>
-  </div>
+      
+      <div class="form-group">
+          <label for="category">Category:</label>
+          <select class="form-control" id="category" name="category">
+              {% for category in categories %}
+              <option value="{{ category.id }}" {% if product.category.id == category.id %}selected{% endif %}>{{ category.name }}</option>
+              {% endfor %}
+          </select>
+      </div>
+      
+      <div class="form-group">
+          <textarea class="form-control" id="description" name="description" rows="4" placeholder="Description (minimum 100 words)">{{product.description}}</textarea>
+          <div id="descriptionError" class="error-message"></div>
+      </div>
+      
+      <div class="form-group">
+          <input type="number" class="form-control" value="{{product.price}}" id="price" name="price" placeholder="Price" required>
+          <div id="priceError" class="error-message"></div>
+      </div>
+      
+      <div class="form-group">
+          <label for="brand">Brand:</label>
+          <select class="form-control" id="brand" name="brand">
+              {% for choice in brand %}
+              <option value="{{ choice.id }}" {% if product.brand.id == choice.id %}selected{% endif %}>{{ choice.brand_name }}</option>
+              {% endfor %}
+          </select>
+      </div>
+      
+      <div class="form-group">
+          <label for="status">Status:</label>
+          <select class="form-control" id="status" name="status">
+              {% for choice in status_choices %}
+              <option value="{{ choice.0 }}" {% if product.status == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+              {% endfor %}
+          </select>
+      </div>
+      
+      <div class="form-group">
+          <input type="number" value="{{product.stock_count}}" class="form-control" id="stock_count" name="stock_count" placeholder="Stock Count" required>
+          <div id="stockCountError" class="error-message"></div>
+      </div>
+      
+      <div class="form-group">
+          <div id="imageContainer">
+              <img src="{{ product.image.url }}" style="max-width: 200px; height: auto;" alt="">
+          </div> 
+          <input type="file" class="form-control" id="image" name="image" accept="image/*" onchange="showImage()">
+          <div id="imageError" class="error-message"></div>
+      </div>     
+      
+      <div class="form-group">
+          <input type="number" value="{{product.weight}}" class="form-control" id="weight" name="weight" step="0.01" placeholder="Weight" required>
+      </div>
+      
+      <div class="checkbox-group">
+          <input {% if product.featured %}checked{% endif %} type="checkbox" id="featured" name="featured">
+          <label for="featured">Featured</label>
+      </div>
+      
+      <div class="checkbox-group">
+          <input {% if product.available %}checked{% endif %} type="checkbox" id="available" name="available">
+          <label for="available">Available</label>
+      </div>
+      
+      <div class="form-group">
+          <input value="{{ product.offer_price }}" type="number" class="form-control" id="offer_price" name="offer_price" placeholder="Offer Price" required>
+          <div id="offerPriceError" class="error-message"></div>
+      </div>
+      
+      <div class="form-group">
+          <input type="file" class="form-control" id="multipleImages" name="images" accept="image/*" multiple>
+          <small class="form-text text-muted">Max. file size: 10 MB. Allowed images: jpg, gif, png, webp.</small>
+          <div id="multipleImagesError" class="error-message"></div>
+      </div>
+      
+      <button type="submit" class="btn-submit">Edit Product</button>
+      <button type="button" class="btn-submit" onclick="window.history.back()">Cancel</button>
+  </form>
+</div>
+
 
 <script>
   function showImage() {
     var input = document.getElementById("image");
     var reader = new FileReader();
     reader.onload = function(e) {
-        var img = document.createElement("img");
-        img.src = e.target.result;
-        img.style.maxWidth = "200px";
-        img.style.height = "auto";
-        document.querySelector("#imageContainer").innerHTML = ""; // Clear existing image
-        document.querySelector("#imageContainer").appendChild(img); // Append the new image
+      var img = document.createElement("img");
+      img.src = e.target.result;
+      img.style.maxWidth = "200px";
+      img.style.height = "auto";
+      document.querySelector("#imageContainer").innerHTML = ""; // Clear existing image
+      document.querySelector("#imageContainer").appendChild(img); // Append the new image
     };
     reader.readAsDataURL(input.files[0]);
-}
-
+  }
 
   function validateForm() {
-    var stockCount = document.getElementById('stock_count').value;
+    let isValid = true;
 
+    // Title validation
+    const title = document.getElementById('title').value.trim();
+    const titleError = document.getElementById('titleError');
+    if (title === '' || /[!@#$%^&*(),.?":{}|<>]/.test(title)) {
+      titleError.textContent = "Title must not be empty and cannot contain symbols";
+      isValid = false;
+    } else {
+      titleError.textContent = "";
+    }
 
-    // Validate stock count
+    // Description validation
+    const description = document.getElementById('description').value.trim();
+    const descriptionError = document.getElementById('descriptionError');
+    if (description === '' || description.split(/\s+/).length < 5) {
+      descriptionError.textContent = "Description must not be empty and should contain at least 10 words";
+      isValid = false;
+    } else {
+      descriptionError.textContent = "";
+    }
 
+    // Price validation
+    const price = parseFloat(document.getElementById('price').value);
+    const priceError = document.getElementById('priceError');
+    if (isNaN(price) || price < 0) {
+      priceError.textContent = "Price must be a non-negative number";
+      isValid = false;
+    } else {
+      priceError.textContent = "";
+    }
 
-    // You can add more validations here if needed
+    // Offer price validation
+    const offerPrice = parseFloat(document.getElementById('offer_price').value);
+    const offerPriceError = document.getElementById('offerPriceError');
+    if (isNaN(offerPrice) || offerPrice < 0) {
+      offerPriceError.textContent = "Offer price must be a non-negative number";
+      isValid = false;
+    } else {
+      offerPriceError.textContent = "";
+    }
 
-    return true; // Form submission allowed
+    // Stock count validation
+    const stockCount = document.getElementById('stock_count').value;
+    const stockCountError = document.getElementById('stockCountError');
+    if (!/^\d+$/.test(stockCount) || parseInt(stockCount) < 0) {
+      stockCountError.textContent = "Stock count must be a non-negative number";
+      isValid = false;
+    } else {
+      stockCountError.textContent = "";
+    }
+
+    // Image validation
+    const image = document.getElementById('image');
+    const imageError = document.getElementById('imageError');
+    if (image.files.length > 0 && !image.files[0].type.startsWith('image/')) {
+      imageError.textContent = "Please select a valid image file";
+      isValid = false;
+    } else {
+      imageError.textContent = "";
+    }
+
+    // Multiple images validation
+    const multipleImages = document.querySelector('input[name="images"]');
+    const multipleImagesError = document.getElementById('multipleImagesError');
+    let allFilesAreImages = true;
+    for (let i = 0; i < multipleImages.files.length; i++) {
+      if (!multipleImages.files[i].type.startsWith('image/')) {
+        allFilesAreImages = false;
+        break;
+      }
+    }
+    if (!allFilesAreImages) {
+      multipleImagesError.textContent = "Please select only image files";
+      isValid = false;
+    } else {
+      multipleImagesError.textContent = "";
+    }
+
+    return isValid;
   }
 </script>
 {% endblock %}

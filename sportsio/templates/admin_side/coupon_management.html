@@ -1,9 +1,64 @@
-{% extends "admin_side/base.html"%}
+{% extends 'admin_side/base.html' %}
+
 {% block content %}
-<div class="card">
-    <div class="card-body p-4">
-        <button class="btn btn-primary btn-sm"><a href="{% url "add_coupon"%}">Add Coupon</a></button>
-        <table class="table table-hover">
+<style>
+    .product-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+    .table {
+        border-collapse: separate;
+        border-spacing: 0 15px;
+    }
+    .table tr {
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    .table tr:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .table td, .table th {
+        border: none;
+        padding: 15px;
+        vertical-align: middle;
+    }
+    .btn-action {
+        margin-bottom:15px;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+    .btn-update { background-color: #3498db; color: white; }
+    .btn-block { background-color: #e74c3c; color: white; }
+    .btn-unblock { background-color: #2ecc71; color: white; }
+    .btn-delete { background-color: #95a5a6; color: white; }
+    .btn-action:hover { transform: scale(1.1); }
+    .search-box {
+        max-width: 300px;
+        margin-bottom: 20px;
+    }
+
+</style>
+
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h5 class="card-title">Coupons Management</h5>
+        </div>
+        <div class="col-auto">
+            <a href="{% url "add_coupon"%}" class="btn btn-action" style="background-color: #27ae60; color: white;">
+                <i class="fas fa-plus"></i> Add Coupon
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
             <thead>
                 <tr>
                     <th>Coupon Code</th>
@@ -16,25 +71,35 @@
                     <th>Actions</th> <!-- New column for edit button -->
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="userTableBody">
                 {% for coupon in coupons %}
                 <tr>
-                    <td>{{ coupon.code }}</td>
-                    <td>{{ coupon.discount_type }}</td>
-                    <td>{{ coupon.discount_value }}</td>
-                    <td>{{ coupon.min_order_value }}</td>
-                    <td>{{ coupon.expiration_date }}</td>
-                    <td>{{ coupon.max_uses }}</td>
-                    <td>{{ coupon.used_count }}</td>
                     <td>
-                       <a href="{% url 'edit_coupon' coupon.id %}" class="btn btn-info">Edit</a>
-                        <a href="{% url 'delete_coupon' coupon.id %}" class="btn btn-danger">Delete</a> 
-                        <!-- Edit button -->
+                        
+                        "{{ coupon.code }}"
+                    </td>
+                    <td>{{  coupon.discount_type }}</td>
+                    {%if coupon.discount_type == "percentage"%}
+                    <td>{{ coupon.discount_value }}%</td>
+                    {% else %}
+                    <td>₹{{ coupon.discount_value }}</td>
+                    {% endif %}
+                    <td>₹{{ coupon.min_order_value}}</td>
+                    <td>{{ coupon.expiration_date}}</td>
+                    <td>{{ coupon.max_uses}}</td>
+                    <td>{{ coupon.used_count}}</td>
+                    <td>
+                        <a href="{% url 'edit_coupon' coupon.id %}" class="btn btn-action btn-update" title="Update">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                        <a href="{% url 'delete_coupon' coupon.id %}" onclick="return confirm('Delete this Product?')" class="btn btn-action btn-delete" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-</div>
+
 {% endblock %}
