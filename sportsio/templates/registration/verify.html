@@ -37,6 +37,8 @@
             border-radius: 12px;
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
+            width: 100%;
+            max-width: 400px;
         }
         .container h4 {
             font-size: 1.25rem;
@@ -69,6 +71,7 @@
         .button-container {
             display: flex;
             justify-content: space-between;
+            margin-bottom: 20px;
         }
         .btn {
             background-color: #4070f4;
@@ -87,25 +90,35 @@
             background-color: #3060e0;
         }
         #timer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-top: 20px;
         }
         #timer {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: bold;
             color: #4070f4;
-            margin-bottom: 10px;
         }
         #resend-btn {
             background-color: #4070f4;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
+            font-size: 14px;
         }
         #resend-btn:hover {
             background-color: #3060e0;
+        }
+        #message-container {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            text-align: left;
         }
     </style>
 </head>
@@ -129,9 +142,18 @@
             </div>
         </form>
         <div id="timer-container">
-            <p id="timer">30</p>
-                <a href="{% url ""%}"><button id="resend-btn" class="btn" style="display: none;" type="submit">Resend OTP</button></a>
+            <p id="timer">Time left: 30s</p>
+            <form id="resend-form" method="GET">
+                <button id="resend-btn" class="btn" style="display: none;" type="submit">Resend OTP</button>
+            </form>
         </div>
+        {% if messages%}
+        {% for message in messages%}
+        <div id="message-container">
+            <p>{{ message }}</p>
+        </div>
+        {%endfor%}
+        {% endif %}
     </div>
 
     <script>
@@ -139,16 +161,17 @@
         const timerElement = document.getElementById('timer');
         const resendButton = document.getElementById('resend-btn');
         const resendForm = document.getElementById('resend-form');
+        const messageContainer = document.getElementById('message-container');
         let timeLeft = 30;
         
         function startTimer() {
             timeLeft = 30;
-            timerElement.textContent = timeLeft;
+            updateTimerDisplay();
             resendButton.style.display = 'none';
             
             const timerInterval = setInterval(() => {
                 timeLeft--;
-                timerElement.textContent = timeLeft;
+                updateTimerDisplay();
                 
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
@@ -157,9 +180,13 @@
             }, 1000);
         }
         
+        function updateTimerDisplay() {
+            timerElement.textContent = `Time left: ${timeLeft}s`;
+        }
+        
         resendForm.addEventListener('submit', (e) => {
-            e.preventDefault(); // Prevent the default form submission
-            window.location.reload(); // Reload the page
+            e.preventDefault();
+            window.location.reload();
         });
         
         inputs.forEach((input, index) => {
@@ -179,8 +206,16 @@
             });
         });
         
+        // Function to display incoming messages
+        function displayMessage(message) {
+            messageContainer.innerHTML = `<p>${message}</p>`;
+        }
+        
         // Start the timer when the page loads
         startTimer();
+        
+        // Example of displaying a message (you can call this function when you receive a message)
+        // displayMessage("Your OTP has been sent to your registered mobile number.");
     </script>
 </body>
 </html>

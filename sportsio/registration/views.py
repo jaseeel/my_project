@@ -102,7 +102,6 @@ def register(request):
 
             request.session['email'] = email
             request.session['otp'] = message
-            print(message)
             messages.success(request, 'OTP is sent to your email')
             return redirect('otp')
     else:
@@ -119,7 +118,6 @@ def user_login(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         errors = {}
-
         if not email:
             errors['email'] = 'Email is required.'
         else:
@@ -132,8 +130,13 @@ def user_login(request):
             errors['password'] = 'Password is required.'
 
         if not errors:
-            user = authenticate(request, email=email, password=password)
-            if user is not None and user.is_active and not user.is_superuser:
+            user = authenticate(request, email=email, password=password)  
+            if user is not None and not user.is_superuser:
+                if not user.is_active:
+                    print("hiiiii")
+                    errors['general']= "Your account is blocked. Please contact support for assistance."
+                    return render(request, 'registration/login.html', {'errors': errors, 'email': email})
+
                 login(request, user)
                 messages.success(request, "You have logged in successfully")
                 return redirect('home')

@@ -26,6 +26,8 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from django.http import HttpResponse
+from django.contrib.auth import authenticate, login
+
 from io import BytesIO
 from userprofile.models import Order,OrderItem
 
@@ -34,23 +36,26 @@ from userprofile.models import Order,OrderItem
 def admin_login(request):
     if 'email' in request.session:
         return redirect('dashboard')
+    
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        # Use Django's authenticate to check username/password
+        user = authenticate(request, username=email, password=password)
+
+        if user is not None and user.is_superuser:
+            # If the user is authenticated successfully and is a superuser
+            login(request, user)
+            request.session['email'] = email
+            return redirect('dashboard')
+        else:
+            # If authentication fails or user is not a superuser
+            messages.error(request, "Invalid credentials or user not authorized.")
+            return redirect('admin_login')
     else:
-        if request.method=='POST':
-            email=request.POST.get('email')
-            password=request.POST.get('password')
-
-            if CustomUser.objects.filter(email=email).exists():
-                user_obj=CustomUser.objects.get(email=email,is_superuser=True)
-                if user_obj.check_password(password):
-                    request.session['email']=email
-                    login(request,user_obj)
-                    return redirect('dashboard')
-                else:
-                    messages.error("wrong credentials")
-            else:
-                messages.error("User not Found")   
-
-        return render(request,'admin_side/admin_login.html')
+        # Render the login form if the request method is not POST
+        return render(request, 'admin_side/admin_login.html')
 
 
 
@@ -274,18 +279,32 @@ def dashboard(request):
 
 #-------------------------------------------------------------User management
 
+from django.db.models import Q
+
 def User_management(request):
     if 'email' in request.session:
+        search_query = request.GET.get('search', '')
 
-        user = CustomUser.objects.filter(is_superuser=False)
-        context={
-            'user':user,
-        } 
-        return render(request,'admin_side/user_management.html',context )
-    else: 
-            return redirect('admin_login')
-    
+        # Initially, get all non-superuser users
+        users = CustomUser.objects.filter(is_superuser=False)
 
+        # If there's a search query, filter the users
+        if search_query:
+            users = users.filter(
+                Q(username__icontains=search_query) |
+                Q(first_name__icontains=search_query) |
+                Q(last_name__icontains=search_query) |
+                Q(email__icontains=search_query) |
+                Q(phone__icontains=search_query)
+            )
+
+        context = {
+            'user': users,
+            'search_query': search_query,
+        }
+        return render(request, 'admin_side/user_management.html', context)
+    else:
+        return redirect('admin_login')
 
 # -----------------------------------------Block-user
 
@@ -377,27 +396,50 @@ def filter_sales(request):
 import io
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import A4
-
+from dateutil.relativedelta import relativedelta
 from datetime import datetime, date
 import openpyxl
 
-def report_generator(request,orders):
+def report_generator(request, orders):
     if request.method == 'POST':
-        from_date_str = request.POST.get("from_date")
-        to_date_str = request.POST.get("to_date")
-        format_choice = request.POST.get("format")  # Get the format choice from the form
+        report_type = request.POST.get("report_type")
+        format_choice = request.POST.get("format")
 
-        from_date = datetime.strptime(from_date_str, "%Y-%m-%d").date()
-        to_date = datetime.strptime(to_date_str, "%Y-%m-%d").date()
+        if report_type == 'custom':
+            from_date_str = request.POST.get("from_date")
+            to_date_str = request.POST.get("to_date")
+            from_date = datetime.strptime(from_date_str, "%Y-%m-%d").date()
+            to_date = datetime.strptime(to_date_str, "%Y-%m-%d").date()
+        elif report_type == 'monthly':
+            month_str = request.POST.get("month")
+            year, month = map(int, month_str.split('-'))
+            from_date = date(year, month, 1)
+            to_date = from_date + relativedelta(months=1, days=-1)
+        elif report_type == 'yearly':
+            year = int(request.POST.get("year"))
+            today = date.today()
+            from_date = date(year, 1, 1)
+            if year == today.year:
+                # If it's the current year, use today's date as the end date
+                to_date = today
+            elif year < today.year:
+                # If it's a past year, use December 31st as the end date
+                to_date = date(year, 12, 31)
+        else:
+            return HttpResponse("Invalid report type.")
 
         if from_date > date.today() or to_date > date.today():
             return HttpResponse("Please enter a valid date.")
 
-        # Prepare data for the report
+        # Filter orders based on the date range
         orders = Order.objects.filter(created_at__range=(from_date, to_date))
+
+        # Rest of your code remains the same...
+        
+        # Prepare data for the report
         data = [["Order ID", "Total Quantity", "Product IDs", "Product Names", "Amount",  "Coupon"]]
         total_sales_amount = 0
-        total_coupon_discount=0
+        total_coupon_discount = 0
 
         for order in orders:
             order_items = OrderItem.objects.filter(order=order)
@@ -472,16 +514,53 @@ def report_generator(request,orders):
 # ----------------------------------------------------------------pdf generator based on the dates----------------------------------------------------------------
 def report_pdf_order(request):
     if request.method == "POST":
-        from_date_str = request.POST.get("from_date")
-        to_date_str = request.POST.get("to_date")
+        report_type = request.POST.get("report_type")
 
-        try:
-            from_date = datetime.strptime(from_date_str, "%Y-%m-%d").date()
-            to_date = datetime.strptime(to_date_str, "%Y-%m-%d").date()
-        except ValueError:
-            return HttpResponse("Invalid date format.")
+        if report_type == 'custom':
+            from_date_str = request.POST.get("from_date")
+            to_date_str = request.POST.get("to_date")
+            try:
+                from_date = datetime.strptime(from_date_str, "%Y-%m-%d").date()
+                to_date = datetime.strptime(to_date_str, "%Y-%m-%d").date()
+            except ValueError:
+                return HttpResponse("Invalid date format for custom range.")
+
+        elif report_type == 'monthly':
+            month_str = request.POST.get("month")
+            try:
+                year, month = map(int, month_str.split('-'))
+                from_date = date(year, month, 1)
+                to_date = from_date + relativedelta(months=1, days=-1)
+            except ValueError:
+                return HttpResponse("Invalid month format.")
+
+        elif report_type == 'yearly':
+            today = date.today()
+            year_str = request.POST.get("year")
+            try:
+                year = int(year_str)
+                from_date = date(year, 1, 1)
+                
+                if year == today.year:
+                    # If it's the current year, use today's date as the end date
+                    to_date = today
+                elif year < today.year:
+                    # If it's a past year, use December 31st as the end date
+                    to_date = date(year, 12, 31)
+            except ValueError:
+                return HttpResponse("Invalid year format.")
+
+        else:
+            return HttpResponse("Invalid report type.")
+
+        if from_date > date.today() or to_date > date.today():
+            return HttpResponse("Please enter a valid date range.")
 
         orders = Order.objects.filter(
             created_at__date__range=[from_date, to_date]
         ).order_by("-id")
+
         return report_generator(request, orders)
+
+    # If the request method is not POST, render the form
+    return render(request, 'your_template_name.html')

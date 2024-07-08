@@ -198,19 +198,32 @@
           <form action="{% url 'generate_pdf_report' %}" method="POST">
             {% csrf_token %}
             <div class="row">
-              <div class="col-md-3">
-                <input type="date" class="form-control" name="from_date" required>
+              <div class="col-md-2">
+                <select class="form-control" name="report_type" id="report_type" required>
+                  <option value="custom">Custom Date Range</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
               </div>
-              <div class="col-md-3">
-                <input type="date" class="form-control" name="to_date" required>
+              <div class="col-md-2 custom-date">
+                <input type="date" class="form-control" name="from_date" id="from_date">
               </div>
-              <div class="col-md-3">
+              <div class="col-md-2 custom-date">
+                <input type="date" class="form-control" name="to_date" id="to_date">
+              </div>
+              <div class="col-md-2 period-select" style="display: none;">
+                <input type="month" class="form-control" name="month" id="month">
+              </div>
+              <div class="col-md-2 period-select" style="display: none;">
+                <input type="number" class="form-control" name="year" id="year" min="2000" max="2099" step="1" value="2024">
+              </div>
+              <div class="col-md-2">
                 <select class="form-control" name="format" required>
                   <option value="pdf">PDF</option>
                   <option value="excel">Excel</option>
                 </select>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-2">
                 <button type="submit" class="btn btn-success w-100">Generate</button>
               </div>
             </div>
@@ -309,21 +322,45 @@
   });
 
   // Report generation form validation
-  document.querySelector('form[action="{% url "generate_pdf_report" %}"]').addEventListener('submit', function(event) {
-    var fromDateElement = this.querySelector('input[name="from_date"]');
-    var toDateElement = this.querySelector('input[name="to_date"]');
-    var fromErrorElement = document.createElement('span');
-    var toErrorElement = document.createElement('span');
+  document.addEventListener('DOMContentLoaded', function() {
+    var form = document.querySelector('form[action="{% url "generate_pdf_report" %}"]');
+    var reportTypeSelect = form.querySelector('#report_type');
+    var customDateInputs = form.querySelectorAll('.custom-date');
+    var periodSelects = form.querySelectorAll('.period-select');
 
-    fromErrorElement.className = 'text-danger';
-    toErrorElement.className = 'text-danger';
-
-    fromDateElement.parentNode.appendChild(fromErrorElement);
-    toDateElement.parentNode.appendChild(toErrorElement);
-
-    if (!validateDate(fromDateElement, toDateElement, fromErrorElement, toErrorElement)) {
-      event.preventDefault(); // Prevent form submission if validation fails
+    function toggleInputs() {
+        if (reportTypeSelect.value === 'custom') {
+            customDateInputs.forEach(input => input.style.display = 'block');
+            periodSelects.forEach(select => select.style.display = 'none');
+        } else {
+            customDateInputs.forEach(input => input.style.display = 'none');
+            periodSelects.forEach(select => select.style.display = 'block');
+        }
+        if (reportTypeSelect.value === 'monthly') {
+            form.querySelector('#month').style.display = 'block';
+            form.querySelector('#year').style.display = 'none';
+        } else if (reportTypeSelect.value === 'yearly') {
+            form.querySelector('#month').style.display = 'none';
+            form.querySelector('#year').style.display = 'block';
+        }
     }
-  });
+
+    reportTypeSelect.addEventListener('change', toggleInputs);
+    toggleInputs(); // Call once to set initial state
+
+    form.addEventListener('submit', function(event) {
+        var fromDateElement = this.querySelector('input[name="from_date"]');
+        var toDateElement = this.querySelector('input[name="to_date"]');
+        var fromErrorElement = document.createElement('span');
+        var toErrorElement = document.createElement('span');
+        fromErrorElement.className = 'text-danger';
+        toErrorElement.className = 'text-danger';
+        fromDateElement.parentNode.appendChild(fromErrorElement);
+        toDateElement.parentNode.appendChild(toErrorElement);
+        if (reportTypeSelect.value === 'custom' && !validateDate(fromDateElement, toDateElement, fromErrorElement, toErrorElement)) {
+            event.preventDefault(); // Prevent form submission if validation fails
+        }
+    });
+});
 </script>
 {% endblock %}
