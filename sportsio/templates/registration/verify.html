@@ -86,6 +86,27 @@
         .btn:hover {
             background-color: #3060e0;
         }
+        #timer-container {
+            margin-top: 20px;
+        }
+        #timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4070f4;
+            margin-bottom: 10px;
+        }
+        #resend-btn {
+            background-color: #4070f4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #resend-btn:hover {
+            background-color: #3060e0;
+        }
     </style>
 </head>
 <body>
@@ -107,10 +128,39 @@
                 <input type="submit" value="Submit" class="btn">
             </div>
         </form>
+        <div id="timer-container">
+            <p id="timer">30</p>
+                <a href="{% url ""%}"><button id="resend-btn" class="btn" style="display: none;" type="submit">Resend OTP</button></a>
+        </div>
     </div>
 
     <script>
         const inputs = document.querySelectorAll("input[type='number']");
+        const timerElement = document.getElementById('timer');
+        const resendButton = document.getElementById('resend-btn');
+        const resendForm = document.getElementById('resend-form');
+        let timeLeft = 30;
+        
+        function startTimer() {
+            timeLeft = 30;
+            timerElement.textContent = timeLeft;
+            resendButton.style.display = 'none';
+            
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    resendButton.style.display = 'inline-block';
+                }
+            }, 1000);
+        }
+        
+        resendForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // Prevent the default form submission
+            window.location.reload(); // Reload the page
+        });
         
         inputs.forEach((input, index) => {
             input.addEventListener("input", function() {
@@ -128,6 +178,9 @@
                 }
             });
         });
+        
+        // Start the timer when the page loads
+        startTimer();
     </script>
 </body>
 </html>

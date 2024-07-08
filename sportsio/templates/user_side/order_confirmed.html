@@ -1,55 +1,68 @@
 {% extends "user_side/base.html"%}
-{%block title%}Order Confirmed | Sportsio{%endblock%}
+{% block title %}Order Confirmed | Sportsio{% endblock %}
 {% block content %}
-<!-- Add this line in the head section of your HTML document -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <style>
-    li {
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Horizontal offset, vertical offset, blur radius, and color */
-        padding: 10px; /* Optional: Adds some space around the text inside the list item */
-        border-radius: 5px; /* Optional: Rounds the corners of the list item */
+    .order-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: linear-gradient(145deg, #f0f0f0, #ffffff);
+        border-radius: 20px;
+        box-shadow: 20px 20px 60px #d0d0d0, -20px -20px 60px #ffffff;
     }
-   .content-box {
-        padding: 20px;
-        border: 2px solid #007bff; /* Bootstrap primary color */
-        border-radius: 10px; /* Rounded corners */
-        background-color: #f8f9fa; /* Light background */
+    .order-header {
+        font-size: 1.5rem;
+        color: #007bff;
+        margin-bottom: 1rem;
+        text-align: center;
     }
-    .centered-text {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 150px; /* Adjust based on your needs */
+    .order-item {
+        background: #ffffff;
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        border-radius: 10px;
+        box-shadow: inset 5px 5px 10px #f0f0f0, inset -5px -5px 10px #ffffff;
+    }
+    .thank-you {
+        text-align: center;
+        font-size: 1.2rem;
+        margin: 2rem 0;
+        color: #ffc107;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .btn-custom {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+    .btn-custom:hover {
+        background: #0056b3;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
 </style>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-10"> <!-- Increased column size for a bigger container -->
-            <div class="alert alert-success" role="alert">
-                <i class="fas fa-check-circle"></i> ORDER CONFIRMED
-            </div>
-            <div class="content-box"> <!-- Content wrapped in a box -->
-                <h2>Your Order Has Been Successfully Placed!</h2>
-                <p>Order ID: {{ order.id }}</p>
-                <ul>
-                    {% for product in order_items %}
-                    <div>
-                    <li>{{ product.product.title }} - Quantity: {{ product.quantity }}</li>
-                    </div>
-                    {% endfor %}
-                </ul>
-                <div class="centered-text" style="background-color:#FAF9F6  " >
-                    <p style="font-weight:bold; font-size:25px; color: yellow;">Thank you for shopping with us!</p>
-                </div>
-                    <div class="d-flex justify-content-between">
-                    <a href="{%url "home" %}" class="btn btn-warning">Home</a>
-                    <a href="{% url 'user_profile:user_profile' %}" class="btn btn-warning">Show Orders</a>
-                </div>
-            </div>
+<div class="order-container">
+    <div class="order-header">
+        <i class="fas fa-check-circle"></i> Order Confirmed
+    </div>
+    <p>Order ID: {{ order.id }}</p>
+    {% for product in order_items %}
+        <div class="order-item">
+            {{ product.product.title }} - Qty: {{ product.quantity }}
         </div>
+    {% endfor %}
+    <div class="thank-you">
+        Thank you for shopping with us!
+    </div>
+    <div class="d-flex justify-content-between">
+        <a href="{% url 'home' %}" class="btn btn-custom">Home</a>
+        <a href="{% url 'user_profile:user_profile' %}" class="btn btn-custom">Show Orders</a>
     </div>
 </div>
-{% endblock %}
 
+{% endblock %}

@@ -1,42 +1,4 @@
 {% load static %}
-<style>
-
-.error-message {
-    font-size: medium; /* Adjust font size as needed */
-    animation: fadeOut 10s ease; /* Adjust duration as needed */
-}
-
-@keyframes fadeOut {
-    0% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-        visibility: hidden;
-    }
-}
-
-.error-messages {
-    list-style-type: disc; /* Remove default bullet points */
-    padding: 0; /* Remove default padding */
-}
-
-.message-div {
-    text-align: left; /* Align messages to the left */
-    border-radius: 5px; /* Add border radius for a sleeker look */
-}
-</style>
-<script>// JavaScript code to remove messages after a certain time
-    document.addEventListener('DOMContentLoaded', function() {
-        // Select all elements with the class 'error-message' and set a timer to remove them
-        const errorMessages = document.querySelectorAll('.error-message');
-        errorMessages.forEach(function(message) {
-            setTimeout(function() {
-                message.remove();
-            }, 5000); // Adjust the time (in milliseconds) as needed
-        });
-    });
-    </script>
 <!DOCTYPE html>
 <html>
 <head>
@@ -52,91 +14,111 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Include alertify JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/alertify.min.js"></script>
+    <style>
+        .error-message {
+            color: red;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        .form-input {
+            margin-bottom: 15px;
+        }
+        .error-messages {
+            list-style-type: none;
+            padding: 0;
+        }
+        .message-div {
+            text-align: left;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-
-		
-	
-
-        <div class="col-lg-14 col-md-14 form-container">
-
-            <div class="col-lg-4 col-md-12 col-sm-9 col-xs-12 form-box text-center">
-        
-                <div class="logo mb-2">
-                    <img src="{% static 'assets/admin_side/images/logos/dark-logo.png' %}" width="150px">
-                </div>
-                <div class="heading mb-2">
-                    <h4>Create an account</h4>
-                </div>
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="form-input">
-                        <span><i class="fa fa-user"></i></span>
-                        <input type="text" placeholder="UserName" name="username" required>
-                    </div>
-                    <div class="form-input">
-                        <span><i class="fa fa-name"></i></span>
-                        <input type="text" placeholder="First Name" name="first_name" required>
-                    </div>
-                    <div class="form-input">
-                        <span><i class="fa fa-name"></i></span>
-                        <input type="text" placeholder="Last Name" name="last_name" required>
-                    </div>
-                    <div class="form-input">
-                        <span><i class="fa fa-envelope"></i></span>
-                        <input type="email" placeholder="Email Address" name="email" required>
-                    </div>
-                    <div class="form-input">
-                        <span><i class="fa fa-lock"></i></span>
-                        <input type="password" placeholder="Password" name="password" required>
-                    </div>
-                    <div class="form-input">
-                        <span><i class="fa fa-lock"></i></span>
-                        <input type="password" placeholder="Confirm Password" name="password2" required>
-                    </div>
-                    <div class="form-input">
-                        <span><i class="fa fa-phone"></i></span>
-                        <input type="tel" placeholder="Phone Number" name="phone" required>
-                    </div>
-
-                    <!--         Messages shown as bullets below form          -->
-                    {% if messages %}
-                    <div class="message-div">
-                        <ul class="error-messages">
-                            {% for message in messages %}
-                            <li class="error-message">{{ message }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
-
-                    <div class="text-left mb-3">
-                        <button type="submit" class="btn">Register</button>
-                    </div>
-                    <div class="text-center mb-1">
-                        <div class="mb-1" style="color: #777">or register with</div>
-
-                        <a href="" class="btn btn-social btn-google">google</a>
-
-                      
-                    </div>
-                    <div style="color: #777">Already have an account
-                        <a href="{% url 'login' %}" class="login-link">Login here</a>
-                    </div>
-                </form>
+    <div class="col-lg-14 col-md-14 form-container">
+        <div class="col-lg-4 col-md-12 col-sm-9 col-xs-12 form-box text-center">
+            <div class="logo mb-2">
+                <img src="{% static 'assets/admin_side/images/logos/dark-logo.png' %}" width="150px">
             </div>
+            <div class="heading mb-2">
+                <h4>Create an account</h4>
+            </div>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-input">
+                    <span><i class="fa fa-user"></i></span>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="error-message">{{ form.username.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-input">
+                    <span><i class="fa fa-user"></i></span>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <div class="error-message">{{ form.first_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-input">
+                    <span><i class="fa fa-user"></i></span>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <div class="error-message">{{ form.last_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-input">
+                    <span><i class="fa fa-envelope"></i></span>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="error-message">{{ form.email.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-input">
+                    <span><i class="fa fa-lock"></i></span>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <div class="error-message">{{ form.password.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-input">
+                    <span><i class="fa fa-lock"></i></span>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <div class="error-message">{{ form.password2.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-input">
+                    <span><i class="fa fa-phone"></i></span>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <div class="error-message">{{ form.phone.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                {% if messages %}
+                <div class="message-div">
+                    <ul class="error-messages">
+                        {% for message in messages %}
+                        <li class="error-message">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="text-left mb-3">
+                    <button type="submit" class="btn">Register</button>
+                </div>
+                <div class="text-center mb-1">
+                    <div class="mb-1" style="color: #777">or register with</div>
+                    <a href="" class="btn btn-social btn-google">google</a>
+                </div>
+                <div style="color: #777">Already have an account
+                    <a href="{% url 'login' %}" class="login-link">Login here</a>
+                </div>
+            </form>
         </div>
     </div>
-</div>
 
-
-</body>
-</html>
-
-{% if messages %}
-    <script src="https://cdn.jsdelivr.net/npm/alertifyjs/build/alertify.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/alertify.min.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/themes/default.min.css"/>
+    {% if messages %}
     <script>
         {% for message in messages %}
             alertify.alert('{{ message }}', function(){
@@ -144,4 +126,6 @@
             });
         {% endfor %}
     </script>
-{% endif %} 
+    {% endif %}
+</body>
+</html>

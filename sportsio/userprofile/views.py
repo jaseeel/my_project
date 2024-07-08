@@ -658,53 +658,54 @@ def delete_wishlist(request,id):
 # ------------------------razorpay----------------------
 
 @csrf_exempt
+
 def razorpay_callback(request):
-    if request.GET.get("order"):
-        try:
-            order_id=request.GET.get("order")
-            order=Order.objects.get(id=order_id)
-            order.paid=True
-            order.save()
-            client = razorpay.Client(auth=("rzp_test_VArbI2Nu4Yi1Iw", "APv2T6He0woUCJD5ycW7ucUg"))
-            client.utility.verify_payment_signature(data)
-            
-            with transaction.atomic():
-                order.paid = True
-                order.status = "Paid"
-                order.save()
-                messages.success(request, "Payment successful. Order placed.")
-                return redirect("user_profile:success")
-        except Exception as e:
-            messages.error(request, f"Payment failed: {str(e)}")
-            return redirect ("home")
-    if request.method == "POST":
-        data = request.POST
-        try:
-            order = Order.objects.get(razorpay_order_id=data.get("razorpay_order_id"))
-            
-            # Verify the payment signature
-            client = razorpay.Client(auth=("rzp_test_VArbI2Nu4Yi1Iw", "APv2T6He0woUCJD5ycW7ucUg"))
-            client.utility.verify_payment_signature(data)
-            
-            with transaction.atomic():
-                order.paid = True
-                order.status = "Paid"
-                order.save()
-                
-                # Update product stock
-                for item in order.orderitem_set.all():
-                    product = item.product
-                    product.stock_count -= item.quantity
-                    product.save()
-                
-                messages.success(request, "Payment successful. Order placed.")
-                return redirect("user_profile:order_confirmation", order_id=order.id)
-        except Exception as e:
-            messages.error(request, f"Payment failed: {str(e)}")
-            return redirect("user_profile:order_view", order_id=order.id)
-    else:
+    if request.method != "POST":
         return JsonResponse({"status": "error", "message": "Only POST method is allowed"}, status=405)
 
+    try:
+        data = request.POST
+        cart_items = Cart.objects.filter(user=request.user)
+        total_price = sum(cart_item.product.offer_price * cart_item.product_quantity for cart_item in cart_items)
+
+        if 'delivery' in request.session:
+            delivery = request.session['delivery']
+            total_price += delivery
+
+        with transaction.atomic():
+            order = Order.objects.create(
+                user=request.user,
+                total_price=total_price,
+                payment_method="Razorpay",
+                paid=True,
+                razorpay_order_id=data.get("razorpay_payment_id"),
+            )
+
+            for cart_item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=cart_item.product,
+                    quantity=cart_item.product_quantity,
+                    price=cart_item.product.offer_price,
+                )
+                
+                product = cart_item.product
+                product.stock_count -= cart_item.product_quantity
+                product.save()
+
+            cart_items.delete()
+
+        return render(request, "user_side/success.html")
+
+    except Exception as e:
+        if 'order' in locals():
+            order.paid = False
+            order.status = "Payment pending"
+            order.save()
+        return JsonResponse({"status": "error", "message": str(e)}, status=500)
+    
+
+#__________--Return Order
 def returnorder(request,id):
     order = get_object_or_404(Order, id=id)
     order.status="Return"
