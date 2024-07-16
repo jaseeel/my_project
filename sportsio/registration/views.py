@@ -133,7 +133,6 @@ def user_login(request):
             user = authenticate(request, email=email, password=password)  
             if user is not None and not user.is_superuser:
                 if not user.is_active:
-                    print("hiiiii")
                     errors['general']= "Your account is blocked. Please contact support for assistance."
                     return render(request, 'registration/login.html', {'errors': errors, 'email': email})
 
@@ -204,3 +203,115 @@ def cancel_view(request):
     messages.info(request,"invalid otp")
     del request.session['email']
     return redirect('login')
+
+
+#____________Forgot Password__________
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
+
+import re
+import random
+import string
+
+
+
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        print(email)
+        
+        # Email validation
+        pattern_email = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(pattern_email, email):
+            messages.error(request, "Please enter a valid email")
+            return render(request, 'registration/forget.html')
+        
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            messages.error(request, "No user found with this email address")
+            return render(request, 'registration/forget.html')
+        
+        # Send OTP via email
+        message = generate_otp()
+        sender_email = os.getenv("MY_EMAIL")
+        receiver_email = email
+        password_email = os.getenv("MY_KEY")
+        receiver_email = [email]
+        try:
+                with smtplib.SMTP("smtp.gmail.com", 587) as server:
+                    server.starttls()
+                    server.set_debuglevel(1)
+                    server.login(sender_email, password_email)
+                    server.sendmail(sender_email, receiver_email, f"Your OTP for sportsio password reset is {message}")
+        except smtplib.SMTPAuthenticationError:
+            messages.error(request, 'Failed to send OTP email. Please check your email configuration.')
+            return render(request, 'registration/forget.html')
+        
+        # Store OTP and email in session
+        request.session['reset_email'] = email
+        request.session['reset_otp'] = message
+        print(message)
+        
+        messages.success(request, 'OTP has been sent to your email')
+        return redirect('reset_otp')  
+    
+    return render(request, 'registration/forget.html')
+
+def reset_otp(request):
+    if request.method == 'POST':
+
+        stored_otp = request.session.get('reset_otp')
+        otp1       =  request.POST['otp1']
+        otp2=request.POST['otp2']
+        otp3=request.POST['otp3']
+        otp4=request.POST['otp4']
+        otp5=request.POST['otp5']
+        otp6=request.POST['otp6']     
+        OTP=(str(otp1)+str(otp2)+str(otp3)+str(otp4)+str(otp5)+str(otp6))
+        
+        if OTP == stored_otp:
+            del request.session['reset_otp']
+            return redirect('reset_password')
+        else:
+            messages.error(request, 'Invalid OTP. Please try again.')
+    
+    return render(request, 'registration/reset_otp.html')
+
+def reset_password(request):
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+       
+        if new_password != confirm_password:
+            messages.error(request, 'Passwords do not match')
+            return render(request, 'registration/reset_password.html')
+       
+        # Password validation
+        pattern_password = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$'
+        if not re.match(pattern_password, new_password):
+            messages.error(request, "Password must contain at least 8 characters of capital letter, small letter and symbol")
+            return render(request, 'registration/reset_password.html')
+       
+        email = request.session.get('reset_email')
+        if not email:
+            messages.error(request, 'Password reset session has expired. Please start over.')
+            return redirect('forgot_password')
+
+        try:
+            user = CustomUser.objects.get(email=email)
+            print(user)
+            user.set_password(new_password)
+            print(user.password)
+            user.save()
+        except CustomUser.DoesNotExist:
+            messages.error(request, 'User not found. Please try the password reset process again.')
+            return redirect('forgot_password')
+       
+        messages.success(request, 'Password changed successfully')
+        del request.session['reset_email']
+        return redirect('login')
+   
+    return render(request, 'registration/reset_password.html')

@@ -300,56 +300,188 @@
 
             <!-- ...........Orders tab start here............ -->
 
-                        <div class="tab-pane fade {% if active_tab == 'orders' %}show active{% endif %}" id="account-orders" role="tabpanel" aria-labelledby="account-orders-tab">
-                       
-                            <div class="order-history">
-                                <h4>MY ORDERS</h4>
-                                <table class="order-table">
-                                  <thead>
-                                    <tr>
-                                      <th>ORDER</th>
-                                      <th>DELIVERY DATE</th>
-                                      <th>STATUS</th>
-                                      <th>TOTAL</th>
-                                      <th></th>
-                                      <th></th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {% for item in orders %}
-                                      <tr>
-                                        <td data-label="ORDER"><a class="order-id" href="javascript:void(0)">{{ item.id }}</a></td>
-                                        <td data-label="DELIVERY DATE">{{ item.estimated_delivery_time }}</td>
-                                        <td data-label="STATUS"><span class="order-status {{ item.status|lower }}">{{ item.status }}</span></td>
-                                        <td data-label="TOTAL">Rs. {{ item.total_price }}</td>
-                                        <td data-label="VIEW">
-                                          <a href="{% url 'user_profile:order_view' item.id %}" class="uren-order-view">
-                                            View
-                                          </a>
-                                        </td>
-                                        <td data-label="ACTION">
-                                          {% if item.paid and item.status == "Delivered" %}
-                                          <a href="javascript:void(0);" onclick="confirmAction('{% url 'user_profile:return_order' item.id %}', 'Are you sure you want to Return this Order?')" class="uren-order-return">
-                                            Return
-                                          </a>
-                                          {% elif item.status == 'Shipped'%}
-                                          <span>Shipped Order</span>
-                                          {% elif item.status == "Refunded" %}
-                                            <span>Refund Done</span>
-                                          {% elif item.status == "Cancelled" %}
-                                            <span>Order Cancelled</span>
-                                          {% elif item.status != "Cancelled" or item.status == "Out of delivery" or item.status == "Return" %}
-                                          <a href="javascript:void(0);" onclick="confirmAction('{% url 'user_profile:cancel_order' item.id %}', 'Are you sure you want to Cancel this Order?')" class="uren-order-cancel">
-                                            Cancel
-                                          </a>
-                                          {% endif %}
-                                        </td>
-                                      </tr>
-                                    {% endfor %}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div>
+            <div class="tab-pane fade {% if active_tab == 'orders' %}show active{% endif %}" id="account-orders" role="tabpanel" aria-labelledby="account-orders-tab">
+              <div class="order-history">
+                <h4>MY ORDERS</h4>
+                <table class="order-table">
+                  <thead>
+                    <tr>
+                      <th>ORDER</th>
+                      <th>DELIVERY DATE</th>
+                      <th>STATUS</th>
+                      <th>TOTAL</th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in orders %}
+                      <tr>
+                        <td data-label="ORDER"><a class="order-id" href="javascript:void(0)">{{ item.id }}</a></td>
+                        <td data-label="DELIVERY DATE">{{ item.estimated_delivery_time }}</td>
+                        <td data-label="STATUS"><span class="order-status {{ item.status|lower }}">{{ item.status }}</span></td>
+                        <td data-label="TOTAL">Rs. {{ item.total_price }}</td>
+                        <td data-label="VIEW">
+                          <a href="{% url 'user_profile:order_view' item.id %}" class="uren-order-view">
+                            View
+                          </a>
+                        </td>
+                        <td data-label="ACTION">
+                          {% if item.paid and item.status == "Delivered" %}
+                            <a href="javascript:void(0);" onclick="confirmAction('{% url 'user_profile:return_order' item.id %}', 'Are you sure you want to Return this Order?')" class="uren-order-return">
+                              Return
+                            </a>
+                          {% elif item.status == 'Shipped'%}
+                            <span>Shipped Order</span>
+                          {% elif item.status == "Refunded" %}
+                            <span>Refund Done</span>
+                          {% elif item.status == "Cancelled" %}
+                            <span>Order Cancelled</span>
+                          {% elif item.status != "Cancelled" and item.status != "Shipped" and item.status != "Delivered" %}
+                            <a href="javascript:void(0);" onclick="showCancellationForm('{{ item.id }}')" class="uren-order-cancel">
+                              Cancel
+                            </a>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- Cancellation Form Modal -->
+            <div id="cancellationFormModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+              <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px;">
+                <h2>Electronic Product Cancellation Form</h2>
+                <form id="cancelOrderForm" onsubmit="return submitCancellationForm()">
+                  <input type="hidden" id="orderNumber" name="orderNumber">
+                  
+                  <label for="productType">Product Type:</label>
+                  <select id="productType" name="productType" required>
+                    <option value="">Select a product type</option>
+                    <option value="smartphone">Smartphone</option>
+                    <option value="laptop">Laptop</option>
+                    <option value="tablet">Tablet</option>
+                    <option value="smartwatch">Smartwatch</option>
+                    <option value="other">Other</option>
+                  </select><br><br>
+                  
+                  <label for="cancellationReason">Reason for Cancellation:</label>
+                  <select id="cancellationReason" name="cancellationReason" required>
+                    <option value="">Select a reason</option>
+                    <option value="changeOfMind">Change of mind</option>
+                    <option value="foundBetterDeal">Found a better deal</option>
+                    <option value="delayedShipping">Delayed shipping</option>
+                    <option value="financialReasons">Financial reasons</option>
+                    <option value="other">Other</option>
+                  </select><br><br>
+                  
+                  <label for="additionalComments">Additional Comments:</label><br>
+                  <textarea id="additionalComments" name="additionalComments" rows="4" cols="50"></textarea><br><br>
+                  
+                  <button type="submit">Submit Cancellation Request</button>
+                  <button type="button" onclick="closeCancellationForm()">Close</button>
+                </form>
+              </div>
+            </div>
+            
+            <!-- Confirmation Modal -->
+            <div id="confirmationModal" style="display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+              <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px;">
+                <p id="modalMessage"></p>
+                <button id="confirmBtn" style="margin-right: 10px;">Confirm</button>
+                <button id="cancelBtn">Cancel</button>
+              </div>
+            </div>
+            
+            <script>
+            let formData; // Declare formData in a broader scope
+            
+            function showCancellationForm(orderId) {
+              document.getElementById('orderNumber').value = orderId;
+              document.getElementById('cancellationFormModal').style.display = 'block';
+            }
+            
+            function closeCancellationForm() {
+              document.getElementById('cancellationFormModal').style.display = 'none';
+              document.getElementById('cancelOrderForm').reset();
+            }
+            
+            function submitCancellationForm() {
+              var orderNumber = document.getElementById('orderNumber').value;
+              var productType = document.getElementById('productType').value;
+              var cancellationReason = document.getElementById('cancellationReason').value;
+              var additionalComments = document.getElementById('additionalComments').value;
+              
+              formData = {
+                orderNumber: orderNumber,
+                productType: productType,
+                cancellationReason: cancellationReason,
+                additionalComments: additionalComments
+              };
+              
+              document.getElementById('modalMessage').innerHTML = 'Are you sure you want to cancel this order?';
+              document.getElementById('confirmationModal').style.display = 'block';
+              
+              return false;
+            }
+            
+            document.getElementById('confirmBtn').onclick = function() {
+              var orderNumber = document.getElementById('orderNumber').value;
+              var url = "{% url 'user_profile:cancel_order' 999999 %}".replace('999999', orderNumber);
+              
+              // Perform actual submission here
+              fetch(url, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(formData)
+              })
+              .then(response => response.json())
+              .then(data => {
+                alert('Cancellation request submitted successfully!');
+                closeCancellationForm();
+                document.getElementById('confirmationModal').style.display = 'none';
+                // Optionally reload the page or update the order status
+                location.reload();
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting the cancellation request.');
+              });
+            };
+            
+            document.getElementById('cancelBtn').onclick = function() {
+              document.getElementById('confirmationModal').style.display = 'none';
+            };
+            
+            function getCookie(name) {
+              let cookieValue = null;
+              if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                  const cookie = cookies[i].trim();
+                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                  }
+                }
+              }
+              return cookieValue;
+            }
+            
+            function confirmAction(url, message) {
+              document.getElementById('modalMessage').innerHTML = message;
+              document.getElementById('confirmationModal').style.display = 'block';
+              
+              document.getElementById('confirmBtn').onclick = function() {
+                window.location.href = url;
+              };
+            }
+            </script>
 
     <!-- ...................Address Tab start here................ -->
 
@@ -453,16 +585,7 @@
                             {% endif %}
                           </div>
                         
-<!-- Modal-->
- <!-- Generic Confirmation Modal -->
-            <div id="confirmationModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-                <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px;">
-                
-                  <p id="modalMessage"></p>
-                  <button id="confirmBtn" style="margin-right: 10px;">Confirm</button>
-                  <button id="cancelBtn">Cancel</button>
-                </div>
-              </div>
+
 
    
                         <!-- My Wallet Ends Here-->

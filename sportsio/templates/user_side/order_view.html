@@ -196,17 +196,17 @@
 <div class="payment-options">
     <h3>Select Payment Method</h3>
     <div class="option">
-        <input type="radio" id="wallet" name="paymentMethod" value="wallet">
+        <input type="radio" id="wallet" name="paymentMethod" value="wallet" required>
         <label for="wallet">Wallet</label>
     </div>
     <div class="option">
-        <input type="radio" id="razorpay" name="paymentMethod" value="razorpay">
+        <input type="radio" id="razorpay" name="paymentMethod" value="razorpay" required>
         <label for="razorpay">Razorpay</label>
     </div>
 </div>
 
 <!-- PAY Button -->
-<button id="payButton" class="btn btn-sm" style="width:160px;background-color: #4CAF50; border: none; color: white;">PAY</button>
+<button id="payButton" class="btn btn-sm" style="width:160px;background-color: #4CAF50; border: none; color: white;" data-order-id="{{ order.id }}">PAY</button>
 
                     {% endif%}
               
@@ -301,7 +301,132 @@
         </div>
     
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+htmlCopy<!-- Replace the existing payment options with this code -->
+<div class="payment-options">
+    <h3>Select Payment Method</h3>
+    <div class="option">
+        <input type="radio" id="wallet" name="paymentMethod" value="wallet" required>
+        <label for="wallet">Wallet</label>
+    </div>
+    <div class="option">
+        <input type="radio" id="razorpay" name="paymentMethod" value="razorpay" required>
+        <label for="razorpay">Razorpay</label>
+    </div>
+</div>
 
+<!-- Update the PAY button to include the order ID -->
+<button id="payButton" class="btn btn-sm" style="width:160px;background-color: #4CAF50; border: none; color: white;" data-order-id="{{ order.id }}">PAY</button>
+
+<!-- Add this script at the end of your template -->
+<script>
+    document.getElementById('payButton').addEventListener('click', function() {
+        var paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+        var orderId = this.getAttribute('data-order-id');
+        
+        if (!paymentMethod) {
+            alert('Please select a payment method');
+            return;
+        }
+    
+        if (paymentMethod.value === 'wallet') {
+            // Handle wallet payment
+            fetch('{% url "user_profile:process_wallet_payment" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({orderId: orderId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success('Payment successful!');
+                    location.reload();
+                } else {
+                    toastr.warning("Insufficient wallet balance.");
+                }
+            });
+        } else if (paymentMethod.value === 'razorpay') {
+            // Handle Razorpay payment
+            fetch('{% url "user_profile:create_razorpay_order" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({orderId: orderId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var options = {
+                        "key": "rzp_test_VArbI2Nu4Yi1Iw",  
+                        "amount": data.amount,
+                        "currency": "INR",
+                        "name": "Sportsio",
+                        "description": "Order Payment",
+                        "order_id": data.razorpay_order_id,
+                        "handler": function (response){
+                            // Handle successful payment
+                            fetch('{% url "user_profile:process_razorpay_payment" %}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': '{{ csrf_token }}'
+                                },
+                                body: JSON.stringify({
+                                    orderId: orderId,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    alert('Payment successful!');
+                                    location.reload();
+                                } else {
+                                    alert('Payment verification failed: ' + data.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('An error occurred during payment verification. Please contact support.');
+                            });
+                        },
+                    };
+                    var rzp = new Razorpay(options);
+                    rzp.open();
+                } else {
+                    alert('Failed to create Razorpay order: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while creating the Razorpay order. Please try again.');
+            });
+        }
+    });
+</script>
+<!-- Toast Messages-->
+{% if messages %}
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        toastr.options = { "closeButton": false, "debug": false, "newestOnTop": true,
+            "progressBar": true, "positionClass": "toast-top-right", "preventDuplicates": true,
+            "onclick": null, "showDuration": "300", "hideDuration": "1000", "timeOut": "5000",
+            "extendedTimeOut": "1000", "showEasing": "swing", "hideEasing": "linear",
+            "showMethod": "fadeIn", "hideMethod": "fadeOut" };
+        {% autoescape on %}
+            {% for msg in messages %}
+                toastr.{{ msg.level_tag }}("{{ msg }}");
+            {% endfor %}
+        {% endautoescape %}
+    });
+</script>
+{% endif %}
 
 
 

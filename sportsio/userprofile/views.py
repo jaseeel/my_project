@@ -22,6 +22,13 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from io import BytesIO
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from .models import Order
+import razorpay
+import logging
 
 from django.utils.timezone import now as timezone_now
 
@@ -135,6 +142,8 @@ from django.db.models import F
 
 def add_tocart(request):
     if request.user.is_authenticated:
+        cart_count=Cart.objects.filter(user=request.user).count()
+
         if request.method == 'POST':
             prod_id = int(request.POST.get('product_id'))
             prod_qty = int(request.POST.get('product_qty'))
@@ -149,7 +158,7 @@ def add_tocart(request):
                     # Use update() to increment the product_qty of the existing cart item
                     Cart.objects.filter(user=request.user, product=prod_id).update(product_quantity=F('product_quantity') + prod_qty)
                     
-                    return JsonResponse({'status': "Cart Updated Successfully"})
+                    return JsonResponse({'status': "Cart Updated Successfully","cart_count":cart_count})
                 else:
                     if product_check.stock_count >= prod_qty:
                         val = Products.objects.get(id=prod_id)
@@ -159,7 +168,7 @@ def add_tocart(request):
                             product=val,
                             product_quantity=prod_qty
                             )
-                        return JsonResponse({'status': "Product Added Successfully"})
+                        return JsonResponse({'status': "Product Added Successfully","cart_count":cart_count})
                     else:
                         return JsonResponse({'status': "No stocks left"})
             else:
@@ -531,27 +540,41 @@ def order_confirmation(request, order_id):
 @login_required
 def cancel_order(request, order_id):
     if not request.user.is_authenticated:
-        messages.error(request, "You need to log in to access wallet payment.")
-        return redirect("login")
+        return JsonResponse({"error": "You need to log in to cancel an order."}, status=401)
+
     order = get_object_or_404(Order, id=order_id)
 
-    if order.status != "Shipped":
-        # Cancel the order
-        order.status = "Cancelled"
-        order.save()
+    if request.method == 'POST':
+        if order.status not in ["Shipped", "Cancelled", "Delivered"]:
+            try:
+                data = json.loads(request.body)
+                
+                # Update order status
+                order.status = "Cancellation Requested"
 
-        # Update product stock_count for each OrderItem in the order
-        for order_item in order.orderitem_set.all():
-            product = order_item.product
-            product.stock_count += order_item.quantity
-            product.save()
+                # Prepare cancellation notes
+                cancellation_notes = (
+                    f"Cancellation Request:\n"
+                    f"Reason: {data.get('cancellationReason', 'Not specified')}\n"
+                    f"Additional Comments: {data.get('additionalComments', 'None')}\n"
+                    f"Requested on: {timezone.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                )
 
-        return redirect(reverse('user_profile:user_profile') + '?tab=orders')
+                # Append cancellation notes to existing order notes
+                if order.order_notes:
+                    order.order_notes += f"\n\n{cancellation_notes}"
+                else:
+                    order.order_notes = cancellation_notes
 
+                order.save()
+
+                return JsonResponse({"message": "Cancellation request submitted successfully."}, status=200)
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Invalid JSON data."}, status=400)
+        else:
+            return JsonResponse({"error": "This order cannot be cancelled."}, status=400)
     else:
-        # Handle error or redirect to appropriate page
-        messages.error(request, "Cancel Order Failed")
-        return redirect(reverse('user_profile:user_profile') + '?tab=orders')
+        return JsonResponse({"error": "Invalid request method."}, status=405)
     
 #______________Order View_________
 
@@ -731,3 +754,106 @@ def download_invoice(request, order_id):
         return HttpResponse("We had some errors <pre>" + html + "</pre>")
 
     return response
+
+
+
+#________________Repayment_________
+@require_POST
+@csrf_exempt
+def process_wallet_payment(request):
+    data = json.loads(request.body)
+    order_id = data.get('orderId')
+    order = Order.objects.get(id=order_id)
+    user_profile = request.user # Assuming you have a user profile model
+    wallet_balance = user_profile.wallet_balance
+    total_price = order.total_price
+
+    if wallet_balance >= total_price > 0:
+        with transaction.atomic():
+            user_profile.wallet_balance -= total_price
+            user_profile.save()
+            order.paid = True
+            order.save()
+            Transaction.objects.create(
+                user=order.user,
+                transaction_type='P',
+                amount=total_price
+            )
+            print("done")
+            messages.success(request, "Payment successful")
+            return render(request, "user_side/success.html")
+    else:
+        return JsonResponse({'success': False})
+
+
+
+
+logger = logging.getLogger(__name__)
+
+@require_POST
+@csrf_exempt
+def create_razorpay_order(request):
+    try:
+        data = json.loads(request.body)
+        order_id = data.get('orderId')
+        
+        logger.info(f"Attempting to create Razorpay order for order ID: {order_id}")
+        
+        order = Order.objects.get(id=order_id)
+        client = razorpay.Client(auth=(os.getenv("RAZOR_KEY"), os.getenv("RAZOR_SECRET")))
+        
+        amount = int(order.total_price * 100)
+        logger.info(f"Creating Razorpay order with amount: {amount} paise")
+        
+        razorpay_order = client.order.create({
+            'amount': amount,
+            'currency': 'INR',
+            'payment_capture': '1'
+        })
+        
+        logger.info(f"Razorpay order created successfully: {razorpay_order['id']}")
+        
+        return JsonResponse({
+            'success': True,
+            'amount': razorpay_order['amount'],
+            'razorpay_order_id': razorpay_order['id']
+        })
+    except Order.DoesNotExist:
+        logger.error(f"Order with ID {order_id} not found")
+        return JsonResponse({'success': False, 'message': 'Order not found'}, status=404)
+    except razorpay.errors.BadRequestError as e:
+        logger.error(f"Razorpay BadRequestError: {str(e)}")
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+    except Exception as e:
+        logger.exception("An unexpected error occurred while creating Razorpay order")
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+@require_POST
+@csrf_exempt
+def process_razorpay_payment(request):
+    data = json.loads(request.body)
+    order_id = data.get('orderId')
+    razorpay_payment_id = data.get('razorpay_payment_id')
+    razorpay_order_id = data.get('razorpay_order_id')
+    razorpay_signature = data.get('razorpay_signature')
+    
+    try:
+        order = Order.objects.get(id=order_id)
+        client = razorpay.Client(auth=(os.getenv(os.getenv("RAZOR_KEY")), os.getenv("RAZOR_SECRET")))
+        
+        # Verify the payment signature
+        params_dict = {
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': razorpay_payment_id,
+            'razorpay_signature': razorpay_signature
+        }
+        client.utility.verify_payment_signature(params_dict)
+        
+        # If verification is successful
+        order.paid = True
+        order.save()
+        return render(request, "user_side/success.html")
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Order not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})

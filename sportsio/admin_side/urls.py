@@ -46,6 +46,7 @@ urlpatterns = [
     path("delete_coupon/<int:coupon_id>/",inv_views.delete_coupon,name="delete_coupon"),
     path("edit_coupon/<int:coupon_id>/",inv_views.edit_coupon,name="edit_coupon"),
     path("refund_order/<int:id>/",inv_views.refund_order,name="refund_order"),
+    path("cancel_order/<int:id>/",inv_views.cancel_order,name="cancel_order"),
     path("admin_order/<int:id>/",inv_views.order_view,name="admin_order_view"),
     path("generate-pdf-report/", report_pdf_order, name="generate_pdf_report"),
     

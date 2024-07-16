@@ -216,3 +216,10 @@ def order_view(request,id):
 
     return render(request,"admin_side/admin_order_view.html",context)  
    
+#_____Cancel_ order
+
+def cancel_order(request,id):
+    order=Order.objects.get(id=id)
+    order.status="Cancelled"
+    order.save()
+    return redirect('order_management')

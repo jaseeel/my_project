@@ -1,0 +1,238 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password Reset OTP Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fccc00;
+        }
+        .logo-space {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .container h4 {
+            font-size: 1.25rem;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        .input-field {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .input-field input {
+            height: 45px;
+            width: 42px;
+            border-radius: 6px;
+            outline: none;
+            font-size: 1.125rem;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        .input-field input:focus {
+            border-color: #4070f4;
+        }
+        .input-field input::-webkit-inner-spin-button,
+        .input-field input::-webkit-outer-spin-button {
+            display: none;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background-color: #4070f4;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #3060e0;
+        }
+        #timer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        #timer {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #4070f4;
+        }
+        #resend-btn {
+            background-color: #4070f4;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+        #resend-btn:hover {
+            background-color: #3060e0;
+        }
+        #message-container {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-space"><img src="{% static 'assets/admin_side/images/logos/dark-logo.png' %}" width="150px"></div>
+    <div class="container">
+        <h4>Enter Password Reset OTP</h4>
+        <form action="{% url 'reset_otp' %}" method='POST'>
+            {% csrf_token %}
+            <div class="input-field">
+                <input type="number" name="otp1" maxlength="1" />
+                <input type="number" name="otp2" maxlength="1" />
+                <input type="number" name="otp3" maxlength="1" />
+                <input type="number" name="otp4" maxlength="1" />
+                <input type="number" name="otp5" maxlength="1" />
+                <input type="number" name="otp6" maxlength="1" />
+            </div>
+            <div class="button-container">
+                <input type="button" value="Cancel" class="btn" onclick="window.location.href='{% url 'forgot_password' %}'">
+                <input type="submit" value="Verify OTP" class="btn">
+            </div>
+        </form>
+        <div id="timer-container">
+            <p id="timer">Time left: 30s</p>
+            <form id="resend-form" method="POST" action="{% url 'forgot_password' %}">
+                {% csrf_token %}
+                <button id="resend-btn" class="btn" style="display: none;" type="submit">Resend OTP</button>
+            </form>
+        </div>
+        {% if messages %}
+        {% for message in messages %}
+        <div id="message-container">
+            <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        const inputs = document.querySelectorAll('.input-field input');
+        const form = document.querySelector('form');
+        const timerDisplay = document.getElementById('timer');
+        const resendBtn = document.getElementById('resend-btn');
+        const resendForm = document.getElementById('resend-form');
+        let timer;
+        let timeLeft = 30;
+    
+        // Auto-focus and move to next input
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', function() {
+                if (this.value.length === 1) {
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                }
+            });
+    
+            // Allow backspace to go to previous input
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+    
+        function startTimer() {
+            timeLeft = 30;
+            resendBtn.style.display = 'none';
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `Time left: ${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    resendBtn.style.display = 'inline-block';
+                    timerDisplay.textContent = 'Time expired';
+                }
+            }, 1000);
+        }
+    
+        function displayMessage(message) {
+            const messageContainer = document.getElementById('message-container');
+            if (!messageContainer) {
+                const newMessageContainer = document.createElement('div');
+                newMessageContainer.id = 'message-container';
+                document.querySelector('.container').appendChild(newMessageContainer);
+            }
+            document.getElementById('message-container').innerHTML = `<p>${message}</p>`;
+        }
+    
+        // Modify the form submission to include the email
+        resendForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = "{{ request.session.reset_email }}";  // Get email from session
+            const formData = new FormData(resendForm);
+            formData.append('email', email);
+            
+            fetch("{% url 'forgot_password' %}", {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      displayMessage("New OTP sent successfully");
+                      startTimer();
+                  } else {
+                      displayMessage("Failed to resend OTP. Please try again.");
+                  }
+              });
+        });
+        
+        // Start the timer when the page loads
+        startTimer();
+    </script>
+</body>
+</html>

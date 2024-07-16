@@ -66,7 +66,7 @@ class Order(models.Model):
     payment_method = models.CharField(max_length=100)
     coupon_used=models.CharField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pending")
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="Pending")
     estimated_delivery_time = models.DateField(null=True, blank=True)
     tracking_number = models.CharField(max_length=10, blank=True, null=True)
     order_notes=models.TextField(max_length=50, null=True)

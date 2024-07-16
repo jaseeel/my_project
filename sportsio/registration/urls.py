@@ -10,6 +10,9 @@ urlpatterns = [
     path('register/', views.register,name='register'),
     path('forget/',views.forget,name='forget'),
     path('otp/', views.verify_otp,name='otp'),
-    path('logout_view/', views.logout_view,name='logout_view'),
+    path('logout_view/', views.user_logout,name='logout_view'),
     path('cancel/', views.cancel_view,name='cancel'),
+    path('forgot-password/', views.forgot_password, name='forgot_password'),
+    path('reset-otp/', views.reset_otp, name='reset_otp'),
+    path('reset-password/', views.reset_password, name='reset_password'),
 ]

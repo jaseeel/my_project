@@ -32,6 +32,8 @@ urlpatterns = [
     path("return_order/<int:id>",views.returnorder,name="return_order"),
     path("download_invoice/<int:order_id>",views.download_invoice,name="download_invoice",),
     path("wallet_payment/<int:order_id>/", views.wallet_payment, name="wallet_payment"),
-
+    path('/process_wallet_payment/', views.process_wallet_payment, name='process_wallet_payment'),
+    path('create_razorpay_order/', views.create_razorpay_order, name='create_razorpay_order'),
+    path('process_razorpay_payment/', views.process_razorpay_payment, name='process_razorpay_payment'),
 ]
     

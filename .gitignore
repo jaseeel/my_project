@@ -59,7 +59,7 @@ sportsio/user_side/migrations__pycache__/
 .env
 
 *.pyc
-
+sportsio/userprofile/migrations
 sportsio/products/migrations
 sportsio/inventory/__pycache__
 sportsio/products/__pycache__

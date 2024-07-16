@@ -8,60 +8,63 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'assets/register/style.css' %}">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+	<script src="{% static 'assets/user_side/js/vendor/jquery-1.12.4.min.js'%}"></script>
 	<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-lg-6 col-md-6 d-none d-md-block image-container"></div>
 
-			<div class="col-lg-6 col-md-6 form-container">
-				<div class="col-lg-8 col-md-12 col-sm-9 col-xs-12 form-box">
-					<div class="text-center logo mb-3">
-						<img src="{% static 'assets/register/image/logo.png' %}" width="150px">
-					</div>
+		<div class="col-lg-14 col-md-16 form-container">
+			<div class="col-lg-4 col-md-12 col-sm-9 col-xs-14 form-box text-center">
+				<div class="logo mb-2">
+					<img src="{% static 'assets/admin_side/images/logos/dark-logo.png' %}" width="150px">
+				</div>
 					<div class=" reset-form d-block">
-						<form class="reset-password-form">
+						<form action="{% url "forgot_password"%}" method="POST" class="reset-password-form">
+							{%csrf_token%}
 							<h4 class="mb-3">Reset your password</h4>
-							<p class="mb-3 text-white">Please enter your phone number</p>
+							<p class="mb-3 text-white">Please enter your E-mail</p>
 							<div class="form-input">
-								<span><i class="fa fa-phone"></i></span>
-								<input type="tel" placeholder="Phone Number" required>
+								<span><i class="fa fa-envelope  "></i></span>
+								<input name="email" type="email" placeholder="email" required>
 							</div>
 							<div class="mb-3">
-								<button class="btn" type="submit">OTP</button>
-							</div>
+								<button class="btn" type="submit">Get OTP</button>
+								<button class="btn" type="submit"><a style="color:black;"  href="{% url 'login' %}">Back</a></button>						</div>
 						</form>
-					</div>
-					<div class="reset-confirmation d-none">
-						<div class="mb-4">
-							<h4 class="mb-3">Link was send</h4>
-							<h6 class="text-white">Please check your inbox</h6>
+						{% if messages %}
+						<div id="message-container">
+							{% for message in messages %}
+							<div class="message" style="display: none;">
+								<p>{{ message }}</p>
+							</div>
+							{% endfor %}
 						</div>
-						<div>
-							<a href="login.html">
-								<button type="submit" class="btn">Login Now</button>
-							</a>
+						{% endif %}
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-
-	<script type="text/javascript">
-		function PasswordReset(){
-			$('form.reset-password-form').on('submit', function(e){
-				e.preventDefault();
-				$('.reset-form').removeClass('d-block').addClass('d-none');
-
-				$('.reset-confirmation').addClass('d-block');
-			});
-		}
-
-		window.addEventListener('load', function(){
-			PasswordReset();
-		})
-	</script>
 </body>
 </html>
+<script>
+	$(document).ready(function() {
+		var messages = $('.message');
+		var currentIndex = 0;
+	
+		function showNextMessage() {
+			if (currentIndex < messages.length) {
+				$(messages[currentIndex]).fadeIn(500).delay(3000).fadeOut(500, function() {
+					currentIndex++;
+					showNextMessage();
+				});
+			}
+		}
+	
+		if (messages.length > 0) {
+			showNextMessage();
+		}
+	});
+	</script>
