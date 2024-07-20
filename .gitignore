@@ -13,8 +13,7 @@ sportsio/staticfiles/
 # Ignore media directory
 sportsio/media/
 
-# Ignore the static directory within the sportsio directory
-sportsio/static/
+
 
 # Ignoring Pycaches from creating conflicts
 
