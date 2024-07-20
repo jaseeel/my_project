@@ -191,7 +191,7 @@ def verify_otp(request):
     return render(request,'registration/verify.html',context)
 
 @login_required
-def logout_view(request):
+def user_logout(request):
     logout(request)
     messages.info(request, "You have been logged out.")
     return redirect('home')
