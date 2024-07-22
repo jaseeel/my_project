@@ -65,7 +65,6 @@ from django.db.models.functions import TruncMonth, TruncYear
 from datetime import datetime
 import json
 
-
 def dashboard(request):
     if "email" in request.session:
         # Initialize variables
@@ -134,13 +133,13 @@ def dashboard(request):
             total_offer_price_amount=Sum("total_price")
         )
         total_amount = total_offer_price_amount.get("total_offer_price_amount", 0)
-        total_amount = total_amount // 1000  # Ensure this is only done after getting a valid integer
+        total_amount = total_amount // 1000 if total_amount is not None else 0
 
         total_coupon_price = Order.objects.aggregate(
             total_coupon_price=Sum("discount_price")
         )
         total_coupon_price = total_coupon_price.get("total_coupon_price", 0)
-        total_coupon_price = total_coupon_price // 1000  # Ensure this is only done after getting a valid integer
+        total_coupon_price = total_coupon_price // 1000 if total_coupon_price is not None else 0
 
         order_details_last_week = Order.objects.filter(
             paid=True, created_at__gte=one_week_ago
@@ -255,7 +254,7 @@ def dashboard(request):
                     total_price_sum=Sum("total_price")
                 )
                 total_amount = total_amount_received.get("total_price_sum", 0)
-                total_amount = total_amount // 1000  # Ensure this is only done after getting a valid integer
+                total_amount = total_amount // 1000 if total_amount is not None else 0
 
                 data = [float(order.total_price) for order in filtered_orders]
                 labels = [str(order.id) for order in filtered_orders]
