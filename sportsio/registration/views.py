@@ -197,14 +197,22 @@ def user_logout(request):
     return redirect('home')
 
 def cancel_view(request):
-    
-    user      = CustomUser.objects.get(email=request.session['email'])
-    if user:
-        user.delete()
-    messages.info(request,"invalid otp")
+    # Ensure that 'email' is in the session
     if 'email' in request.session:
-        del request.session['email']
-    return redirect('login')
+        try:
+            user = CustomUser.objects.get(email=request.session['email'])
+            user.delete()
+            messages.info(request, "User account deleted successfully.")
+        except CustomUser.DoesNotExist:
+            messages.error(request, "User not found.")
+        finally:
+            del request.session['email']
+            logout(request)
+            messages.info(request, "You have been logged out.")
+            return redirect('home')
+    else:
+        messages.error(request, "No user session found.")
+        return redirect('login')
 
 
 #____________Forgot Password__________
