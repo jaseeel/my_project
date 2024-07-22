@@ -199,9 +199,11 @@ def user_logout(request):
 def cancel_view(request):
     
     user      = CustomUser.objects.get(email=request.session['email'])
-    user.delete()
+    if user:
+        user.delete()
     messages.info(request,"invalid otp")
-    del request.session['email']
+    if 'email' in request.session:
+        del request.session['email']
     return redirect('login')
 
 
