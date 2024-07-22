@@ -12,8 +12,8 @@ sportsio/staticfiles/
 
 # Ignore media directory
 sportsio/media/
-
-
+sportsio/sportsio/.settings.py.swp
+sportsio/sportsio/settings.py
 
 # Ignoring Pycaches from creating conflicts
 
