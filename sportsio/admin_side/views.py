@@ -81,7 +81,7 @@ def dashboard(request):
         data = []
         monthly_labels = []
         monthly_data = []
-        
+
         # Fetch top products, brands, and categories
         top_products = Products.objects.annotate(
             total_orders=Count("orderitem__order")
