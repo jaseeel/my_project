@@ -57,80 +57,84 @@ def admin_login(request):
         # Render the login form if the request method is not POST
         return render(request, 'admin_side/admin_login.html')
 
-
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.db.models import Count, Sum
+from django.utils import timezone
+from django.db.models.functions import TruncMonth, TruncYear
+from datetime import datetime
+import json
 
 def dashboard(request):
     if "email" in request.session:
+        # Initialize variables
         order_count = 0
         total_amount = 0
         filtered_customers = 0
         recent_orders = None
+        top_products = []
+        top_brands = []
+        top_categories = []
+        monthly_revenue = []
+        yearly_revenue = []
+        labels = []
+        data = []
+        
+        # Fetch top products, brands, and categories
         top_products = Products.objects.annotate(
             total_orders=Count("orderitem__order")
         ).order_by("-total_orders")[:10]
 
-        top_brands = Brand.objects.annotate(total_orders=Count("brand_name")).order_by(
-            "-total_orders"
-        )[:10]
+        top_brands = Brand.objects.annotate(
+            total_orders=Count("brand_name")
+        ).order_by("-total_orders")[:10]
 
         top_categories = category.objects.annotate(
             total_orders=Count("category_name")
         ).order_by("-total_orders")[:10]
 
+        # Fetch revenue data
         monthly_revenue = (
-            Order.objects.filter(paid=True or status == "Delivered")
+            Order.objects.filter(paid=True, status="Delivered")
             .annotate(month=TruncMonth("created_at"))
             .values("month")
             .annotate(total_revenue=Sum("total_price"))
-        )
-        filtered_orders = None
-        # Yearly Revenue
+        ) if Order.objects.exists() else []
+
         yearly_revenue = (
-            Order.objects.filter(paid=True or status == "Delivered")
+            Order.objects.filter(paid=True, status="Delivered")
             .annotate(year=TruncYear("created_at"))
             .values("year")
             .annotate(total_revenue=Sum("total_price"))
-        )
+        ) if Order.objects.exists() else []
 
         orders = Order.objects.order_by("-id")
-        labels = []
-        data = []
-
-        for order in orders:
-            labels.append(str(order.id))
-            data.append(float(order.total_price))
+        labels = [str(order.id) for order in orders]
+        data = [float(order.total_price) for order in orders]
 
         total_customers = CustomUser.objects.count()
 
         one_week_ago = timezone.now() - timezone.timedelta(weeks=1)
-
         new_users_last_week = CustomUser.objects.filter(
             date_joined__gte=one_week_ago
         ).count()
-        total_order = OrderItem.objects.count()
         
-        total_orders_delivered=Order.objects.filter(status="Delivered").count()
+        total_order = OrderItem.objects.count()
+        total_orders_delivered = Order.objects.filter(status="Delivered").count()
 
         total_offer_price_amount = Order.objects.aggregate(
             total_offer_price_amount=Sum("total_price")
         )
+        total_amount = total_offer_price_amount.get("total_offer_price_amount", 0) // 1000
 
-        total_amount= total_offer_price_amount.get("total_offer_price_amount",0)
-
-        total_amount //= 1000
-        
-        total_coupon_price= Order.objects.aggregate(
+        total_coupon_price = Order.objects.aggregate(
             total_coupon_price=Sum("discount_price")
         )
-        total_coupon_price=total_coupon_price.get("total_coupon_price",0)
-        total_coupon_price//=1000
-        
+        total_coupon_price = total_coupon_price.get("total_coupon_price", 0) // 1000
 
         order_details_last_week = Order.objects.filter(
             paid=True, created_at__gte=one_week_ago
-        )
-
-        order_details_last_week = order_details_last_week.count()
+        ).count()
 
         category_distribution = Products.objects.values('category__name').annotate(count=Count('id'))
         category_labels = [item['category__name'] for item in category_distribution]
@@ -138,9 +142,7 @@ def dashboard(request):
 
         total_products = Products.objects.count()
 
-        time_interval = request.GET.get(
-            "time_interval", "all"
-        )  # Default to "all" if we're not provided anything
+        time_interval = request.GET.get("time_interval", "all")
         if time_interval == "yearly":
             orders = Order.objects.annotate(
                 date_truncated=TruncYear("created_at", output_field=DateField())
@@ -153,17 +155,20 @@ def dashboard(request):
                 date_truncated=TruncMonth("created_at", output_field=DateField())
             )
             orders = orders.values("date_truncated").annotate(
-                total_amount=Sum("offer_price")
+                total_amount=Sum("total_price")
             )
+        else:
+            orders = Order.objects.annotate(date_truncated=F("created_at"))
+
         monthly_sales = (
-            Order.objects.filter(paid=True)  # Add your filter condition here
+            Order.objects.filter(paid=True)
             .annotate(month=TruncMonth("created_at"))
             .values("month")
             .annotate(total_amount=Sum("total_price"))
             .order_by("month")
-        )
+        ) if Order.objects.exists() else []
+        
         monthly_labels = [entry["month"].strftime("%B %Y") for entry in monthly_sales]
-        monthly_data = [float(entry["total_amount"]) for entry in monthly_sales]
         monthly_data = [float(entry["total_amount"]) for entry in monthly_sales]
 
         headers = HttpHeaders(request.headers)
@@ -186,10 +191,9 @@ def dashboard(request):
                 filtered_orders = Order.objects.annotate(date_truncated=F("created_at"))
 
             filtered_orders = filtered_orders.values("date_truncated")
-
             filtered_orders = (
                 filtered_orders.values("date_truncated")
-                .annotate(total_amount=Sum("offer_price"))
+                .annotate(total_amount=Sum("total_price"))
                 .order_by("date_truncated")
             )
             filtered_labels = [
@@ -205,7 +209,7 @@ def dashboard(request):
             "top_products": top_products,
             "labels": json.dumps(labels),
             "data": json.dumps(data),
-            "total_amount":total_amount,
+            "total_amount": total_amount,
             "total_customers": total_customers,
             "new_users_last_week": new_users_last_week,
             "total_order": total_order,
@@ -216,12 +220,11 @@ def dashboard(request):
             "monthly_data": json.dumps(monthly_data),
             "top_categories": top_categories,
             "top_brands": top_brands,
-            "total_coupon_price":total_coupon_price,
-            "total_orders_delivered":total_orders_delivered,
+            "total_coupon_price": total_coupon_price,
+            "total_orders_delivered": total_orders_delivered,
         }
 
         if request.method == "GET":
-            # Get the start and end dates from the request GET parameters
             from_date_str = request.GET.get("from_date")
             to_date_str = request.GET.get("to_date")
 
@@ -235,32 +238,19 @@ def dashboard(request):
                 filtered_customers = CustomUser.objects.filter(
                     date_joined__date__range=[from_date, to_date]
                 )
-                if isinstance(filtered_customers, int):
-                    total_customers = filtered_customers
-                else:
-                    total_customers = filtered_customers.count()
+                total_customers = filtered_customers.count() if filtered_customers else 0
+                order_count = filtered_orders.count() if filtered_orders else 0
 
-                order_count = filtered_orders.count()
                 total_amount_received = filtered_orders.aggregate(
                     total_price_sum=Sum("total_price")
                 )
-                total_amount = total_amount_received.get("total_price_sum", 0)
-
-                if (
-                    total_amount_received is not None
-                    and total_amount_received["total_price_sum"] is not None
-                ):
-                    total_amount = (
-                        total_amount_received["total_price_sum"] // 1000
-                    )  # Assuming you're dealing with currency values
-                else:
-                    total_amount = 0
+                total_amount = total_amount_received.get("total_price_sum", 0) // 1000
 
                 data = [float(order.total_price) for order in filtered_orders]
                 labels = [str(order.id) for order in filtered_orders]
 
-                recent_orders = Order.objects.order_by("-id")[:5]
-            # Update the context with filtered data
+                recent_orders = Order.objects.order_by("-id")[:5] if Order.objects.exists() else []
+
             context.update(
                 {
                     "total_orders": order_count,
@@ -274,6 +264,7 @@ def dashboard(request):
 
         return render(request, "admin_side/index.html", context)
     return redirect("admin_login")
+
 
      
 
