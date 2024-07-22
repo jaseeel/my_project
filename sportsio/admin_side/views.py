@@ -64,14 +64,13 @@ from django.utils import timezone
 from django.db.models.functions import TruncMonth, TruncYear
 from datetime import datetime
 import json
-
 def dashboard(request):
     if "email" in request.session:
         # Initialize variables
         order_count = 0
         total_amount = 0
         filtered_customers = 0
-        recent_orders = None
+        recent_orders = []
         top_products = []
         top_brands = []
         top_categories = []
@@ -79,6 +78,8 @@ def dashboard(request):
         yearly_revenue = []
         labels = []
         data = []
+        monthly_labels = []
+        monthly_data = []
         
         # Fetch top products, brands, and categories
         top_products = Products.objects.annotate(
@@ -94,20 +95,25 @@ def dashboard(request):
         ).order_by("-total_orders")[:10]
 
         # Fetch revenue data
-        monthly_revenue = (
-            Order.objects.filter(paid=True, status="Delivered")
-            .annotate(month=TruncMonth("created_at"))
-            .values("month")
-            .annotate(total_revenue=Sum("total_price"))
-        ) if Order.objects.exists() else []
+        if Order.objects.exists():
+            monthly_revenue = (
+                Order.objects.filter(paid=True, status="Delivered")
+                .annotate(month=TruncMonth("created_at"))
+                .values("month")
+                .annotate(total_revenue=Sum("total_price"))
+            )
 
-        yearly_revenue = (
-            Order.objects.filter(paid=True, status="Delivered")
-            .annotate(year=TruncYear("created_at"))
-            .values("year")
-            .annotate(total_revenue=Sum("total_price"))
-        ) if Order.objects.exists() else []
+            yearly_revenue = (
+                Order.objects.filter(paid=True, status="Delivered")
+                .annotate(year=TruncYear("created_at"))
+                .values("year")
+                .annotate(total_revenue=Sum("total_price"))
+            )
+        else:
+            monthly_revenue = []
+            yearly_revenue = []
 
+        # Process orders and calculate total amounts
         orders = Order.objects.order_by("-id")
         labels = [str(order.id) for order in orders]
         data = [float(order.total_price) for order in orders]
@@ -125,12 +131,14 @@ def dashboard(request):
         total_offer_price_amount = Order.objects.aggregate(
             total_offer_price_amount=Sum("total_price")
         )
-        total_amount = total_offer_price_amount.get("total_offer_price_amount", 0) // 1000
+        total_amount = total_offer_price_amount.get("total_offer_price_amount", 0) or 0
+        total_amount //= 1000
 
         total_coupon_price = Order.objects.aggregate(
             total_coupon_price=Sum("discount_price")
         )
-        total_coupon_price = total_coupon_price.get("total_coupon_price", 0) // 1000
+        total_coupon_price = total_coupon_price.get("total_coupon_price", 0) or 0
+        total_coupon_price //= 1000
 
         order_details_last_week = Order.objects.filter(
             paid=True, created_at__gte=one_week_ago
@@ -160,16 +168,16 @@ def dashboard(request):
         else:
             orders = Order.objects.annotate(date_truncated=F("created_at"))
 
-        monthly_sales = (
-            Order.objects.filter(paid=True)
-            .annotate(month=TruncMonth("created_at"))
-            .values("month")
-            .annotate(total_amount=Sum("total_price"))
-            .order_by("month")
-        ) if Order.objects.exists() else []
-        
-        monthly_labels = [entry["month"].strftime("%B %Y") for entry in monthly_sales]
-        monthly_data = [float(entry["total_amount"]) for entry in monthly_sales]
+        if Order.objects.exists():
+            monthly_sales = (
+                Order.objects.filter(paid=True)
+                .annotate(month=TruncMonth("created_at"))
+                .values("month")
+                .annotate(total_amount=Sum("total_price"))
+                .order_by("month")
+            )
+            monthly_labels = [entry["month"].strftime("%B %Y") for entry in monthly_sales]
+            monthly_data = [float(entry["total_amount"]) for entry in monthly_sales]
 
         headers = HttpHeaders(request.headers)
         is_ajax_request = headers.get("X-Requested-With") == "XMLHttpRequest"
@@ -244,7 +252,8 @@ def dashboard(request):
                 total_amount_received = filtered_orders.aggregate(
                     total_price_sum=Sum("total_price")
                 )
-                total_amount = total_amount_received.get("total_price_sum", 0) // 1000
+                total_amount = total_amount_received.get("total_price_sum", 0) or 0
+                total_amount //= 1000
 
                 data = [float(order.total_price) for order in filtered_orders]
                 labels = [str(order.id) for order in filtered_orders]
