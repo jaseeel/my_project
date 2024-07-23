@@ -28,5 +28,7 @@ urlpatterns = [
     path('base', views.base, name='base'),
     path('register/', include('registration.urls')),
     path('user_side/', include(('user_side.urls', 'user_side'), namespace='user_side')),
-    path('user_profile/', include(('userprofile.urls', 'user_profile'), namespace='user_profile'))
+    path('user_profile/', include(('userprofile.urls', 'user_profile'), namespace='user_profile')),
+    path('auth/', include('social_django.urls', namespace='social')),
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

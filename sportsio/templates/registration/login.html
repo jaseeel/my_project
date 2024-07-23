@@ -12,7 +12,37 @@
 </head>
 <body>
     <style>
-    
+        .google-btn {
+            color:black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            background-color: white;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .google-btn:hover {
+            background-color: #ced6d6;
+            font-weight:300%;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color:grey;
+        }
+        
+        .google-logo {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        
+
     #message-container {
         padding: 10px;
         
@@ -67,12 +97,16 @@
                         <a href="{% url 'forget' %}" class="forget-link">Forgot Password ?</a>
                     </div>
                 </div>
-                <div class="text-left mb-3">
+                <div class="text-center mb-3">
                     <button type="submit" class="btn">Login</button>
                 </div>
                 <div class="text-center mb-2">
                     <div class="mb-3" style="color: #777">or login with</div>
-                    <a href="" class="btn btn-social btn-google">google</a>
+                    <a href="{% url 'social:begin' 'google-oauth2' %}" class="google-btn">
+                        <img src="{% static 'assets/register/image/google-logo.png' %}" alt="Google Logo" class="google-logo">
+                        <span>Login with Google</span>
+                    </a>
+                    
                 </div>
                 <div style="color: #777">Don't have an account
                     <a href="{% url 'register' %}" class="register-link">Register here</a>

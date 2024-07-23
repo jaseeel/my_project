@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="{% static 'assets/admin_side/css/styles.min.css' %}" />
    <!-- Font Awesome -->
    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/fontawesome.min.css" integrity="sha384-BY+fdrpOd3gfeRvTSMT+VUZmA728cfF9Z2G42xpaRkUGu2i3DyzpTURDo5A6CaLK" crossorigin="anonymous">
   
 </head>
 
@@ -46,14 +47,14 @@
             </li>
             <li class="nav-small-cap">
               <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-              <span class="hide-menu">UI COMPONENTS</span>
+              <span class="hide-menu">ADMIN COMPONENTS</span>
             </li>
             <li class="sidebar-item">
               <a class="sidebar-link" href="{% url 'user_management' %}" aria-expanded="false">
                 <span>
                   <i class="ti ti-article"></i>
                 </span>
-                <span class="hide-menu">Users</span>
+                <span class="hide-menu">User Management</span>
               </a>
             </li>
             <li class="sidebar-item">
@@ -75,23 +76,23 @@
             <li class="sidebar-item">
               <a class="sidebar-link" href="{% url 'banner_management'%}" aria-expanded="false">
                 <span>
-                  <i class="ti ti-layout-media-center-alt"></i>
+                  <i class="fa fa-paint-brush" aria-hidden="true"></i>
                 </span>
-                <span class="hide-menu">Banners Management</span>
+                <span class="hide-menu">Banner Management</span>
               </a>
             </li>
             <li class="sidebar-item">
               <a class="sidebar-link" href="{% url 'inventory' %}" aria-expanded="false">
                 <span>
-                  <i class="ti ti-dropbox "></i>
+                  <i class="fa fa-archive" aria-hidden="true"></i>
                 </span>
-                <span class="hide-menu">Inventory</span>
+                <span class="hide-menu">Inventory Management</span>
               </a>
             </li>
             <li class="sidebar-item">
               <a class="sidebar-link" href="{% url 'order_management' %}" aria-expanded="false">
                 <span>
-                  <i class="ti ti-shopping-cart-full"></i>
+                  <i class="fa fa-truck" aria-hidden="true"></i>
                 </span>
                 <span class="hide-menu">Order Management</span>
               </a>
@@ -99,14 +100,14 @@
             <li class="sidebar-item">
               <a class="sidebar-link" href="{% url 'coupon_management' %}" aria-expanded="false">
                 <span>
-                  <i class="ti "></i>
+                  <i class="fa fa-ticket" aria-hidden="true"></i>
                 </span>
                 <span class="hide-menu">Coupon Management</span>
               </a>
             </li>
             <li class="nav-small-cap">
               <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-              <span class="hide-menu">AUTH</span>
+              <span class="hide-menu">Sign off</span>
             </li>
             <li class="sidebar-item">
               <a href="{% url 'admin_logout' %}" class="btn btn-outline-danger btn-sm mx-3 mt-2 d-block">Logout</a>
