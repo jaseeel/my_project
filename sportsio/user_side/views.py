@@ -179,11 +179,9 @@ def product_search(request):
 def shop_by_cat(request):
     category_list = category.objects.filter(is_active=True).annotate(product_count=Count('category_name'))
     cat_id=request.GET.get('cat_id')
-    print("hiii",cat_id)
     if cat_id:
         cat = category.objects.get(id=cat_id)
         product_list=Products.objects.filter(is_active=True,category=cat)
-        print("products",product_list)
     else:
         product_list=Products.objects.filter(is_active=True)
     items_per_page = 9

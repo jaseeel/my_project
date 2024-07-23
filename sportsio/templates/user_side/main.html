@@ -25,7 +25,7 @@
                             <h3>{{ ban.title }}</h3>
                             <h4>{{ ban.offer_details }}</h4>
                             <div class="uren-btn-ps_left slide-btn">
-                                <a class="uren-btn" href="shop-left-sidebar.html">Read More</a>
+                                <a class="uren-btn" href="{% url "user_side:shopbycat"%}?cat_id={{ban.category.id}}">Shop Now</a>
                             </div>
                         </div>
                     </div>
