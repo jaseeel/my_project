@@ -15,7 +15,7 @@ def inventory(request):
     context={
         'stock_items': stock_items
     }
-    return render(request, 'admin_side/inventory.html',context)
+    return render(request, 'admin_side/Inventory.html',context)
 
 def update_stock(request):
         if request.method == 'POST':
