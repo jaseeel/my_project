@@ -15,6 +15,35 @@
     <!-- Include alertify JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/alertify.min.js"></script>
     <style>
+        .google-btn {
+            color:black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            background-color: white;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .google-btn:hover {
+            background-color: #ced6d6;
+            font-weight:300%;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color:grey;
+        }
+        
+        .google-logo {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
         .error-message {
             color: red;
             font-size: 0.8em;
@@ -107,9 +136,13 @@
                 <div class="text-left mb-3">
                     <button type="submit" class="btn">Register</button>
                 </div>
-                <div class="text-center mb-1">
-                    <div class="mb-1" style="color: #777">or register with</div>
-                    <a href="" class="btn btn-social btn-google">google</a>
+                <div class="text-center mb-2">
+                    <div class="mb-3" style="color: #777">or login with</div>
+                    <a href="{% url 'social:begin' 'google-oauth2' %}" class="google-btn">
+                        <img src="{% static 'assets/register/image/google-logo.png' %}" alt="Google Logo" class="google-logo">
+                        <span>Login with Google</span>
+                    </a>
+                    
                 </div>
                 <div style="color: #777">Already have an account
                     <a href="{% url 'login' %}" class="login-link">Login here</a>
