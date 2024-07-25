@@ -35,7 +35,7 @@ from django.utils.timezone import now as timezone_now
 # Create your views here.
 
 #_____________Account Page ________________
-
+    
 def user_profile(request,*args, **kwargs):
     user=request.user
     tab = request.GET.get('tab', 'dashboard')  # Default to 'dashboard' if no tab parameter is provided
