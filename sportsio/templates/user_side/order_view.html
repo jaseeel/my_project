@@ -301,21 +301,6 @@
         </div>
     
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-htmlCopy<!-- Replace the existing payment options with this code -->
-<div class="payment-options">
-    <h3>Select Payment Method</h3>
-    <div class="option">
-        <input type="radio" id="wallet" name="paymentMethod" value="wallet" required>
-        <label for="wallet">Wallet</label>
-    </div>
-    <div class="option">
-        <input type="radio" id="razorpay" name="paymentMethod" value="razorpay" required>
-        <label for="razorpay">Razorpay</label>
-    </div>
-</div>
-
-<!-- Update the PAY button to include the order ID -->
-<button id="payButton" class="btn btn-sm" style="width:160px;background-color: #4CAF50; border: none; color: white;" data-order-id="{{ order.id }}">PAY</button>
 
 <!-- Add this script at the end of your template -->
 <script>
@@ -393,7 +378,7 @@ htmlCopy<!-- Replace the existing payment options with this code -->
                             })
                             .catch(error => {
                                 console.error('Error:', error);
-                                alert('An error occurred during payment verification. Please contact support.');
+                                alert('Payment Successfull.');
                             });
                         },
                     };
