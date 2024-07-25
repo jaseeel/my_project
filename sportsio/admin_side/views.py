@@ -6,6 +6,7 @@ from admin_side.models import *
 from django.contrib.auth import login,logout
 from django.db.models.functions import TruncYear, TruncMonth, TruncDate
 from django.http import FileResponse
+from reportlab.lib.styles import getSampleStyleSheet
 import json
 from django.http import HttpHeaders
 from django.db.models import DateField
@@ -15,7 +16,7 @@ from products.models import Products
 from reportlab.platypus import SimpleDocTemplate
 from reportlab.lib.pagesizes import A4, inch
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from django.views.decorators.http import require_http_methods
 from datetime import date, datetime, timedelta
 from reportlab.lib import colors
@@ -469,7 +470,20 @@ def report_generator(request, orders):
             doc = SimpleDocTemplate(pdf_buf, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=19)
             story = []
             table = Table(data, colWidths=[1 * inch, 1 * inch, 1 * inch, 3 * inch, 1 * inch, 1 * inch])
-            
+            #Headings 
+            custom_heading_style = ParagraphStyle(
+                name='CustomHeading',
+                fontName='Helvetica-Bold',
+                fontSize=16,
+                leading=20,
+                alignment=1  # Center alignment
+            )
+
+            # Add headings
+            heading1 = Paragraph("Sales Report ", custom_heading_style)
+            heading2=Paragraph(f"From {from_date} to {to_date}", custom_heading_style)
+            story.append(heading1)
+            story.append(heading2)
             # Apply the style to the table
             table_style = TableStyle([
                 ("BACKGROUND", (0, 0), (-1, 0), colors.gray),
