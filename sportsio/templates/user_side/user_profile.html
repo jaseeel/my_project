@@ -4,6 +4,102 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <style>
+  .cancellation-modal,
+  .confirmation-modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .cancellation-content,
+  .confirmation-content {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    max-width: 400px;
+    width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    transition: transform 0.3s ease;
+  }
+  
+  .cancellation-modal.active,
+  .confirmation-modal.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .cancellation-modal.active .cancellation-content,
+  .confirmation-modal.active .confirmation-content {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  
+  .cancellation-title {
+    margin-top: 0;
+    color: #333;
+  }
+  
+  .cancellation-reason-select,
+  .cancellation-comments {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .cancellation-buttons,
+  .confirmation-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .submit-cancellation,
+  .close-cancellation,
+  .confirm-cancellation,
+  .reject-cancellation {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .submit-cancellation,
+  .confirm-cancellation {
+    background: #ff4d4d;
+    color: white;
+  }
+  
+  .close-cancellation,
+  .reject-cancellation {
+    background: #eee;
+    color: #333;
+  }
+  
+  .submit-cancellation:hover,
+  .close-cancellation:hover,
+  .confirm-cancellation:hover,
+  .reject-cancellation:hover {
+    opacity: 0.8;
+  }
+
     .address-container {
       max-width: 600px;
       margin: 0 auto;
@@ -351,136 +447,111 @@
             </div>
             
             <!-- Cancellation Form Modal -->
-            <div id="cancellationFormModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-              <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px;">
-                <h2>Electronic Product Cancellation Form</h2>
-                <form id="cancelOrderForm" onsubmit="return submitCancellationForm()">
-                  <input type="hidden" id="orderNumber" name="orderNumber">
+            <div id="cancellationModal" class="modal cancellation-modal">
+              <div class="modal-content cancellation-content">
+                <h2 class="modal-title cancellation-title">🚫 Cancel Order</h2>
+                <form id="cancelOrderForm" class="cancellation-form">
+                  <input type="hidden" id="orderNumber" name="orderNumber" class="hidden-order-number">
                   
-                  <label for="productType">Product Type:</label>
-                  <select id="productType" name="productType" required>
-                    <option value="">Select a product type</option>
-                    <option value="smartphone">Smartphone</option>
-                    <option value="laptop">Laptop</option>
-                    <option value="tablet">Tablet</option>
-                    <option value="smartwatch">Smartwatch</option>
-                    <option value="other">Other</option>
-                  </select><br><br>
-                  
-                  <label for="cancellationReason">Reason for Cancellation:</label>
-                  <select id="cancellationReason" name="cancellationReason" required>
-                    <option value="">Select a reason</option>
-                    <option value="changeOfMind">Change of mind</option>
-                    <option value="foundBetterDeal">Found a better deal</option>
-                    <option value="delayedShipping">Delayed shipping</option>
+                  <select id="cancellationReason" name="cancellationReason" class="cancellation-reason-select" required>
+                    <option value="" disabled selected>Why cancel?</option>
+                    <option value="changeOfMind">Changed my mind</option>
+                    <option value="foundBetterDeal">Found better deal</option>
+                    <option value="delayedShipping">Shipping delay</option>
                     <option value="financialReasons">Financial reasons</option>
                     <option value="other">Other</option>
-                  </select><br><br>
+                  </select>
                   
-                  <label for="additionalComments">Additional Comments:</label><br>
-                  <textarea id="additionalComments" name="additionalComments" rows="4" cols="50"></textarea><br><br>
+                  <textarea id="additionalComments" name="additionalComments" class="cancellation-comments" placeholder="Any other thoughts?"></textarea>
                   
-                  <button type="submit">Submit Cancellation Request</button>
-                  <button type="button" onclick="closeCancellationForm()">Close</button>
+                  <div class="button-group cancellation-buttons">
+                    <button type="submit" class="submit-cancellation">Cancel Order</button>
+                    <button type="button" class="close-cancellation">Nevermind</button>
+                  </div>
                 </form>
               </div>
             </div>
             
-            <!-- Confirmation Modal -->
-            <div id="confirmationModal" style="display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-              <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px;">
-                <p id="modalMessage"></p>
-                <button id="confirmBtn" style="margin-right: 10px;">Confirm</button>
-                <button id="cancelBtn">Cancel</button>
+            <div id="confirmationModal" class="modal confirmation-modal">
+              <div class="modal-content confirmation-content">
+                <p id="modalMessage" class="confirmation-message"></p>
+                <div class="button-group confirmation-buttons">
+                  <button id="confirmBtn" class="confirm-cancellation">Yes, cancel</button>
+                  <button id="cancelBtn" class="reject-cancellation">No, keep order</button>
+                </div>
               </div>
             </div>
             
             <script>
-            let formData; // Declare formData in a broader scope
-            
-            function showCancellationForm(orderId) {
-              document.getElementById('orderNumber').value = orderId;
-              document.getElementById('cancellationFormModal').style.display = 'block';
-            }
-            
-            function closeCancellationForm() {
-              document.getElementById('cancellationFormModal').style.display = 'none';
-              document.getElementById('cancelOrderForm').reset();
-            }
-            
-            function submitCancellationForm() {
-              var orderNumber = document.getElementById('orderNumber').value;
-              var productType = document.getElementById('productType').value;
-              var cancellationReason = document.getElementById('cancellationReason').value;
-              var additionalComments = document.getElementById('additionalComments').value;
+              let formData;
+
+              function showCancellationForm(orderId) {
+                document.getElementById('orderNumber').value = orderId;
+                document.querySelector('.cancellation-modal').classList.add('active');
+              }
               
-              formData = {
-                orderNumber: orderNumber,
-                productType: productType,
-                cancellationReason: cancellationReason,
-                additionalComments: additionalComments
+              function closeCancellationForm() {
+                document.querySelector('.cancellation-modal').classList.remove('active');
+                document.querySelector('.cancellation-form').reset();
+              }
+              
+              document.querySelector('.cancellation-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                formData = {
+                  orderNumber: document.querySelector('.hidden-order-number').value,
+                  cancellationReason: document.querySelector('.cancellation-reason-select').value,
+                  additionalComments: document.querySelector('.cancellation-comments').value
+                };
+                
+                document.querySelector('.confirmation-message').textContent = 'Are you sure you want to cancel this order?';
+                document.querySelector('.confirmation-modal').classList.add('active');
+              });
+              
+              document.querySelector('.confirm-cancellation').onclick = function() {
+                var orderNumber = document.querySelector('.hidden-order-number').value;
+                var url = "{% url 'user_profile:cancel_order' 999999 %}".replace('999999', orderNumber);
+                
+                fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                  },
+                  body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                  alert('Cancellation request submitted successfully!');
+                  closeCancellationForm();
+                  document.querySelector('.confirmation-modal').classList.remove('active');
+                  location.reload();
+                })
+                .catch(error => {
+                  console.error('Error:', error);
+                  alert('An error occurred while submitting the cancellation request.');
+                });
               };
               
-              document.getElementById('modalMessage').innerHTML = 'Are you sure you want to cancel this order?';
-              document.getElementById('confirmationModal').style.display = 'block';
+              document.querySelector('.reject-cancellation').onclick = function() {
+                document.querySelector('.confirmation-modal').classList.remove('active');
+              };
               
-              return false;
-            }
-            
-            document.getElementById('confirmBtn').onclick = function() {
-              var orderNumber = document.getElementById('orderNumber').value;
-              var url = "{% url 'user_profile:cancel_order' 999999 %}".replace('999999', orderNumber);
-              
-              // Perform actual submission here
-              fetch(url, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify(formData)
-              })
-              .then(response => response.json())
-              .then(data => {
-                alert('Cancellation request submitted successfully!');
-                closeCancellationForm();
-                document.getElementById('confirmationModal').style.display = 'none';
-                // Optionally reload the page or update the order status
-                location.reload();
-              })
-              .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while submitting the cancellation request.');
-              });
-            };
-            
-            document.getElementById('cancelBtn').onclick = function() {
-              document.getElementById('confirmationModal').style.display = 'none';
-            };
-            
-            function getCookie(name) {
-              let cookieValue = null;
-              if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                  const cookie = cookies[i].trim();
-                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+              function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                  const cookies = document.cookie.split(';');
+                  for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                      break;
+                    }
                   }
                 }
+                return cookieValue;
               }
-              return cookieValue;
-            }
-            
-            function confirmAction(url, message) {
-              document.getElementById('modalMessage').innerHTML = message;
-              document.getElementById('confirmationModal').style.display = 'block';
               
-              document.getElementById('confirmBtn').onclick = function() {
-                window.location.href = url;
-              };
-            }
+              document.querySelector('.close-cancellation').addEventListener('click', closeCancellationForm);
             </script>
 
     <!-- ...................Address Tab start here................ -->
