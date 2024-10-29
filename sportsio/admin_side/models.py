@@ -1,9 +1,6 @@
-
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
-from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
-from django.conf import settings
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -36,12 +33,16 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
     phone = models.CharField(max_length=15, blank=False)
     wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS=['phone']
+    REQUIRED_FIELDS = ['phone']
 
-    def _str_(self):
+    def __str__(self):
         return self.email
+
+    class Meta:
+        verbose_name = 'user'
+        verbose_name_plural = 'users'
+        ordering = ['email']

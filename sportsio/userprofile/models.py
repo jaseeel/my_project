@@ -64,7 +64,6 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2,default=0,null=True)
     payment_method = models.CharField(max_length=100)
-    coupon_used=models.CharField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="Pending")
     estimated_delivery_time = models.DateField(null=True, blank=True)
