@@ -325,3 +325,4 @@ def reset_password(request):
         return redirect('login')
    
     return render(request, 'registration/reset_password.html')
+

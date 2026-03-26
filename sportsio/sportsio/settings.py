@@ -87,12 +87,23 @@ WSGI_APPLICATION = 'sportsio.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default= "postgres://default:cTB3RagdSX4t@ep-sparkling-block-a11n3mff.ap-southeast-1.aws.neon.tech:5432/verceldb?sslmode=require"
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default= "postgres://default:cTB3RagdSX4t@ep-sparkling-block-a11n3mff.ap-southeast-1.aws.neon.tech:5432/verceldb?sslmode=require"
 
-    )
+#     )
+# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'sportsio',                      
+        'USER': 'postgres',
+        'PASSWORD': '1234',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    }
 }
+
 
 
 # Password validation
