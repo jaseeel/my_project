@@ -89,7 +89,7 @@ WSGI_APPLICATION = 'sportsio.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default= "postgres://default:cTB3RagdSX4t@ep-sparkling-block-a11n3mff.ap-southeast-1.aws.neon.tech:5432/verceldb?sslmode=require"
+        default= "postgres://default:cTB3RagdSX4t@ep-sparkling-block-a11n3mff-pooler.ap-southeast-1.aws.neon.tech/verceldb?sslmode=require"
 
     )
 }
