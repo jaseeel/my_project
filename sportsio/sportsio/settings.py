@@ -167,5 +167,5 @@ AUTH_USER_MODEL = 'admin_side.CustomUser'
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-LOGIN_REDIRECT_URL = 'user_profile'
+LOGIN_REDIRECT_URL = 'base'
 
