@@ -106,9 +106,9 @@
                                         <li>Status: <a href="javascript:void(0)">{{ product.status }}</a></li>
                                         {% if product.offer_price > 0 %}
                                         <li>Price: <a href="javascript:void(0)"><span  style="text-decoration: line-through;">Rs {{ product.price|intcomma }}</span></a></li>
-                                        <li>Offer Price: <a style="font-weight: bold; font-size: x-large;" href="javascript:void(0)">₹ {{ product.offer_price|intcomma }}</a></li>
+                                        <li>Offer Price: <a style="font-weight: bold; font-size: x-large;" href="javascript:void(0)">DHS {{ product.offer_price|intcomma }}</a></li>
                                         {% else %}
-                                        <li>Price: <a href="javascript:void(0)"><span  style="text-decoration: line-through;">₹ {{ product.price}}</span></a></li>
+                                        <li>Price: <a href="javascript:void(0)"><span  style="text-decoration: line-through;">DHS {{ product.price}}</span></a></li>
                                         {% endif %}
                                     </ul>
                                 </div>

@@ -175,7 +175,7 @@
                     <img src="{{ item.product.image.url }}" alt="{{ item.product }}">
                     <div class="cart-item-details">
                         <h5>{{ item.product|truncatechars:20 }}</h5>
-                        <p class="text-muted">₹{{ item.product.price|intcomma }}</p>
+                        <p class="text-muted">DHS{{ item.product.price|intcomma }}</p>
                     </div>
                     <div class="quantity-control" data-product-id="{{ item.product.id }}">
                         <button class="minus-btn">-</button>
@@ -188,10 +188,10 @@
             
             <div class="cart-summary">
                 <div class="total-price-container">
-                    Total: ₹<span class="total-price">{{ total_price|intcomma }}</span>
+                    Total: DHS<span class="total-price">{{ total_price|intcomma }}</span>
                 </div>
                 <div class="saved-price">
-                    You saved: ₹<span class="saved-amount">{{ saved_price|intcomma }}</span>
+                    You saved: DHS<span class="saved-amount">{{ saved_price|intcomma }}</span>
                 </div>
                 <a href="{% url 'user_profile:order_checkout' %}" class="btn-checkout">Proceed to Checkout</a>
                 <a href="{% url 'user_side:product_list' %}" class="btn-continue-shopping">Continue Shopping</a>

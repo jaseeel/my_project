@@ -154,8 +154,8 @@
                                       
                                         {% if pro.stock_count > 0 %}
                                         <div class="price-box">
-                                            <span class="new-price new-price-2">₹ {{ pro.offer_price|intcomma }}</span>
-                                            <span class="old-price">₹ {{ pro.price|intcomma }}</span>
+                                            <span class="new-price new-price-2">DHS {{ pro.offer_price|intcomma }}</span>
+                                            <span class="old-price">DHS {{ pro.price|intcomma }}</span>
                                         </div>
                                         <div class="add-actions">
                                             <ul>
@@ -293,7 +293,7 @@
                                 </div>
                                         <h6><a class="product-name" href="single-product.html">{{product.title | truncatewords:3}}</a></h6>
                                         <div class="price-box">
-                                            <span class="new-price">₹ {{ product.offer_price|intcomma}}</span>
+                                            <span class="new-price">DHS {{ product.offer_price|intcomma}}</span>
                                         </div>
                                     </div>
                                     {%endif %}
